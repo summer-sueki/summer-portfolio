@@ -1,0 +1,1210 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>IlluMagic</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Inter:wght@400&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #7b5ea7;
+      --yellow: #f5e642;
+      --gold: #ffd700;
+      --lilac: #c084fc;
+      --orange: #ff8c42;
+      --green: #10b981;
+      --violet: #9b7fd4;
+      --plum: 59, 36, 96;
+      --night: 42, 26, 80;
+      --haze: #d4c4f0;
+      --sans: "Outfit", -apple-system, "Helvetica Neue", Arial, sans-serif;
+      --emoji: "Inter", "Apple Color Emoji", "Segoe UI Emoji", sans-serif;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: #fff;
+      font-family: var(--sans);
+      min-height: 100vh;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    button { font: inherit; color: inherit; border: 0; background: none; cursor: pointer; }
+    button:focus-visible, a:focus-visible, input:focus-visible { outline: 2px solid var(--yellow); outline-offset: 3px; }
+    [hidden] { display: none !important; }
+
+    /* ---------- Stage: the 1280x832 frame, scaled to fit the viewport ---------- */
+    .viewport {
+      width: 100vw;
+      height: 100vh;
+      min-height: 560px;
+      display: grid;
+      place-items: center;
+      overflow: hidden;
+    }
+    .stage {
+      position: relative;
+      width: 1280px;
+      height: 832px;
+      flex: none;
+      overflow: hidden;
+      background: var(--bg);
+      transform-origin: center;
+    }
+
+    /* ---------- Background decoration ---------- */
+    .blob { position: absolute; border-radius: 50%; pointer-events: none; }
+    .blob-tl { left: -120px; top: -80px;  width: 500px; height: 500px; background: radial-gradient(closest-side, rgba(199,148,242,.45), rgba(122,79,163,0)); }
+    .blob-br { left: 900px;  top: 500px;  width: 480px; height: 480px; background: radial-gradient(closest-side, rgba(156,128,242,.4), rgba(122,79,163,0)); }
+    .blob-mid { left: 400px; top: 300px;  width: 480px; height: 340px; background: radial-gradient(closest-side, rgba(245,229,66,.07), rgba(122,79,163,0)); }
+
+    .deco { position: absolute; font-family: var(--emoji); line-height: normal; white-space: nowrap; pointer-events: none; }
+    .dot { position: absolute; display: block; pointer-events: none; }
+
+    .peek {
+      position: absolute;
+      border-radius: 50%;
+      border: 3px solid;
+      overflow: hidden;
+      display: grid;
+      place-items: center;
+      pointer-events: none;
+      transition: transform .4s cubic-bezier(.3,1.6,.5,1), box-shadow .4s;
+    }
+    .peek img { display: block; object-fit: cover; flex: none; }
+    .peek.thin { border-width: 2px; }
+    .peek.is-picked { transform: scale(1.18); box-shadow: 0 0 0 4px rgba(245,230,66,.35), 0 0 28px rgba(245,230,66,.6); opacity: 1 !important; }
+
+    .stripe { position: absolute; left: 0; width: 1280px; height: 6px; opacity: .7; }
+    .stripe-top { top: 0;      background: linear-gradient(90deg, var(--yellow), var(--lilac), var(--orange)); }
+    .stripe-bot { top: 826px;  background: linear-gradient(90deg, var(--orange), var(--lilac), var(--yellow)); }
+
+    .texture { position: absolute; inset: 0; background: rgba(107,79,150,.27); pointer-events: none; }
+
+    .cloud { position: absolute; display: flex; align-items: center; justify-content: center; color: #fff; font-family: var(--emoji); pointer-events: none; }
+
+    /* ---------- Navbar ---------- */
+    .navbar {
+      position: absolute; left: 0; top: 0; width: 1280px; height: 72px;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 40px;
+    }
+    .logo { display: flex; align-items: center; gap: 10px; }
+    .logo-icon {
+      width: 36px; height: 36px; border-radius: 10px;
+      background: var(--yellow); color: var(--bg);
+      display: grid; place-items: center;
+      font-weight: 700; font-size: 18px;
+    }
+    .wordmark { font-weight: 700; font-size: 22px; }
+    .beta { background: var(--yellow); color: var(--bg); font-weight: 700; font-size: 10px; padding: 3px 8px; border-radius: 12px; }
+
+    .stats { display: flex; gap: 12px; }
+    .pill {
+      display: flex; align-items: center; gap: 6px;
+      padding: 6px 14px; border-radius: 20px;
+      background: rgba(var(--plum), .5);
+      font-weight: 600; font-size: 13px;
+    }
+    .pill .ico { font-family: var(--emoji); font-size: 14px; }
+
+    /* ---------- Hero ---------- */
+    .hero {
+      position: absolute; left: 0; top: 72px; width: 1280px; height: 90px;
+      display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px;
+      text-align: center;
+    }
+    .hero h1 { font-weight: 800; font-size: 38px; line-height: normal; }
+    .hero p { font-size: 15px; color: var(--haze); }
+
+    /* ---------- Progress steps ---------- */
+    .steps {
+      position: absolute; left: 0; top: 162px; width: 1280px; height: 44px;
+      display: flex; align-items: center; justify-content: center;
+      list-style: none;
+    }
+    .step { display: flex; align-items: center; gap: 8px; font-weight: 600; font-size: 13px; color: rgba(255,255,255,.6); }
+    .step .num {
+      width: 30px; height: 30px; border-radius: 50%;
+      display: grid; place-items: center;
+      background: rgba(255,255,255,.25); color: #fff; font-weight: 700;
+      transition: background .25s, color .25s;
+    }
+    .step.is-active { color: var(--yellow); }
+    .step.is-active .num { background: var(--yellow); color: var(--bg); }
+    .connector { width: 60px; height: 2px; background: rgba(255,255,255,.2); transition: background .25s; }
+    .connector.is-done { background: rgba(245,230,66,.4); }
+
+    /* ---------- Main panels ---------- */
+    .panels {
+      position: absolute; left: 48px; top: 218px; width: 1184px; height: 490px;
+      display: flex; gap: 24px; align-items: flex-start;
+    }
+    .panel {
+      width: 540px; height: 490px; flex: none;
+      display: flex; flex-direction: column;
+      border-radius: 24px; overflow: hidden;
+    }
+    .panel-head {
+      height: 52px; flex: none;
+      display: flex; align-items: center; gap: 8px;
+      padding: 0 20px;
+      background: rgba(var(--plum), .6);
+    }
+    .panel-head .ico { font-family: var(--emoji); font-size: 16px; color: var(--yellow); }
+    .panel-head h2 { font-weight: 700; font-size: 14px; }
+    .panel-head .spacer { flex: 1; }
+    .tag {
+      font-weight: 500; font-size: 11px; color: rgba(255,255,255,.7);
+      background: rgba(255,255,255,.12);
+      padding: 4px 10px; border-radius: 10px;
+    }
+    .badge {
+      display: flex; align-items: center; gap: 5px;
+      font-weight: 600; font-size: 11px; color: var(--yellow);
+      background: rgba(245,230,66,.2);
+      border: 1px solid rgba(245,230,66,.5);
+      padding: 3px 9px; border-radius: 10px;
+    }
+    .badge .e { font-family: var(--emoji); }
+
+    /* Upload drop zone */
+    .drop {
+      position: relative;
+      flex: 1;
+      display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 20px;
+      background: rgba(var(--night), .55);
+      border: 2px dashed rgba(212,196,240,.35);
+      border-top: 0;
+      border-radius: 0 0 24px 24px;
+      cursor: pointer;
+      transition: background .2s, border-color .2s;
+    }
+    .drop.is-over { background: rgba(var(--night), .75); border-color: var(--yellow); }
+    .drop.is-nudged { animation: nudge .5s; border-color: var(--yellow); }
+    @keyframes nudge { 20%, 60% { transform: translateX(-6px); } 40%, 80% { transform: translateX(6px); } }
+    .drop input { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
+    .upload-ring {
+      width: 110px; height: 110px; border-radius: 50%;
+      display: grid; place-items: center;
+      background: rgba(123,94,167,.5);
+      border: 3px solid var(--violet);
+    }
+    .upload-core {
+      width: 64px; height: 64px; border-radius: 50%;
+      display: grid; place-items: center;
+      background: var(--violet);
+    }
+    .drop-text { display: flex; flex-direction: column; align-items: center; gap: 6px; text-align: center; }
+    .drop-text strong { font-weight: 700; font-size: 18px; }
+    .drop-text span { font-size: 13px; color: #c4b0e8; }
+    .drop-actions { display: flex; gap: 12px; }
+    .browse, .snap {
+      display: flex; align-items: center; gap: 8px;
+      padding: 12px 28px; border-radius: 50px;
+      font-weight: 700; font-size: 14px;
+      transition: transform .15s, background .15s;
+    }
+    .browse {
+      background: var(--yellow); color: var(--bg);
+      filter: drop-shadow(0 4px 6px rgba(0,0,0,.25));
+    }
+    .snap {
+      padding: 11px 24px;
+      background: rgba(255,255,255,.1);
+      border: 1px solid rgba(255,255,255,.3);
+      color: #fff;
+    }
+    .snap .e { font-family: var(--emoji); font-weight: 400; font-size: 15px; }
+    .browse:hover, .snap:hover { transform: translateY(-1px); }
+    .snap:hover { background: rgba(255,255,255,.18); }
+    .xp-hint {
+      display: flex; align-items: center; gap: 6px;
+      padding: 6px 14px; border-radius: 20px;
+      background: rgba(245,230,66,.12);
+      color: var(--yellow); font-weight: 500; font-size: 12px;
+    }
+    .xp-hint .e { font-family: var(--emoji); }
+
+    .photo-preview {
+      position: absolute; inset: 0;
+      width: 100%; height: 100%; object-fit: cover;
+      border-radius: 0 0 22px 22px;
+      display: none;
+    }
+    .drop.has-photo { cursor: default; }
+    .drop.has-photo .photo-preview { display: block; }
+    .drop.has-photo > :not(.photo-preview):not(input):not(.photo-actions) { visibility: hidden; }
+    .photo-actions {
+      position: absolute; left: 16px; right: 16px; bottom: 16px;
+      display: none; align-items: center; gap: 8px;
+    }
+    .drop.has-photo .photo-actions { display: flex; }
+    .photo-actions .note {
+      flex: 1;
+      font-size: 12px; font-weight: 500; color: #fff;
+      text-shadow: 0 1px 4px rgba(0,0,0,.5);
+    }
+    .chip-btn {
+      padding: 7px 14px; border-radius: 20px;
+      background: rgba(var(--plum), .85);
+      border: 1px solid rgba(255,255,255,.25);
+      font-weight: 600; font-size: 12px;
+      backdrop-filter: blur(6px);
+    }
+    .chip-btn:hover { background: rgba(var(--plum), 1); }
+
+    /* Transform arrow */
+    .arrow {
+      width: 56px; height: 490px; flex: none;
+      display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px;
+    }
+    .orb {
+      width: 56px; height: 56px; border-radius: 50%;
+      display: grid; place-items: center;
+      background: rgba(155,127,212,.3);
+      border: 2px solid var(--violet);
+      box-shadow: 0 0 18px rgba(153,128,229,.5);
+      font-family: var(--emoji); font-size: 22px;
+    }
+    .orb.is-busy { animation: spin 1.2s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .arrow .to { font-size: 22px; color: rgba(255,255,255,.5); }
+
+    /* Result */
+    .preview { position: relative; height: 360px; flex: none; overflow: hidden; background: rgb(var(--night)); }
+    .preview .placeholder { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
+    .preview .morph-bg {
+      position: absolute; inset: -40px;
+      width: calc(100% + 80px); height: calc(100% + 80px);
+      object-fit: cover;
+      filter: blur(28px) brightness(.6) saturate(1.2);
+    }
+    .preview canvas {
+      position: absolute; top: 0; left: 50%;
+      height: 100%; width: auto;
+      transform: translateX(-50%);
+      box-shadow: 0 0 40px rgba(0,0,0,.35);
+    }
+    .preview.has-morph .placeholder { display: none; }
+    .preview:not(.has-morph) .morph-bg,
+    .preview:not(.has-morph) canvas,
+    .preview:not(.has-morph) .animal-tag,
+    .preview:not(.has-morph) .blend { display: none; }
+    .ready {
+      position: absolute; right: 16px; top: 16px;
+      display: flex; align-items: center; gap: 6px;
+      padding: 6px 12px; border-radius: 20px;
+      background: rgba(16,185,129,.9);
+      box-shadow: 0 2px 8px rgba(0,0,0,.3);
+      font-weight: 700; font-size: 12px;
+      transition: opacity .2s;
+    }
+    .ready .e { font-family: var(--emoji); font-weight: 400; }
+    .preview.is-busy .ready { opacity: 0; }
+    .preview.is-busy .placeholder { filter: blur(6px) saturate(.6); transition: filter .3s; }
+    .animal-tag {
+      position: absolute; left: 16px; top: 16px;
+      display: flex; align-items: center; gap: 6px;
+      padding: 6px 12px; border-radius: 20px;
+      background: rgba(var(--plum), .85);
+      font-weight: 700; font-size: 12px;
+    }
+    .animal-tag .e { font-family: var(--emoji); font-weight: 400; }
+    .blend {
+      position: absolute; left: 50%; bottom: 14px;
+      transform: translateX(-50%);
+      display: flex; align-items: center; gap: 10px;
+      padding: 8px 14px; border-radius: 20px;
+      background: rgba(var(--plum), .85);
+      backdrop-filter: blur(6px);
+      font-weight: 600; font-size: 11px; color: rgba(255,255,255,.85);
+      white-space: nowrap;
+    }
+    .blend .e { font-family: var(--emoji); font-weight: 400; }
+    .blend input { width: 150px; accent-color: var(--yellow); cursor: pointer; }
+    .ai-result {
+      position: absolute; top: 0; left: 50%;
+      height: 100%; width: auto; aspect-ratio: 1;
+      transform: translateX(-50%);
+      box-shadow: 0 0 40px rgba(0,0,0,.35);
+      animation: fade .4s;
+    }
+    .preview.show-ai canvas, .preview.show-ai .blend { display: none; }
+    .view-toggle {
+      position: absolute; left: 50%; bottom: 14px;
+      transform: translateX(-50%);
+      display: flex; gap: 2px; padding: 3px;
+      border-radius: 20px;
+      background: rgba(var(--plum), .85);
+      backdrop-filter: blur(6px);
+    }
+    .view-toggle button {
+      padding: 5px 12px; border-radius: 16px;
+      font-weight: 600; font-size: 11px; color: rgba(255,255,255,.75);
+    }
+    .view-toggle button .e { font-family: var(--emoji); font-weight: 400; }
+    .view-toggle button[aria-pressed="true"] { background: var(--yellow); color: var(--bg); }
+    .preview:not(.show-ai) .view-toggle { bottom: 58px; }
+    .ai-pending {
+      position: absolute; right: 16px; bottom: 16px;
+      display: flex; align-items: center; gap: 6px;
+      padding: 6px 12px; border-radius: 20px;
+      background: rgba(var(--plum), .85);
+      font-weight: 600; font-size: 11px;
+    }
+    .ai-pending::before {
+      content: ''; width: 10px; height: 10px; border-radius: 50%;
+      border: 2px solid var(--yellow); border-right-color: transparent;
+      animation: spin .8s linear infinite;
+    }
+    .status {
+      position: absolute; left: 50%; top: 50%;
+      transform: translate(-50%, -50%);
+      padding: 8px 16px; border-radius: 20px;
+      background: rgba(var(--plum), .9);
+      font-weight: 600; font-size: 13px;
+    }
+
+    .actions {
+      height: 78px; flex: none;
+      display: flex; align-items: center; gap: 12px;
+      padding: 0 20px;
+      background: rgba(var(--night), .75);
+    }
+    .actions .spacer { flex: 1; }
+    .generate {
+      display: flex; align-items: center; gap: 8px;
+      padding: 14px 24px; border-radius: 50px;
+      background: linear-gradient(90deg, var(--violet), var(--lilac));
+      filter: drop-shadow(0 4px 8px rgba(102,51,204,.5));
+      font-weight: 700; font-size: 14px;
+      transition: transform .15s;
+    }
+    .generate:hover { transform: translateY(-1px); }
+    .generate .e { font-family: var(--emoji); font-weight: 400; }
+    .generate:disabled { cursor: progress; opacity: .8; }
+    .ghost {
+      display: flex; align-items: center; justify-content: center; gap: 6px;
+      background: rgba(255,255,255,.1);
+      border: 1px solid rgba(255,255,255,.3);
+      border-radius: 50px;
+      font-weight: 600; font-size: 13px;
+      text-decoration: none; color: #fff;
+      transition: background .15s;
+    }
+    .ghost:hover { background: rgba(255,255,255,.18); }
+    .download { padding: 11px 17px; }
+    .share { width: 44px; height: 44px; }
+    .ghost img { display: block; }
+
+    /* ---------- Style row ---------- */
+    .style-row {
+      position: absolute; left: 48px; top: 728px; width: 1184px; height: 72px;
+      display: flex; align-items: center; gap: 12px;
+    }
+    .style-row .label { font-weight: 600; font-size: 12px; color: rgba(212,196,240,.8); }
+    .chip {
+      display: flex; align-items: center; gap: 6px;
+      padding: 7px 15px; border-radius: 50px;
+      background: rgba(255,255,255,.1);
+      border: 1px solid rgba(255,255,255,.25);
+      font-weight: 500; font-size: 12px; color: rgba(255,255,255,.75);
+      transition: background .15s, color .15s, border-color .15s;
+    }
+    .chip .e { font-family: var(--emoji); font-size: 13px; color: #fff; }
+    .chip:hover { background: rgba(255,255,255,.18); }
+    .chip[aria-pressed="true"] {
+      background: var(--yellow); color: var(--bg);
+      border: 2px solid var(--yellow);
+      padding: 6px 14px;
+      font-weight: 700;
+    }
+    .style-row .spacer { flex: 1; }
+    .style-row .hint { display: flex; align-items: center; gap: 6px; font-weight: 500; font-size: 12px; color: rgba(212,196,240,.8); }
+    .style-row .hint .e { font-family: var(--emoji); font-size: 13px; color: var(--yellow); }
+
+    /* ---------- Camera modal ---------- */
+    .modal {
+      position: absolute; inset: 0; z-index: 50;
+      display: grid; place-items: center;
+      background: rgba(var(--night), .7);
+      backdrop-filter: blur(8px);
+      animation: fade .2s;
+    }
+    @keyframes fade { from { opacity: 0; } }
+    .card {
+      position: relative;
+      width: 620px;
+      padding: 32px;
+      border-radius: 28px;
+      background: linear-gradient(160deg, #8a6cbb, #5d4290);
+      border: 1px solid rgba(255,255,255,.18);
+      box-shadow: 0 30px 80px rgba(20,8,48,.55);
+      animation: pop .3s cubic-bezier(.3,1.4,.5,1);
+    }
+    @keyframes pop { from { transform: scale(.92); opacity: 0; } }
+    .close {
+      position: absolute; right: 18px; top: 18px;
+      width: 32px; height: 32px; border-radius: 50%;
+      display: grid; place-items: center;
+      background: rgba(255,255,255,.12);
+      font-size: 14px;
+    }
+    .close:hover { background: rgba(255,255,255,.22); }
+    .card .kicker {
+      display: flex; align-items: center; gap: 6px;
+      font-weight: 600; font-size: 12px; color: var(--yellow);
+      text-transform: uppercase; letter-spacing: .08em;
+    }
+    .card .kicker .e { font-family: var(--emoji); }
+    .card h3 { font-weight: 800; font-size: 26px; line-height: 1.2; margin-top: 8px; }
+
+    /* camera */
+    .camera-card { width: 560px; }
+    .camera-frame {
+      position: relative;
+      margin-top: 20px;
+      aspect-ratio: 4 / 3;
+      border-radius: 20px;
+      overflow: hidden;
+      background: rgb(var(--night));
+    }
+    .camera-frame video { width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); display: block; }
+    .camera-frame .guide {
+      position: absolute; left: 50%; top: 46%;
+      width: 180px; height: 230px;
+      transform: translate(-50%, -50%);
+      border: 2px dashed rgba(245,230,66,.7);
+      border-radius: 50%;
+      pointer-events: none;
+    }
+    .camera-frame .msg {
+      position: absolute; inset: 0;
+      display: grid; place-items: center;
+      padding: 32px; text-align: center;
+      font-weight: 500; font-size: 14px; color: var(--haze);
+    }
+    .flash { position: absolute; inset: 0; background: #fff; opacity: 0; pointer-events: none; }
+    .flash.go { animation: flash .35s; }
+    @keyframes flash { from { opacity: .9; } }
+    .card-actions { display: flex; align-items: center; justify-content: center; gap: 12px; margin-top: 20px; }
+    .shutter {
+      display: flex; align-items: center; gap: 8px;
+      padding: 13px 30px; border-radius: 50px;
+      background: var(--yellow); color: var(--bg);
+      font-weight: 700; font-size: 15px;
+      filter: drop-shadow(0 4px 6px rgba(0,0,0,.25));
+    }
+    .shutter .e { font-family: var(--emoji); font-weight: 400; }
+    .shutter:disabled { opacity: .5; cursor: not-allowed; }
+    .text-btn { padding: 10px 16px; border-radius: 50px; font-weight: 600; font-size: 13px; color: rgba(255,255,255,.8); }
+    .text-btn:hover { background: rgba(255,255,255,.1); color: #fff; }
+    .text-btn .e { font-family: var(--emoji); font-weight: 400; }
+  </style>
+</head>
+<body>
+  <div class="viewport">
+    <main class="stage" id="stage">
+      <!-- background glow -->
+      <div class="blob blob-tl"></div>
+      <div class="blob blob-br"></div>
+      <div class="blob blob-mid"></div>
+
+      <!-- dots -->
+      <img class="dot" src="assets/dot1.svg"  width="14" height="14" style="left:150px;top:140px" alt="" />
+      <img class="dot" src="assets/dot2.svg"  width="10" height="10" style="left:1110px;top:160px" alt="" />
+      <img class="dot" src="assets/dot3.svg"  width="12" height="12" style="left:720px;top:760px" alt="" />
+      <img class="dot" src="assets/dot4.svg"  width="8"  height="8"  style="left:370px;top:780px" alt="" />
+      <img class="dot" src="assets/dot2.svg"  width="10" height="10" style="left:1050px;top:740px" alt="" />
+      <img class="dot" src="assets/dot6.svg"  width="8"  height="8"  style="left:95px;top:430px" alt="" />
+      <img class="dot" src="assets/dot7.svg"  width="10" height="10" style="left:1185px;top:390px" alt="" />
+      <img class="dot" src="assets/dot8.svg"  width="7"  height="7"  style="left:540px;top:795px" alt="" />
+      <img class="dot" src="assets/dot9.svg"  width="9"  height="9"  style="left:830px;top:130px" alt="" />
+      <img class="dot" src="assets/dot10.svg" width="6"  height="6"  style="left:200px;top:200px" alt="" />
+      <img class="dot" src="assets/dot11.svg" width="7"  height="7"  style="left:1150px;top:560px" alt="" />
+      <img class="dot" src="assets/dot12.svg" width="9"  height="9"  style="left:70px;top:590px" alt="" />
+
+      <!-- paw prints -->
+      <span class="deco" aria-hidden="true" style="left:120px;top:200px;font-size:22px;opacity:.1">🐾</span>
+      <span class="deco" aria-hidden="true" style="left:1140px;top:280px;font-size:18px;opacity:.1">🐾</span>
+      <span class="deco" aria-hidden="true" style="left:340px;top:740px;font-size:20px;opacity:.08">🐾</span>
+      <span class="deco" aria-hidden="true" style="left:950px;top:720px;font-size:16px;opacity:.1">🐾</span>
+      <span class="deco" aria-hidden="true" style="left:680px;top:780px;font-size:14px;opacity:.08">🐾</span>
+      <span class="deco" aria-hidden="true" style="left:60px;top:480px;font-size:18px;opacity:.07">🐾</span>
+      <span class="deco" aria-hidden="true" style="left:1200px;top:480px;font-size:16px;opacity:.08">🐾</span>
+
+      <!-- peeking animals -->
+      <div class="peek" data-animal="zebra" style="left:-36px;top:680px;width:130px;height:130px;border-color:var(--yellow);opacity:.85">
+        <img src="assets/peek-zebra.jpg" width="130" height="130" alt="" />
+      </div>
+      <div class="peek" data-animal="hamster" style="left:1186px;top:650px;width:130px;height:130px;border-color:var(--lilac);opacity:.85">
+        <img src="assets/peek-hamster.jpg" width="130" height="130" alt="" />
+      </div>
+      <div class="peek" data-animal="owl" style="left:1190px;top:130px;width:110px;height:110px;border-color:var(--orange);opacity:.8">
+        <img src="assets/peek-owl.jpg" width="110" height="110" alt="" />
+      </div>
+      <div class="peek" data-animal="fox" style="left:-28px;top:140px;width:110px;height:110px;border-color:var(--yellow);opacity:.8">
+        <img src="assets/peek-fox.jpg" width="110" height="130" alt="" />
+      </div>
+      <div class="peek thin" data-animal="otter" style="left:590px;top:790px;width:80px;height:80px;border-color:var(--green);opacity:.75">
+        <img src="assets/peek-otter.jpg" width="80" height="80" alt="" />
+      </div>
+      <div class="peek thin" data-animal="bulldog" style="left:420px;top:12px;width:70px;height:70px;border-color:var(--lilac);opacity:.7">
+        <img src="assets/peek-bulldog.jpg" width="70" height="70" alt="" />
+      </div>
+
+      <div class="stripe stripe-top"></div>
+      <div class="stripe stripe-bot"></div>
+      <div class="texture"></div>
+
+      <!-- stars -->
+      <span class="deco" aria-hidden="true" style="left:48px;top:64px;font-size:18px;color:var(--yellow);opacity:.85">★</span>
+      <span class="deco" aria-hidden="true" style="left:1196px;top:90px;font-size:12px;color:var(--yellow);opacity:.7">★</span>
+      <span class="deco" aria-hidden="true" style="left:1220px;top:200px;font-size:20px;color:var(--gold);opacity:.75">✦</span>
+      <span class="deco" aria-hidden="true" style="left:32px;top:300px;font-size:10px;color:var(--yellow);opacity:.65">✦</span>
+      <span class="deco" aria-hidden="true" style="left:1240px;top:640px;font-size:14px;color:var(--yellow);opacity:.6">★</span>
+      <span class="deco" aria-hidden="true" style="left:60px;top:700px;font-size:16px;color:var(--gold);opacity:.65">★</span>
+      <span class="deco" aria-hidden="true" style="left:640px;top:24px;font-size:10px;color:var(--yellow);opacity:.75">✦</span>
+      <span class="deco" aria-hidden="true" style="left:900px;top:780px;font-size:12px;color:var(--yellow);opacity:.6">★</span>
+      <span class="deco" aria-hidden="true" style="left:200px;top:780px;font-size:10px;color:var(--gold);opacity:.65">✦</span>
+      <span class="deco" aria-hidden="true" style="left:480px;top:760px;font-size:16px;color:var(--lilac);opacity:.7">✦</span>
+      <span class="deco" aria-hidden="true" style="left:800px;top:800px;font-size:12px;color:var(--yellow);opacity:.65">★</span>
+      <span class="deco" aria-hidden="true" style="left:1060px;top:810px;font-size:14px;color:var(--gold);opacity:.6">✦</span>
+      <span class="deco" aria-hidden="true" style="left:160px;top:820px;font-size:10px;color:var(--lilac);opacity:.55">★</span>
+      <span class="deco" aria-hidden="true" style="left:760px;top:28px;font-size:12px;color:var(--orange);opacity:.6">★</span>
+      <span class="deco" aria-hidden="true" style="left:310px;top:15px;font-size:9px;color:var(--yellow);opacity:.55">✦</span>
+      <span class="deco" aria-hidden="true" style="left:1000px;top:18px;font-size:11px;color:var(--lilac);opacity:.6">✦</span>
+
+      <!-- clouds -->
+      <div class="cloud" aria-hidden="true" style="left:80px;top:40px;width:120px;height:44px;font-size:40px;opacity:.3">☁</div>
+      <div class="cloud" aria-hidden="true" style="left:1060px;top:28px;width:120px;height:44px;font-size:36px;opacity:.25">☁</div>
+      <div class="cloud" aria-hidden="true" style="left:560px;top:10px;width:100px;height:36px;font-size:34px;opacity:.15">☁</div>
+      <div class="cloud" aria-hidden="true" style="left:280px;top:740px;width:90px;height:32px;font-size:30px;opacity:.1">☁</div>
+      <div class="cloud" aria-hidden="true" style="left:920px;top:750px;width:90px;height:32px;font-size:30px;opacity:.1">☁</div>
+
+      <!-- critters & sparkles -->
+      <span class="deco" aria-hidden="true" style="left:260px;top:52px;font-size:20px;opacity:.55">🦇</span>
+      <span class="deco" aria-hidden="true" style="left:980px;top:48px;font-size:16px;opacity:.5">🦇</span>
+      <span class="deco" aria-hidden="true" style="left:140px;top:760px;font-size:20px;opacity:.2">🦊</span>
+      <span class="deco" aria-hidden="true" style="left:1100px;top:740px;font-size:18px;opacity:.2">🦉</span>
+      <span class="deco" aria-hidden="true" style="left:710px;top:790px;font-size:16px;opacity:.18">🐹</span>
+      <span class="deco" aria-hidden="true" style="left:1180px;top:340px;font-size:14px;opacity:.15">🦓</span>
+      <span class="deco" aria-hidden="true" style="left:78px;top:360px;font-size:14px;opacity:.15">🦦</span>
+      <span class="deco" aria-hidden="true" style="left:440px;top:730px;font-size:18px;opacity:.5">✨</span>
+      <span class="deco" aria-hidden="true" style="left:820px;top:750px;font-size:14px;opacity:.45">✨</span>
+      <span class="deco" aria-hidden="true" style="left:1170px;top:200px;font-size:16px;opacity:.4">✨</span>
+      <span class="deco" aria-hidden="true" style="left:85px;top:180px;font-size:14px;opacity:.4">✨</span>
+
+      <!-- navbar -->
+      <header class="navbar">
+        <div class="logo">
+          <div class="logo-icon" aria-hidden="true">✦</div>
+          <span class="wordmark">IlluMagic</span>
+          <span class="beta">BETA</span>
+        </div>
+        <div class="stats">
+          <div class="pill"><span class="ico" style="color:var(--yellow)" aria-hidden="true">⚡</span><span id="xp">240 XP</span></div>
+          <div class="pill"><span class="ico" style="color:var(--orange)" aria-hidden="true">🔥</span><span>3 streak</span></div>
+        </div>
+      </header>
+
+      <!-- hero -->
+      <section class="hero">
+        <h1>Turn your photo into a storybook illustration ✨</h1>
+        <p>Upload or snap a photo · Watch the magic happen · Meet your inner animal</p>
+      </section>
+
+      <!-- progress -->
+      <ol class="steps" aria-label="Progress">
+        <li class="step is-active" data-step="1"><span class="num">1</span>Upload</li>
+        <li class="connector is-done" aria-hidden="true"></li>
+        <li class="step" data-step="2"><span class="num">2</span>Generate</li>
+        <li class="connector" aria-hidden="true"></li>
+        <li class="step" data-step="3"><span class="num">3</span>Download</li>
+      </ol>
+
+      <!-- panels -->
+      <div class="panels">
+        <section class="panel" aria-labelledby="photo-title">
+          <div class="panel-head">
+            <span class="ico" aria-hidden="true">📷</span>
+            <h2 id="photo-title">Your Photo</h2>
+            <span class="spacer"></span>
+            <span class="tag">JPG / PNG / HEIC</span>
+          </div>
+          <div class="drop" id="drop">
+            <input type="file" id="file" accept="image/*" tabindex="-1" aria-hidden="true" />
+            <img class="photo-preview" id="photo" alt="Your photo" />
+            <div class="upload-ring">
+              <div class="upload-core"><img src="assets/upload.svg" width="28" height="28" alt="" /></div>
+            </div>
+            <div class="drop-text">
+              <strong>Drop your photo here</strong>
+              <span>browse your files or snap a selfie</span>
+            </div>
+            <div class="drop-actions">
+              <button class="browse" type="button" data-action="browse"><img src="assets/folder.svg" width="16" height="16" alt="" />Browse Files</button>
+              <button class="snap" type="button" data-action="camera"><span class="e" aria-hidden="true">📸</span>Take Photo</button>
+            </div>
+            <span class="xp-hint"><span class="e" aria-hidden="true">⚡</span>Earn +30 XP for your first illustration!</span>
+            <div class="photo-actions">
+              <span class="note" id="face-note"></span>
+              <button class="chip-btn" type="button" data-action="browse">Upload new</button>
+              <button class="chip-btn" type="button" data-action="camera">📸 Retake</button>
+            </div>
+          </div>
+        </section>
+
+        <div class="arrow" aria-hidden="true">
+          <div class="orb" id="orb">✨</div>
+          <span class="to">→</span>
+        </div>
+
+        <section class="panel" aria-labelledby="result-title">
+          <div class="panel-head">
+            <span class="ico" aria-hidden="true">🎨</span>
+            <h2 id="result-title">Your Illustration</h2>
+            <span class="spacer"></span>
+            <span class="badge"><span class="e" aria-hidden="true">🏆</span><span id="style-badge">Storybook style</span></span>
+          </div>
+          <div class="preview" id="preview">
+            <img class="placeholder" src="assets/result-preview.jpg" alt="Storybook illustration of a dog in a ghost costume skateboarding past jack-o'-lanterns" />
+            <img class="morph-bg" id="morph-bg" alt="" />
+            <canvas id="morph" width="928" height="1152" aria-label="Your face morphed into your animal"></canvas>
+            <img class="ai-result" id="ai-result" alt="AI illustration of you as your animal" hidden />
+            <span class="animal-tag" id="animal-tag"></span>
+            <div class="view-toggle" id="view-toggle" role="group" aria-label="Result view" hidden>
+              <button type="button" data-view="ai" aria-pressed="true"><span class="e" aria-hidden="true">✨</span> AI</button>
+              <button type="button" data-view="morph" aria-pressed="false"><span class="e" aria-hidden="true">🧬</span> Morph</button>
+            </div>
+            <span class="ready" id="ready" role="status"><span class="e" aria-hidden="true">✓</span>Ready!</span>
+            <label class="blend" id="blend">
+              <span><span class="e" aria-hidden="true">🧑</span> You</span>
+              <input type="range" id="blend-range" min="0" max="100" value="55" aria-label="Blend between you and your animal" />
+              <span>Animal <span class="e" aria-hidden="true">🐾</span></span>
+            </label>
+            <span class="status" id="status" hidden></span>
+            <span class="ai-pending" id="ai-pending" hidden>Painting with AI…</span>
+          </div>
+          <div class="actions">
+            <button class="generate" id="generate" type="button"><span class="e" aria-hidden="true">✨</span><span id="generate-label">Generate Illustration</span></button>
+            <span class="spacer"></span>
+            <a class="ghost download" id="download" href="assets/result-preview.jpg" download="illumagic-storybook.jpg">
+              <img src="assets/download.svg" width="14" height="14" alt="" />Download
+            </a>
+            <button class="ghost share" id="share" type="button" aria-label="Share">
+              <img src="assets/share.svg" width="16" height="16" alt="" />
+            </button>
+          </div>
+        </section>
+      </div>
+
+      <!-- styles -->
+      <div class="style-row" role="group" aria-label="Illustration style">
+        <span class="label">Style:</span>
+        <button class="chip" type="button" aria-pressed="true"  data-style="Storybook"><span class="e" aria-hidden="true">📖</span>Storybook</button>
+        <button class="chip" type="button" aria-pressed="false" data-style="Anime"><span class="e" aria-hidden="true">⛩</span>Anime</button>
+        <button class="chip" type="button" aria-pressed="false" data-style="Watercolor"><span class="e" aria-hidden="true">🎨</span>Watercolor</button>
+        <button class="chip" type="button" aria-pressed="false" data-style="Pixel Art"><span class="e" aria-hidden="true">👾</span>Pixel Art</button>
+        <button class="chip" type="button" aria-pressed="false" data-style="Comic"><span class="e" aria-hidden="true">💥</span>Comic</button>
+        <button class="chip" type="button" aria-pressed="false" data-style="Oil Paint"><span class="e" aria-hidden="true">🖼</span>Oil Paint</button>
+        <span class="spacer"></span>
+        <span class="hint"><span class="e" aria-hidden="true">⚡</span>Try a new style to unlock the Explorer badge!</span>
+      </div>
+
+      <!-- camera modal -->
+      <div class="modal" id="camera-modal" role="dialog" aria-modal="true" aria-labelledby="camera-title" hidden>
+        <div class="card camera-card">
+          <button class="close" type="button" data-close aria-label="Close">✕</button>
+          <span class="kicker"><span class="e" aria-hidden="true">📸</span>Say cheese</span>
+          <h3 id="camera-title">Line your face up in the oval</h3>
+          <div class="camera-frame">
+            <video id="video" autoplay playsinline muted></video>
+            <div class="guide" aria-hidden="true"></div>
+            <div class="msg" id="camera-msg" hidden></div>
+            <div class="flash" id="flash"></div>
+          </div>
+          <div class="card-actions">
+            <button class="text-btn" type="button" data-close>Cancel</button>
+            <button class="shutter" id="shutter" type="button" disabled><span class="e" aria-hidden="true">📸</span>Snap Photo</button>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    const $ = id => document.getElementById(id);
+
+    // ---------- Stage scaling ----------
+    const stage = $('stage');
+    function fit() {
+      const s = Math.min(window.innerWidth / 1280, Math.max(window.innerHeight, 560) / 832);
+      stage.style.transform = `scale(${s})`;
+    }
+    window.addEventListener('resize', fit);
+    fit();
+
+    // ---------- Animals ----------
+    // Eye / mouth landmarks as fractions of each 928x1152 portrait, used to line the face up.
+    const ANIMALS = {
+      zebra:   { name: 'Goofy Zebra',      emoji: '🦓',
+                 l: [.377, .409], r: [.591, .422], m: [.43, .67] },
+      bulldog: { name: 'Soulful Bulldog',  emoji: '🐶',
+                 l: [.331, .39],  r: [.669, .39],  m: [.498, .5625] },
+      hamster: { name: 'Cheeky Hamster',   emoji: '🐹',
+                 l: [.362, .453], r: [.634, .438], m: [.506, .61] },
+      fox:     { name: 'Skeptical Fox',    emoji: '🦊',
+                 l: [.479, .475], r: [.732, .472], m: [.62, .64] },
+      otter:   { name: 'Delighted Otter',  emoji: '🦦',
+                 l: [.35, .325],  r: [.689, .297], m: [.545, .5] },
+      owl:     { name: 'Wide-eyed Owl',    emoji: '🦉',
+                 l: [.358, .409], r: [.642, .409], m: [.498, .53] },
+    };
+    const PW = 928, PH = 1152;
+    const animalImages = {};
+    function loadAnimal(key) {
+      animalImages[key] ??= new Promise((resolve, reject) => {
+        const img = new Image();
+        img.onload = () => resolve(img);
+        img.onerror = reject;
+        img.src = `assets/peek-${key}.jpg`;
+      });
+      return animalImages[key];
+    }
+
+    // ---------- Modals ----------
+    let lastFocus;
+    function openModal(modal) {
+      lastFocus = document.activeElement;
+      modal.hidden = false;
+    }
+    function closeModal(modal) {
+      modal.hidden = true;
+      if (modal === cameraModal) stopCamera();
+      lastFocus?.focus?.();
+    }
+    document.querySelectorAll('.modal').forEach(modal => {
+      modal.addEventListener('click', e => {
+        if (e.target === modal || e.target.closest('[data-close]')) closeModal(modal);
+      });
+    });
+    document.addEventListener('keydown', e => {
+      if (e.key !== 'Escape') return;
+      document.querySelectorAll('.modal:not([hidden])').forEach(closeModal);
+    });
+
+    // ---------- Progress steps ----------
+    function setStep(n) {
+      document.querySelectorAll('.step').forEach(el => {
+        el.classList.toggle('is-active', Number(el.dataset.step) <= n);
+      });
+      document.querySelectorAll('.connector').forEach((el, i) => {
+        el.classList.toggle('is-done', i < n);
+      });
+    }
+
+    // ---------- Photo input: upload, drag-and-drop, camera ----------
+    const drop = $('drop');
+    const fileInput = $('file');
+    const photoEl = $('photo');
+    const faceNote = $('face-note');
+    let photo = null;          // canvas holding the (downscaled) user photo
+    let facePromise = null;    // resolves to { l, r, m, found } in photo pixels
+
+    drop.addEventListener('click', e => {
+      const action = e.target.closest('[data-action]')?.dataset.action;
+      if (action === 'camera') openCamera();
+      else if (action === 'browse' || !drop.classList.contains('has-photo')) fileInput.click();
+    });
+    fileInput.addEventListener('change', () => { useFile(fileInput.files[0]); fileInput.value = ''; });
+    ['dragenter', 'dragover'].forEach(t => drop.addEventListener(t, e => { e.preventDefault(); drop.classList.add('is-over'); }));
+    ['dragleave', 'drop'].forEach(t => drop.addEventListener(t, e => { e.preventDefault(); drop.classList.remove('is-over'); }));
+    drop.addEventListener('drop', e => useFile(e.dataTransfer.files[0]));
+
+    function useFile(file) {
+      if (!file || !file.type.startsWith('image/')) return;
+      const img = new Image();
+      img.onload = () => { usePhoto(img, img.naturalWidth, img.naturalHeight); URL.revokeObjectURL(img.src); };
+      img.onerror = () => { faceNote.textContent = 'Couldn’t read that file. Try a JPG or PNG.'; };
+      img.src = URL.createObjectURL(file);
+    }
+
+    function usePhoto(source, w, h, mirror = false) {
+      const scale = Math.min(1, 1200 / Math.max(w, h));
+      photo = document.createElement('canvas');
+      photo.width = Math.round(w * scale);
+      photo.height = Math.round(h * scale);
+      const ctx = photo.getContext('2d');
+      if (mirror) { ctx.translate(photo.width, 0); ctx.scale(-1, 1); }
+      ctx.drawImage(source, 0, 0, photo.width, photo.height);
+      photoEl.src = photo.toDataURL('image/jpeg', .9);
+      drop.classList.add('has-photo');
+      faceNote.textContent = 'Looking for your face…';
+      const current = photo;
+      facePromise = findFace(photo).then(face => {
+        if (current === photo) faceNote.textContent = face.found ? '✓ Face found' : 'No clear face found, so we’ll guess';
+        return face;
+      });
+      setStep(2);
+    }
+
+    // Camera
+    const cameraModal = $('camera-modal');
+    const video = $('video');
+    const shutter = $('shutter');
+    const cameraMsg = $('camera-msg');
+    let stream = null;
+
+    async function openCamera() {
+      openModal(cameraModal);
+      shutter.disabled = true;
+      cameraMsg.hidden = true;
+      if (!navigator.mediaDevices?.getUserMedia) {
+        cameraMsg.textContent = 'This browser can’t use the camera. Upload a photo instead.';
+        cameraMsg.hidden = false;
+        return;
+      }
+      try {
+        stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user', width: { ideal: 1280 }, height: { ideal: 960 } }, audio: false });
+        if (cameraModal.hidden) return stopCamera();
+        video.srcObject = stream;
+        await video.play();
+        shutter.disabled = false;
+        shutter.focus();
+      } catch (err) {
+        cameraMsg.textContent = err.name === 'NotAllowedError'
+          ? 'Camera access was blocked. Allow it in your browser, or upload a photo instead.'
+          : 'No camera found. Upload a photo instead.';
+        cameraMsg.hidden = false;
+      }
+    }
+
+    function stopCamera() {
+      stream?.getTracks().forEach(t => t.stop());
+      stream = null;
+      video.srcObject = null;
+    }
+
+    shutter.addEventListener('click', () => {
+      const flash = $('flash');
+      flash.classList.remove('go'); void flash.offsetWidth; flash.classList.add('go');
+      // Save the selfie mirrored, the way it looked in the preview.
+      usePhoto(video, video.videoWidth, video.videoHeight, true);
+      setTimeout(() => closeModal(cameraModal), 250);
+    });
+
+    // ---------- Face detection (runs in the browser; nothing is uploaded) ----------
+    const MP = 'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14';
+    let detectorPromise = null;
+    function getDetector() {
+      detectorPromise ??= (async () => {
+        const { FilesetResolver, FaceDetector } = await import(`${MP}/vision_bundle.mjs`);
+        const fileset = await FilesetResolver.forVisionTasks(`${MP}/wasm`);
+        return FaceDetector.createFromOptions(fileset, {
+          baseOptions: { modelAssetPath: 'https://storage.googleapis.com/mediapipe-models/face_detector/blaze_face_short_range/float16/1/blaze_face_short_range.tflite' },
+          runningMode: 'IMAGE',
+          minDetectionConfidence: 0.35,
+        });
+      })();
+      return detectorPromise;
+    }
+
+    async function findFace(canvas) {
+      const { width: w, height: h } = canvas;
+      try {
+        const detector = await getDetector();
+        const { detections } = detector.detect(canvas);
+        if (detections.length) {
+          const area = d => d.boundingBox.width * d.boundingBox.height;
+          const best = detections.reduce((a, b) => (area(b) > area(a) ? b : a));
+          const k = best.keypoints.map(p => [p.x * w, p.y * h]);
+          const [l, r] = [k[0], k[1]].sort((a, b) => a[0] - b[0]);
+          return { l, r, m: k[3], found: true };
+        }
+      } catch (err) {
+        console.warn('Face detection unavailable, using a centred guess.', err);
+      }
+      return { l: [.4 * w, .4 * h], r: [.6 * w, .4 * h], m: [.5 * w, .62 * h], found: false };
+    }
+
+    // ---------- Morph ----------
+    const morphCanvas = $('morph');
+    const mctx = morphCanvas.getContext('2d');
+    const faceLayer = document.createElement('canvas');
+    faceLayer.width = PW; faceLayer.height = PH;
+    const fctx = faceLayer.getContext('2d');
+    const preview = $('preview');
+    const blendRange = $('blend-range');
+    const statusEl = $('status');
+    let morph = null;   // { key, img, A, U, simM, bg }
+
+    const lerp = (a, b, t) => [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t];
+
+    // Affine transform mapping three source points onto three destination points, as canvas setTransform args.
+    function affine(s, d) {
+      const [[x0, y0], [x1, y1], [x2, y2]] = s;
+      const det = x0 * (y1 - y2) - y0 * (x1 - x2) + (x1 * y2 - x2 * y1);
+      const inv = [
+        [(y1 - y2) / det, (y2 - y0) / det, (y0 - y1) / det],
+        [(x2 - x1) / det, (x0 - x2) / det, (x1 - x0) / det],
+        [(x1 * y2 - x2 * y1) / det, (x2 * y0 - x0 * y2) / det, (x0 * y1 - x1 * y0) / det],
+      ];
+      const solve = k => inv.map(row => row[0] * d[0][k] + row[1] * d[1][k] + row[2] * d[2][k]);
+      const [a, c, e] = solve(0);
+      const [b, dd, f] = solve(1);
+      return [a, b, c, dd, e, f];
+    }
+
+    // Similarity transform (eyes only) applied to a point: where the user's mouth lands before any stretching.
+    function similarityPoint(u1, u2, a1, a2, p) {
+      const ux = u2[0] - u1[0], uy = u2[1] - u1[1];
+      const ax = a2[0] - a1[0], ay = a2[1] - a1[1];
+      const s = Math.hypot(ax, ay) / Math.hypot(ux, uy);
+      const rot = Math.atan2(ay, ax) - Math.atan2(uy, ux);
+      const px = p[0] - u1[0], py = p[1] - u1[1];
+      return [
+        a1[0] + s * (px * Math.cos(rot) - py * Math.sin(rot)),
+        a1[1] + s * (px * Math.sin(rot) + py * Math.cos(rot)),
+      ];
+    }
+
+    // t = 0 is the person, t = 1 is the animal. Both faces are warped toward a shared in-between shape and cross-faded,
+    // with the person's features kept as a luminosity layer so the middle reads as a hybrid instead of a double exposure.
+    function render(t) {
+      const { img, A, U, simM, bg } = morph;
+      const P = [A[0], A[1], lerp(simM, A[2], t)];
+      const userM = affine(U, P);
+
+      mctx.setTransform(1, 0, 0, 1, 0, 0);
+      mctx.globalCompositeOperation = 'source-over';
+      mctx.globalAlpha = 1;
+      mctx.fillStyle = bg;
+      mctx.fillRect(0, 0, PW, PH);
+
+      mctx.setTransform(...affine(A, P));
+      mctx.drawImage(img, 0, 0, PW, PH);
+
+      const fullAlpha = Math.pow(Math.max(0, 1 - t * 2), 1.5);
+      if (fullAlpha > .002) {
+        mctx.setTransform(...userM);
+        mctx.globalAlpha = fullAlpha;
+        mctx.drawImage(photo, 0, 0);
+      }
+
+      // Feathered oval around the face, aligned to the eye line.
+      fctx.setTransform(1, 0, 0, 1, 0, 0);
+      fctx.globalCompositeOperation = 'source-over';
+      fctx.clearRect(0, 0, PW, PH);
+      fctx.setTransform(...userM);
+      fctx.drawImage(photo, 0, 0);
+      const eyeMid = lerp(P[0], P[1], .5);
+      const eyeDist = Math.hypot(P[1][0] - P[0][0], P[1][1] - P[0][1]);
+      const mouthDrop = Math.hypot(P[2][0] - eyeMid[0], P[2][1] - eyeMid[1]);
+      const centre = lerp(eyeMid, P[2], .4);
+      fctx.setTransform(1, 0, 0, 1, 0, 0);
+      fctx.translate(centre[0], centre[1]);
+      fctx.rotate(Math.atan2(P[1][1] - P[0][1], P[1][0] - P[0][0]));
+      fctx.scale(eyeDist * 1.15, Math.max(eyeDist * 1.35, mouthDrop * 1.7));
+      const g = fctx.createRadialGradient(0, 0, 0, 0, 0, 1);
+      g.addColorStop(0, 'rgba(0,0,0,1)');
+      g.addColorStop(.55, 'rgba(0,0,0,.9)');
+      g.addColorStop(1, 'rgba(0,0,0,0)');
+      fctx.globalCompositeOperation = 'destination-in';
+      fctx.fillStyle = g;
+      fctx.fillRect(-20, -20, 40, 40);
+
+      mctx.setTransform(1, 0, 0, 1, 0, 0);
+      mctx.globalCompositeOperation = 'luminosity';
+      mctx.globalAlpha = Math.min(1, 1.5 * (1 - t));
+      mctx.drawImage(faceLayer, 0, 0);
+      mctx.globalCompositeOperation = 'source-over';
+      mctx.globalAlpha = .55 * Math.pow(1 - t, 1.4);
+      mctx.drawImage(faceLayer, 0, 0);
+      mctx.globalAlpha = 1;
+    }
+
+    const generate = $('generate');
+    const orb = $('orb');
+    const xp = $('xp');
+    let earned = false;
+    let anim = 0;
+
+    async function startMorph(key) {
+      const animal = ANIMALS[key];
+      generate.disabled = true;
+      orb.classList.add('is-busy');
+      preview.classList.add('is-busy');
+      statusEl.textContent = 'Finding your face…';
+      statusEl.hidden = false;
+
+      const [img, face] = await Promise.all([loadAnimal(key), facePromise]);
+      const A = [animal.l, animal.r, animal.m].map(([x, y]) => [x * PW, y * PH]);
+      const U = [face.l, face.r, face.m];
+      const probe = document.createElement('canvas').getContext('2d');
+      probe.drawImage(img, 0, 0, 4, 4);
+      const [r, g, b] = probe.getImageData(0, 0, 1, 1).data;
+      morph = { key, img, A, U, simM: similarityPoint(U[0], U[1], A[0], A[1], U[2]), bg: `rgb(${r},${g},${b})` };
+
+      $('morph-bg').src = img.src;
+      $('animal-tag').innerHTML = `<span class="e" aria-hidden="true">${animal.emoji}</span>${animal.name}`;
+      $('generate-label').textContent = 'Try Another Animal';
+      statusEl.hidden = true;
+      preview.classList.add('has-morph');
+
+      // Animate from the person to the chosen blend.
+      const target = blendRange.value / 100;
+      const start = performance.now();
+      const duration = 2200;
+      cancelAnimationFrame(anim);
+      const tick = now => {
+        const p = Math.min(1, (now - start) / duration);
+        const eased = p < .5 ? 2 * p * p : 1 - Math.pow(-2 * p + 2, 2) / 2;
+        render(eased * target);
+        if (p < 1) anim = requestAnimationFrame(tick);
+        else finishMorph();
+      };
+      anim = requestAnimationFrame(tick);
+
+      requestAiImage(key, face);
+    }
+
+    // ---------- AI illustration (local SD-Turbo server, see sana-sprint/turbo_server.py) ----------
+    const AI_URL = 'http://localhost:7860';
+    const aiResult = $('ai-result');
+    const aiPending = $('ai-pending');
+    const viewToggle = $('view-toggle');
+    let aiBlob = null;
+    let aiRequest = 0;
+
+    // Square crop centred on the face, so the model spends its pixels on the person.
+    function faceCrop(face, size = 512) {
+      const eyeMid = lerp(face.l, face.r, .5);
+      const centre = lerp(eyeMid, face.m, .35);
+      const side = Math.hypot(face.r[0] - face.l[0], face.r[1] - face.l[1]) * 4.2;
+      const c = document.createElement('canvas');
+      c.width = c.height = size;
+      const ctx = c.getContext('2d');
+      ctx.fillStyle = '#7b5ea7';
+      ctx.fillRect(0, 0, size, size);
+      ctx.drawImage(photo, centre[0] - side / 2, centre[1] - side / 2, side, side, 0, 0, size, size);
+      return c.toDataURL('image/jpeg', .92);
+    }
+
+    async function requestAiImage(key, face) {
+      const id = ++aiRequest;
+      aiBlob = null;
+      setView('morph');
+      viewToggle.hidden = true;
+      aiPending.textContent = 'Painting with AI…';
+      aiPending.hidden = false;
+      try {
+        const res = await fetch(`${AI_URL}/generate`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ image: faceCrop(face), animal: key, strength: .6, seed: Math.floor(Math.random() * 1e6) }),
+        });
+        if (!res.ok) throw new Error((await res.json()).error);
+        const blob = await res.blob();
+        if (id !== aiRequest) return;   // a newer animal was picked meanwhile
+        aiBlob = blob;
+        if (aiResult.src) URL.revokeObjectURL(aiResult.src);
+        aiResult.src = URL.createObjectURL(blob);
+        aiPending.hidden = true;
+        viewToggle.hidden = false;
+        setView('ai');
+      } catch (err) {
+        if (id !== aiRequest) return;
+        console.warn('AI server unavailable, keeping the morph.', err);
+        aiPending.textContent = 'AI offline · showing morph';
+        setTimeout(() => { if (id === aiRequest) aiPending.hidden = true; }, 3000);
+      }
+    }
+
+    function setView(view) {
+      const ai = view === 'ai' && aiBlob;
+      preview.classList.toggle('show-ai', !!ai);
+      aiResult.hidden = !ai;
+      viewToggle.querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.view === (ai ? 'ai' : 'morph'))));
+    }
+    viewToggle.addEventListener('click', e => {
+      const b = e.target.closest('[data-view]');
+      if (b) setView(b.dataset.view);
+    });
+
+    function finishMorph() {
+      cancelAnimationFrame(anim);
+      generate.disabled = false;
+      orb.classList.remove('is-busy');
+      preview.classList.remove('is-busy');
+      setStep(3);
+      if (!earned) { earned = true; xp.textContent = '270 XP'; }
+    }
+
+    blendRange.addEventListener('input', () => {
+      if (!morph) return;
+      finishMorph();
+      render(blendRange.value / 100);
+    });
+
+    generate.addEventListener('click', () => {
+      if (!photo) {
+        drop.classList.remove('is-nudged'); void drop.offsetWidth; drop.classList.add('is-nudged');
+        statusEl.textContent = 'Add a photo first 👈';
+        statusEl.hidden = false;
+        setTimeout(() => { statusEl.hidden = true; }, 2200);
+        return;
+      }
+      // Pick a random animal, never the same one twice in a row.
+      const keys = Object.keys(ANIMALS).filter(k => k !== morph?.key);
+      const key = keys[Math.floor(Math.random() * keys.length)];
+      document.querySelectorAll('.peek').forEach(p => p.classList.toggle('is-picked', p.dataset.animal === key));
+      startMorph(key);
+    });
+
+    // ---------- Style chips ----------
+    const badge = $('style-badge');
+    document.querySelectorAll('.chip').forEach(chip => {
+      chip.addEventListener('click', () => {
+        document.querySelectorAll('.chip').forEach(c => c.setAttribute('aria-pressed', String(c === chip)));
+        badge.textContent = `${chip.dataset.style} style`;
+      });
+    });
+
+    // ---------- Download & share ----------
+    // Whatever is on screen: the AI illustration if it's showing, otherwise the morph.
+    const morphBlob = () => preview.classList.contains('show-ai')
+      ? Promise.resolve(aiBlob)
+      : new Promise(resolve => morphCanvas.toBlob(resolve, 'image/png'));
+
+    $('download').addEventListener('click', async e => {
+      if (!morph) return;   // falls through to the sample image
+      e.preventDefault();
+      const url = URL.createObjectURL(await morphBlob());
+      const a = Object.assign(document.createElement('a'), { href: url, download: `illumagic-${morph.key}.png` });
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+    });
+
+    $('share').addEventListener('click', async () => {
+      try {
+        if (morph) {
+          const file = new File([await morphBlob()], `illumagic-${morph.key}.png`, { type: 'image/png' });
+          if (navigator.canShare?.({ files: [file] })) {
+            return await navigator.share({ title: `I’m a ${ANIMALS[morph.key].name}!`, files: [file] });
+          }
+        }
+        const url = new URL('assets/result-preview.jpg', location.href).href;
+        if (navigator.share) await navigator.share({ title: 'My IlluMagic illustration', url });
+        else await navigator.clipboard?.writeText(url);
+      } catch (_) { /* share sheet dismissed */ }
+    });
+  </script>
+</body>
+</html>

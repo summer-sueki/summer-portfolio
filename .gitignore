@@ -1,0 +1,22 @@
+# Mac clutter
+.DS_Store
+
+# Originals and big source files: kept on this Mac / iCloud, not on GitHub
+archive/
+backgrounds/
+reference - old port/
+archval for now/
+
+# Python environment and generated images for the Sana Sprint experiment
+sana-sprint/.venv/
+sana-sprint/outputs/
+
+# Has its own GitHub repo (summer-sueki/metal-etching); the site doesn't load it
+metal-etching/
+
+# Earlier clones of the GitHub repo; safe to delete in Finder
+portfolio/
+summer-sueki/
+
+# Claude's local settings
+.claude/settings.local.json

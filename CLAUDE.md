@@ -1,0 +1,96 @@
+# Summer Sueki — portfolio
+
+Personal product-design portfolio. Plain static HTML/CSS/JS, no build step. Each page is self-contained (its own `<style>` and `<script>`), plus one shared script.
+
+## Versions
+
+- The root files (`index.html`, `google.html`, `reddit.html`, `site.js`) are **v3, in progress**: a new visual direction with the same content as v2. Keep all the copy, case studies and media; change the look.
+- `v2/` and `v1/` are frozen earlier versions. Don't edit or delete them. They load media from the shared `../assets/` (and `../illumagic/`), so never rename or remove files those folders use. View them at http://localhost:4321/v2/ and http://localhost:4321/v1/.
+- Everything below the "Design system" heading describes v2. Treat it as the content baseline and the record of what was decided, not as rules for the new look. Summer's preferences still apply unless she says otherwise.
+
+## v3 direction (home page done first)
+
+- Inspiration: laurynkinsella.com (her favorite), plus portfolios where a short centered intro sits above the work so the work shows along the bottom of the first screen.
+- Layout from the Lauryn Kinsella direction; **design system from the live summersueki.com (Framer)**: dark mode and stickers. The earlier light take on this layout is kept as `index-v3-light.html`.
+- Dark page (`--bg #141414`), off-white ink `#eeece8`, muted `#8f8f8f`. Color lives in the project tiles (media set on top uncropped) and in the foils. The tiles' backdrops are Summer's sun prints and photo from `backgrounds/` (see Files): green print for Google (`#c8c27f`), rust print for Reddit (`#9e4436`), flat cream for Tech Interactive (`#e4dcae`). The AI Playground tile was removed (v3 has three projects); `lily.jpg` is unused for now. These colours are meant for the case study pages' backdrops too when they're restyled.
+- Type: bold uppercase Helvetica Now Display (Inter Tight as the web fallback) for the logo and headline, Plus Jakarta Sans for body text and project titles, Geist Mono (Summer likes it; use it more) for nav links, labels, company names, tags and the footer. Gochi Hand only for "Play!" in the nav; Summer did not like it on *delight*. No rounded corners on tiles, media or UI.
+- Hero: no big name title. The header (`h1`) is one left-aligned sentence in Newsreader serif, regular weight, ~36px, like laurenjun's: "Summer Sueki is a product designer who designs and builds, curious about why people do what they do and quick to move from insight to polished, working product.". The Currently/Experience row sits under it, left-aligned, and the work starts right below. The hero is a two-column grid: sentence and facts sit low on the left; the three foils form a cluster on the right (stamp tilted top left, moon beside it, moth tucked below), per Summer's mockup. At ≤820px the cluster moves above the sentence, right-aligned.
+- Hero foils (replaced the stickers): the Sunburst initials (pewter, a serif "SS" on a hand-cut sunburst, per Summer's reference; pressed through a scratch copy of the studio with the Quilted-initials settings, since it isn't one of the samples; the old `foil-initials-*` files are in `archive/foils/`) plus foils No. 14–15 from the `metal-etching/` studio's sample collection (Moon face and Moth, silver). Baked to `assets/foils/foil-*-flat.png` (front-on render, used as the no-WebGL fallback) and `foil-*-height.png` (R,G = 16-bit height over -40..40, B = cut-out mask). `index.html` carries a trimmed copy of the studio's WebGL 2 renderer: the cursor is the lamp (direction from each piece; high overhead when close, low and raking when far), pieces tilt slightly toward it, and their shadows fall away from it. Clicking a piece flies it into a full-screen 3D view (drag to spin, double-click to face front, Esc or Close flies it back). Each piece's CSS tilt (`--rot`) is subtracted from the light direction in the script so the cursor still lights it correctly. To change the pieces, re-bake from the studio's IndexedDB collection. Summer often opens `index.html` straight from Finder (`file://`), where Chrome blocks reading PNG pixels, so `assets/foils/foil-heights.js` embeds the same height maps as data URLs and is loaded only on `file://`. Regenerate it whenever the height PNGs change.
+- Work: two-up grid of 4:3 tiles with a caption below (company, title, tags). Previews (the Google video, Domi) wait on their first frame while peeking in under the intro, start from the top once 3/4 of the tile is on screen (`whenInView`, `START = 0.75`), keep playing as you scroll on, pause below 1/4 (`STOP`), and rewind once fully off screen so they replay from the top; nothing plays with reduced motion.
+- Nav: plain bar that frosts on scroll (the v2 pill was dropped).
+- Case studies (`google.html`, `reddit.html`) are restyled to the same system (v2 copies stay in `v2/`). Both pages carry one identical stylesheet; the per-page `:root` block at its end sets `--tone` (the print's colour), `--on-tone`, `--accent` (eyebrows/labels on dark), `--backdrop`, and the next project's `--next-tone`/`--next-backdrop`. Google = green print (`#c8c27f`, dark text), Reddit = rust print (`#9e4436`, light text). Hero media, the Google component and Reddit's feature recordings sit whole on the project's print, like the home tiles. Panels keep two tones: the project colour for findings and numbers (`.tint-custard`, `.kpi.lead`), a dark `--surface` for quotes and supporting material (`.tint-sage`). Same nav as home, mono labels/eyebrows/facts/TOC, no rounded corners, no outlines on boxes, no leaf shadows. The contents list hugs the window's left edge (150px column, 11px mono, dim), and the story column is 920px wide. `.band` is a plain dark grey (`#232323`) panel whose background runs from the contents column's edge to the right edge of the window (the contents column stays page-coloured top to bottom; edge to edge once the list is hidden at ≤960px) while its content stays in the text column (Google uses three: the survey quote and stats, the "lead with *place*" finding as a big statement (`.band.finding`) with Mountain View campus footage playing behind it (`.band.has-video` + `.band-media`; `assets/google-mountain-view.mp4`, a 1600px web copy of `backgrounds/Mountain View Google Office.mov`, which is a screen recording, so it's cropped to drop the black bar and the Mac Dock; a dark left-to-right scrim keeps the type legible), and the results as big headline numbers (`.band.results`)); `.case-body` uses `overflow-x: clip` so the band can't cause sideways scroll. Google also has icons and small data visuals (shared CSS: `.icon`, `.methods`/`.glance`, `.meter`, `.chips`, `.budget`, `.compare`, `.schematic`): a research-at-a-glance strip (180+ / 5 / 12 / 9, no icons), meters under the survey stats, cohort cards with tags for what each cared about (no icons), numbered friction points (no icons, Summer removed them), an outline schematic of the original page, the 80/20 Brightspot budget bar, and an original-vs-redesign results chart with a screen-reader table. Charts use `--mark` (`#9a9534` on Google, checked with the dataviz validator on the dark page) for the redesign and neutral grey `#6b6b66` for the original; square ends, values in text colours, every bar directly labelled. Only numbers already in the copy are charted. The "Next case study" card is a band of the next project's print with the label on a dark block.
+
+## Run it
+
+Start the `portfolio` server from `.claude/launch.json` (Python `http.server` on port 4321), then open http://localhost:4321.
+Pages need the server (not `file://`) for videos and images to load. The server lets the browser cache pages, so after an edit, hard-refresh (Cmd+Shift+R) or add a query string like `?v=2` before checking changes.
+
+## Files
+
+- `index.html`: home page (v3 in progress; started as a copy of v2)
+- `google.html`: Google Careers case study
+- `reddit.html`: Reddit Game Picker (NBA Devvit app) case study
+- `site.js`: shared by all pages: a solid 20px circle cursor (no ring; color from the page's `--cursor-dot`, white on the dark home page, dark olive by default). Over anything clickable it swells to 44px, blended with the page's `--cursor-blend` (`difference` on the home page, so it inverts what's under it). It moves itself into any open modal `<dialog>` (top layer) so it shows in the 3D foil view. Plus lerped smooth wheel scrolling (`LERP = 0.11`)
+- `backgrounds/`: Summer's backdrop picks (originals; leave untouched). Web copies in `assets/backdrops/`: `green-print.jpg` (Google tile), `rust-print.jpg` (Reddit; cropped to drop the caption text in the original), `lily.jpg` (unused since the Playground tile was removed). Tech Interactive's tile is the green print's flat cream paper `#e4dcae`. Each tile's `--c0` is its backdrop's colour, for carrying into that case study page's backdrop.
+- `v1/`, `v2/`: frozen earlier versions (see Versions). They (and `metal-etching/`, `index-v3-light.html`) must stay at the project root: their `../assets/` links break if they move into a subfolder. (They were briefly in `archval for now/` and were moved back on 2026-11-19.)
+- `archive/`: files from `assets/` that no page uses (moved 2026-11-19, keeping the `foils/` and `stickers/` subfolders): Summer's full-size originals and source files (cover videos and images, the Domi Lottie JSON, the reddit-gif and google-hero recordings), old graphic-design and photo images, the unused stickers and initials foil. Anything still referenced by the live pages or the old versions stayed in `assets/`. Make new web copies from originals here; put only files a page loads in `assets/`.
+- `assets/`: media. Originals stay untouched; web-ready copies are made with ffmpeg (≤1600px wide, H.264, no audio, faststart, plus a `-poster.jpg`). Pages use the web copies, for example `google-preview.mp4`, `reddit-preview.mp4`, `reddit-dashboard.mp4`, `google-pitch-web.mp4`. File names can be misleading (for example `reddit-hero.mp4` is the dashboard walkthrough), so look at the footage before using one.
+- `illumagic/`: AI experiment (photo → storybook animal illustration). Its `assets/peek-*.jpg` illustrations appeared in the v2 Playground folder card (removed from the v3 home page).
+- `sana-sprint/`: AI experiment (on-device image generation with Sana Sprint). No outputs yet.
+- `reference - old port/`: screenshots and PDFs of the old portfolio. Case-study text comes from these; the full-page PNGs are the most up-to-date versions.
+
+## Design system
+
+Defined as CSS custom properties at the top of each page:
+
+- Wall `--wall #e0dc62` (chartreuse), leaf shadow `92,106,34`, ink `--ink #2a300f`, `--ink-soft #4a521e`, `--muted #6d7248`, paper `--paper #fdfdf8`
+- Card colors: `--custard #f9e48a` (Google), `--petal #ffd3e0` (Reddit), `--icy #abd2ef` (Tech Interactive), `--sage #e4e5d6` (Playground)
+- Eyebrow accent on case studies: `--rose #a8456f`
+- Type: Newsreader (serif, headlines) + Geist (sans, body and UI). Italic is used for emphasis, for example "designing for *delight*".
+- Motifs: blurred leaf/flower shadows, pink blooms, film grain, painted-plaster texture; the scene fades to paper.
+
+## Home page behavior (as of v2)
+
+- **Hero:** condensed and left-aligned. Headline (with a three-line "spark" on hover over *delight*), intro, and a "Currently / Experience" row. The intro takes ~70% of the first screen so the first card peeks in below it.
+- **Shadow scene:** 30 independent sprites (branches, dapples, bloom clusters). The cursor is a soft radial pocket of breeze. Motion is critically damped with no springiness, and a noise-based ambient sway runs even when the cursor is still. The scene is sized to the intro's height and fully faded by the time the cards start.
+- **Peeking card:** stays quiet (`--wake` 0→1): desaturated, faded text and paused video, waking up as you scroll toward it.
+- **Work, desktop:** pinned, uncropped video on a tinted mat beside narrower info cards that scroll past. The video crossfades and the off-spotlight cards dim. A leaf-shadow overcast appears on the info card on hover.
+- **Work, ≤820px:** one simple card per project (its preview on top). No pinning or crossfade.
+- **Nav:** full-width bar that shrinks into a floating pill on scroll. Logo on the left; Work, Play, About on the right.
+
+## Case study pages
+
+Shared structure:
+- a hero with a soft tint (yellow for Google, pink for Reddit) and a slowly drifting leaf texture
+- a free-standing hero media
+- a facts row (team / role / tools / skills)
+- a sticky contents list on the left, with eased glide-to-section on click; it moves focus to the section and updates the URL hash
+- an accessible scroll reveal: content is visible without JS, and nothing animates with reduced motion
+- a "Next case study" card
+
+Panels use only two colors: yellow for findings and numbers, sage for quotes and supporting material.
+
+## Summer's preferences (learned so far)
+
+- Clean, professional, calm. Avoid too many colors, alternating left/right layouts, stacking-card animations, and springy motion.
+- Keep a clear reading order; don't let media compete with the headline.
+- Keep media uncropped; give each project room, with a full-screen spotlight on desktop.
+- Accessibility matters: reduced-motion fallbacks, focus states, real links, alt text.
+- Keep old versions instead of overwriting them, and keep original assets.
+- Copy is third person, but name Summer only once per page (home header, the intro line of each case study). Everywhere else, write so the sentence needs no subject for Summer ("Gemini helped synthesize…", "Poll creation stays at a few taps"). No "I"/"my" and no pronouns for Summer. The nav logo and footer © are branding and don't count. Quotes from candidates or users stay as quoted.
+- Summer likes big full-width callouts (the dark grey `.band`): a large serif statement or big headline numbers. Use them where they fit, about 2–3 per case study, never more.
+- Light copy edits (typos, grammar) are fine, but list every one in the reply. Flag numbers that don't add up rather than changing them silently.
+
+## iCloud note
+
+The project lives in an iCloud-synced Desktop, and many files (some assets, `reference - old port/` images, `illumagic/index.html`) are stored online only. Reading one can stall until it downloads, so if a copy or command hangs, check with `stat -f "%Sf" file` (look for `dataless`), or download the folder in Finder.
+
+## Open items
+
+- Google card: Summer's `archive/1600-x-1200.mp4` (1600×1200, 7.4s, on the green print: white Google Careers logo (trimmed from the web copy), an Explore locations button, four office cards, Mountain View opening into the new hero, fade back to the bare print; it has a recorded mouse pointer in it). Web copy `assets/careers-web.mp4` (6.15s) trims off the logo intro (starts at 1.25s, on the bare print just before Explore locations), since hovering shows the logo; poster `careers-web-poster.jpg` is its first frame. Fills the card (`.stage.is-fill`, `#googleCover`), loops natively (starts and ends on the bare print), plays as it scrolls into view (see Work). Hovering with a mouse fades in the still cover (`.hover-still .hover-img`, `assets/google-hover.jpg`, web copy of `archive/google cover.png`: white logo on the print) and pauses the video; leaving fades it out and the video carries on. Earlier tries are in `archive/`: `Google-Careers-Cover.mp4` (16:9 version) and the slider cover (`google-cover.mp4`, its source `Case-Study-Slider-Prototype (1).mp4` and `image 38 [Vectorized].png`). Its still, `google-cover.jpg`, was deleted before the archive move. `google-preview.mp4` stays in `assets/` (google.html and the old versions use it). Don't name web copies by lower-casing an original: the Mac disk is case-insensitive, so it would overwrite it.
+- Reddit card: hover cover (`.stage.is-fill.cover-swap`): a still that hands over to a looping recording only while a mouse is on the tile; leaving stops it at once and shows the still. Touch and reduced motion show only the still. The still is Summer's cover, `assets/reddit-cover-web.jpg` (web copy of `archive/reddit-cover.png`: white Reddit logo on the rust print). The hover video is still a placeholder (`reddit-preview.mp4`) until she designs one.
+- Tech Interactive card: preview is Summer's Lottie of Domi (`archive/651x491.json`, 651×491, 60fps), filling the whole card (`.stage.is-fill`, `preserveAspectRatio: xMidYMid slice`) on the cream backdrop. Rendered with lottie-web's light SVG player from cdnjs (5.12.2); the JSON is embedded as `assets/tech-domi.js` (`window.TECH_DOMI`) so it also works on `file://`, so regenerate that file if the JSON changes. Waits on frame 0 (Domi's face) and plays as it scrolls into view (see Work), holding on the final logo for 3s (`HOLD`) before starting over; reduced motion holds frame 130 (Domi mid-wink). The earlier phone-splash video `tech-splash.mp4` is in `archive/`. Until the case study exists, the tile reads "Coming soon" and isn't a link (a plain `div.project`, tags "Motion · Product design", no arrow).
+- Art Explorer tile: links out (new tab) to the Figma deck https://www.figma.com/deck/iJSiaJcMZ0LgbxLn4annEb. Cover `assets/art-explorer-cover.jpg` is the deck's title slide (rendered via the Figma MCP and cropped). Lily backdrop (`#d1d1b2`). Title "An app for exploring art, as school art programs disappear" and tags "Mobile app · Slide deck" were written from the deck's title and challenge slides; confirm with Summer. The home grid is 2×2 again (Google, Reddit, Tech Interactive, Art Explorer).
+- Play and About links have no pages yet. "Play!" in the nav still points at `#play`, which no longer exists since the Playground tile was removed.
+- "CodeLab" (Reddit page) vs "Codelab" (Google page): spelling not yet unified.
+- Resume link was removed from the home hero during the v2 condense.

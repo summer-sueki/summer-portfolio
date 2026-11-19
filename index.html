@@ -1,0 +1,1103 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Summer Sueki · Product Designer</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@700;800&family=Newsreader:opsz,wght@6..72,300..500&family=Plus+Jakarta+Sans:wght@400;500;600&family=Gochi+Hand&family=Geist+Mono:wght@400&display=swap" rel="stylesheet" />
+  <style>
+    /* ---------- v3, dark: summersueki.com's system (near-black, bold caps, stickers);
+       the colour lives in the work and the stickers ---------- */
+    :root {
+      color-scheme: dark;
+      --bg: #141414;
+      --surface: #1c1c1c;
+      --ink: #eeece8;
+      --ink-soft: #b9b7b2;
+      --muted: #8f8f8f;
+      --hairline: rgba(238, 236, 232, 0.1);
+      --cursor-dot: #fff;          /* site.js cursor */
+      --cursor-blend: difference;  /* it inverts what's under it when it swells over a link */
+
+      /* each project's palette: base + three washes that blend into it */
+      --custard: #f9e48a;
+      --petal: #ffd3e0;
+      --icy: #abd2ef;
+      --sage: #e4e5d6;
+
+      /* Helvetica Now Display is used if installed; Inter Tight stands in for it on the web */
+      --display: "Helvetica Now Display", "Inter Tight", "Helvetica Neue", Arial, sans-serif;
+      --sans: "Plus Jakarta Sans", -apple-system, "Helvetica Neue", Arial, sans-serif;
+      --hand: "Gochi Hand", "Comic Sans MS", cursive;
+      --serif: "Newsreader", "Iowan Old Style", Georgia, serif;
+      --mono: "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace;
+      --ease: cubic-bezier(.2, .8, .2, 1);
+      --gutter: max(16px, env(safe-area-inset-left, 0px), calc((100% - 1320px) / 2));
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--bg);
+      color: var(--ink);
+      font-family: var(--sans);
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { color: inherit; }
+    a:focus-visible { outline: 2px solid var(--ink); outline-offset: 4px; }
+    .sr-only {
+      position: absolute; width: 1px; height: 1px;
+      overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap;
+    }
+
+    /* ---------- Nav: a plain bar that frosts over once you scroll ---------- */
+    .site-nav {
+      position: fixed;
+      inset: 0 0 auto;
+      z-index: 10;
+      border-bottom: 1px solid transparent;
+      transition: background-color .35s ease, border-color .35s ease;
+    }
+    .site-nav.is-scrolled {
+      background: rgba(20, 20, 20, 0.78);
+      border-color: var(--hairline);
+      backdrop-filter: blur(14px) saturate(1.2);
+      -webkit-backdrop-filter: blur(14px) saturate(1.2);
+    }
+    .nav-inner {
+      display: flex;
+      align-items: center;
+      gap: 32px;
+      padding: 22px var(--gutter);
+      font-size: 14px;
+      line-height: 1;
+    }
+    .brand {
+      margin-right: auto;
+      font-family: var(--display);
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: -0.04em;
+      text-transform: uppercase;
+      text-decoration: none;
+    }
+    .links { display: flex; align-items: center; gap: 28px; font-family: var(--mono); font-size: 13px; }
+    .links a { color: var(--ink); text-decoration: none; transition: color .2s; }
+    .links a:hover { color: rgba(238, 236, 232, 0.4); }
+    .links .hand {
+      display: inline-block;
+      font-family: var(--hand);
+      font-size: 19px;
+      letter-spacing: 0.05em;
+      transform: rotate(-4deg);
+    }
+
+    /* ---------- Hero: centred and short, so the work shows along the bottom ---------- */
+    /* two columns: the sentence and facts sit low on the left, the foils cluster on the right */
+    .hero {
+      position: relative;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) clamp(260px, 26vw, 380px);
+      grid-template-rows: 1fr auto;
+      column-gap: clamp(32px, 5vw, 80px);
+      overflow-x: clip;   /* a foil's canvas overhangs its piece; never let it widen the page */
+      text-align: left;
+      /* the work only peeks in along the bottom of the first screen (~20%) */
+      padding: clamp(120px, 20vh, 200px) var(--gutter) clamp(72px, 14vh, 160px);
+    }
+    .headline-wrap { position: relative; grid-column: 1; grid-row: 1; align-self: end; }
+    .hero .meta { grid-column: 1; grid-row: 2; }
+
+    /* the foils: stamp tilted at the top left, the moon beside it, the moth tucked underneath */
+    .foil-cluster {
+      position: relative;
+      grid-column: 2;
+      grid-row: 1 / 3;
+      align-self: end;
+      width: 100%;
+      aspect-ratio: 350 / 330;
+    }
+
+    /* the header is one quiet serif sentence, set on the left like a byline */
+    h1 {
+      position: relative;
+      z-index: 1;
+      max-width: 44ch;
+      font-family: var(--serif);
+      font-optical-sizing: auto;
+      font-weight: 360;
+      font-size: clamp(24px, 2.4vw, 36px);
+      line-height: 1.25;
+      letter-spacing: -0.01em;
+      color: var(--ink);
+      text-wrap: pretty;
+    }
+    h1 strong { font-weight: inherit; }
+
+    /* three pressed-foil pieces from the metal-etching studio (No. 13–15), lit live from the cursor */
+    .pebble {
+      position: absolute;
+      will-change: transform;
+    }
+    .foil {
+      padding: 0;
+      border: 0;
+      background: none;
+      color: inherit;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .foil:focus-visible { outline: 2px solid var(--ink); outline-offset: 8px; }
+    .foil img, .foil canvas { display: block; pointer-events: none; }
+    .foil img { width: 100%; height: 100%; filter: drop-shadow(0 12px 18px rgba(0, 0, 0, .5)); }
+    /* the canvas overhangs the piece a little, so a tilt never clips it */
+    .foil canvas {
+      position: absolute;
+      inset: -14%;
+      width: 128%; height: 128%;
+      opacity: 0;
+      /* the shadow falls away from the light */
+      filter: drop-shadow(var(--sx, 6px) var(--sy, 12px) 14px rgba(0, 0, 0, .55));
+    }
+    .foil.is-lit img { visibility: hidden; }
+    .foil.is-lit canvas { opacity: 1; }
+    .foil.is-away { visibility: hidden; }   /* while it's out in the 3D view */
+    /* --rot is mirrored in the script, so the light still comes from the cursor on a tilted piece */
+    .foil { rotate: var(--rot, 0deg); }
+    .foil.f-sun      { left: 0;   top: 0;   width: 43%; aspect-ratio: 601 / 628; --rot: -9deg; }
+    .foil.f-moon     { left: 58%; top: 11%; width: 42%; aspect-ratio: 522 / 526; --rot: 4deg; }
+    .foil.f-moth     { left: 12%; top: 49%; width: 51%; aspect-ratio: 555 / 535; --rot: -2deg; }
+
+    /* ---------- 3D view: the piece flies out of the hero onto a dark stage ---------- */
+    .foil-view {
+      position: fixed;
+      inset: 0;
+      width: 100%; height: 100%;
+      max-width: none; max-height: none;
+      margin: 0;
+      padding: 0;
+      border: 0;
+      background: transparent;
+      color: var(--ink);
+      overflow: hidden;
+    }
+    .foil-view::backdrop { background: transparent; }
+    .foil-view .fv-bg { position: absolute; inset: 0; background: #0f0f0e; opacity: 0; }
+    .foil-view canvas { position: absolute; inset: 0; width: 100%; height: 100%; touch-action: none; cursor: grab; }
+    .foil-view canvas:active { cursor: grabbing; }
+    .fv-bar {
+      position: absolute;
+      left: 0; right: 0; bottom: 0;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px 20px;
+      padding: 20px var(--gutter);
+      font-family: var(--mono);
+      font-size: 12px;
+      opacity: 0;
+      transition: opacity .3s ease;
+    }
+    .foil-view.is-open .fv-bar { opacity: 1; }
+    .fv-bar p { color: var(--muted); }
+    .fv-bar button {
+      margin-left: auto;
+      padding: 9px 14px;
+      border: 1px solid var(--ink);
+      background: transparent;
+      color: var(--ink);
+      font: inherit;
+      font-size: 11px;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      cursor: pointer;
+    }
+    .fv-bar button:hover { background: var(--ink); color: #0f0f0e; }
+    .fv-bar button:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
+
+    /* "Currently / Experience", set small, like footnotes */
+    .meta {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-start;
+      gap: 8px 32px;
+      margin-top: 22px;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+    .meta > div { display: flex; gap: 8px; }
+    .meta dt { font-family: var(--mono); font-size: 12px; color: var(--muted); }
+    .meta dt::before { content: "["; }
+    .meta dt::after { content: "]"; }
+    .meta dd { color: var(--ink); }
+
+    /* ---------- Work: a two-up grid of colour tiles ---------- */
+    .work {
+      padding: 0 var(--gutter) clamp(72px, 10vw, 128px);
+      scroll-margin-top: 72px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: clamp(28px, 3vw, 44px) clamp(14px, 1.4vw, 20px);
+    }
+    .project {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      text-decoration: none;
+      border-radius: 0;
+    }
+    .project:focus-visible { outline-offset: 6px; }
+
+    /* the mat: soft, grainy washes of the project's colours, with the work set on top uncropped */
+    .mat {
+      position: relative;
+      overflow: hidden;
+      aspect-ratio: 4 / 3;
+      border-radius: 0;
+      background: var(--c0);
+      isolation: isolate;
+    }
+    .washes {
+      position: absolute;
+      inset: -20%;
+      filter: blur(clamp(36px, 4vw, 64px)) saturate(1.25);
+      transform: rotate(-12deg);
+    }
+    .washes span {
+      position: absolute;
+      border-radius: 50%;
+      transition: transform 2.4s var(--ease);
+      transform: translate3d(calc(var(--mx, 0) * var(--k, 0px)), calc(var(--my, 0) * var(--k, 0px)), 0);
+    }
+    .washes span:nth-child(1) { left: -5%;  top: 5%;  width: 62%; height: 55%; background: var(--c1); --k: 40px; }
+    .washes span:nth-child(2) { right: -8%; top: -6%; width: 58%; height: 62%; background: var(--c2); --k: -56px; }
+    .washes span:nth-child(3) { left: 22%;  bottom: -12%; width: 70%; height: 50%; background: var(--c3); --k: 30px; }
+    .washes span:nth-child(4) { left: 46%;  top: 34%; width: 30%; height: 30%; background: var(--c4); --k: -70px; }
+    /* film grain over the colour, the way the reference posters have it */
+    .mat::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      pointer-events: none;
+      opacity: .4;
+      mix-blend-mode: overlay;
+      background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/><feColorMatrix type='saturate' values='0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+    }
+    .stage {
+      position: absolute;
+      inset: 0;
+      z-index: 2;
+      display: grid;
+      /* a fixed track, so a tall recording's max-height: 100% has something to measure against */
+      grid-template: minmax(0, 1fr) / minmax(0, 1fr);
+      place-items: center;
+      padding: clamp(22px, 8%, 64px);
+    }
+    .stage video, .stage img {
+      display: block;
+      width: auto; height: auto;
+      max-width: 100%; max-height: 100%;
+      border-radius: 0;
+      background: #fff;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, .12), 0 30px 60px -30px rgba(0, 0, 0, .55);
+      transition: transform .8s var(--ease);
+    }
+    .project:hover .stage :is(video, img) { transform: translateY(-4px) scale(1.012); }
+    /* a designed animation fills the whole card instead of sitting on the backdrop */
+    .stage.is-fill { padding: 0; }
+    .stage .lottie { width: 100%; height: 100%; transition: transform .8s var(--ease); }
+    .stage .lottie svg { display: block; }
+    .project:hover .stage .lottie { transform: scale(1.015); }
+    /* Google: the recording plays; hovering lays the still cover over it */
+    .hover-still .hover-img { opacity: 0; transition: opacity .4s var(--ease), transform .8s var(--ease); }
+    .project:hover .hover-still .hover-img { opacity: 1; }
+    /* hover covers (Reddit): a still that hands over to its recording while hovered */
+    .stage.is-fill > :is(video, img), .cover-swap > * { grid-area: 1 / 1; width: 100%; height: 100%; max-width: none; max-height: none; object-fit: cover; background: none; box-shadow: none; }
+    .cover-swap .cover-still { transition: opacity .6s var(--ease), transform .8s var(--ease); }
+    .cover-swap.is-playing .cover-still { opacity: 0; }
+    .project:hover .stage.is-fill > :is(video, img) { transform: scale(1.015); }
+    .placeholder {
+      padding: 10px 16px;
+      border-radius: 0;
+      background: rgba(255, 255, 255, .55);
+      font-size: 13px;
+      color: #4b4d44;
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+    }
+
+    /* project backdrops: sun prints and a soft photo from backgrounds/ (web copies in assets/backdrops/).
+       --c0 is each print's paper colour: it shows while the image loads, and is the colour to carry
+       into that case study's own backdrop. The prints are grainy already, so no extra grain or washes. */
+    .t-google .washes, .t-reddit .washes, .t-tech .washes, .t-art .washes { display: none; }
+    .t-google .mat::after, .t-reddit .mat::after, .t-art .mat::after { display: none; }
+    .mat { background-image: var(--backdrop, none); background-size: cover; background-position: center; }
+    .t-google { --c0: #c8c27f; --backdrop: url("assets/backdrops/green-print.jpg"); }   /* green sun print on cream */
+    .t-reddit { --c0: #9e4436; --backdrop: url("assets/backdrops/rust-print.jpg"); }    /* rust print, white flowers */
+    .t-tech   { --c0: #e4dcae; }   /* the green print's cream paper, flat, under the usual grain */
+    .t-art    { --c0: #d1d1b2; --backdrop: url("assets/backdrops/lily.jpg"); }          /* olive lily on cream */
+
+    /* caption under each tile: who, what, and a couple of tags */
+    .caption {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 6px 20px;
+      align-items: baseline;
+      padding-inline: 2px;
+    }
+    .company {
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--muted);
+    }
+    .tags {
+      grid-row: span 2;
+      align-self: start;
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--muted);
+      text-align: right;
+      white-space: nowrap;
+    }
+    .title {
+      grid-column: 1;   /* always under the company name, even on a tile with no tags */
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: clamp(17px, 1.35vw, 20px);
+      font-weight: 500;
+      line-height: 1.3;
+      letter-spacing: -0.015em;
+      text-wrap: balance;
+    }
+    .title svg {
+      flex: none;
+      width: 16px; height: 16px;
+      opacity: 0;
+      transform: translate(-6px, 6px);
+      transition: opacity .3s ease, transform .4s var(--ease);
+    }
+    .project:hover .title svg,
+    .project:focus-visible .title svg { opacity: 1; transform: none; }
+
+    /* ---------- Footer ---------- */
+    footer {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 28px var(--gutter) 36px;
+      border-top: 1px solid var(--hairline);
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--muted);
+    }
+    footer a { color: var(--ink); text-decoration: none; }
+    footer a:hover { text-decoration: underline; text-underline-offset: 3px; }
+
+    /* ---------- gentle entrance ---------- */
+    .rise { opacity: 0; transform: translateY(12px); animation: rise 1s var(--ease) forwards; }
+    .d1 { animation-delay: .08s; }
+    .d2 { animation-delay: .2s; }
+    .d3 { animation-delay: .32s; }
+    .d4 { animation-delay: .48s; }
+    @keyframes rise { to { opacity: 1; transform: none; } }
+
+    @media (max-width: 820px) {
+      .grid { grid-template-columns: minmax(0, 1fr); gap: 36px; }
+      /* one column: the cluster sits above the sentence, on the right */
+      .hero { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto auto auto; padding-top: 104px; }
+      .foil-cluster { grid-column: 1; grid-row: 1; justify-self: end; width: clamp(190px, 46vw, 280px); margin-bottom: 28px; }
+      .headline-wrap { grid-row: 2; }
+      .hero .meta { grid-row: 3; }
+    }
+    @media (max-width: 640px) {
+      .nav-inner { padding: 18px 16px; gap: 16px; }
+      .links { gap: 18px; }
+      .hero { padding-top: 92px; }
+      h1 { font-size: 23px; }
+      .stage { padding: 18px; }
+      .meta { flex-direction: column; align-items: flex-start; gap: 6px; }
+      .caption { grid-template-columns: minmax(0, 1fr); }
+      .tags { grid-row: 3; text-align: left; white-space: normal; }
+      .title svg { display: none; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      .rise { animation: none; opacity: 1; transform: none; }
+      .site-nav, .washes span, .stage video, .stage img, .title svg { transition: none; }
+    }
+  </style>
+</head>
+<body id="top">
+  <header class="site-nav" id="siteNav">
+    <nav class="nav-inner" aria-label="Main">
+      <a class="brand" href="#top">Summer Sueki</a>
+      <div class="links">
+        <a href="#work" aria-current="page">Work</a>
+        <a href="#play"><span class="hand">Play!</span></a>
+        <a href="#about">About</a>
+      </div>
+    </nav>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="headline-wrap">
+        <h1 class="rise d1"><strong>Summer Sueki</strong> is a product designer who designs and builds, curious about why people do what they do and quick to move from insight to polished, working product.</h1>
+      </div>
+      <dl class="meta rise d3">
+        <div><dt>Currently</dt><dd>Cognitive science &amp; design at UC Davis</dd></div>
+        <div><dt>Experience</dt><dd>B2C and enterprise</dd></div>
+      </dl>
+      <div class="foil-cluster">
+        <!-- foils No. 13–15 from metal-etching/, baked to assets/foils/: *-flat.png is the front-on render (fallback), *-height.png packs height (R,G) and cut-out mask (B) -->
+        <button class="pebble foil f-sun rise d3" type="button" data-foil="sun" data-no="16" data-title="Sunburst initials" data-metal="pewter" data-shine="74" data-w="601" data-h="628" aria-label="Sunburst initials, a pewter foil etching. Open in 3D"><img src="assets/foils/foil-sun-flat.png" width="601" height="628" alt="" /><canvas></canvas></button>
+        <button class="pebble foil f-moon rise d4" type="button" data-foil="moon" data-no="14" data-title="Moon face" data-metal="silver" data-shine="80" data-w="522" data-h="526" aria-label="Moon face, a silver foil etching. Open in 3D"><img src="assets/foils/foil-moon-flat.png" width="522" height="526" alt="" /><canvas></canvas></button>
+        <button class="pebble foil f-moth rise d3" type="button" data-foil="moth" data-no="15" data-title="Moth" data-metal="silver" data-shine="84" data-w="555" data-h="535" aria-label="Moth, a silver foil etching. Open in 3D"><img src="assets/foils/foil-moth-flat.png" width="555" height="535" alt="" /><canvas></canvas></button>
+      </div>
+    </section>
+
+    <!-- Tech Interactive details are placeholders: swap in its real title, tags and preview -->
+    <section class="work" id="work" aria-labelledby="work-title">
+      <h2 class="sr-only" id="work-title">Selected work</h2>
+      <div class="grid">
+        <a class="project t-google" href="google.html">
+          <div class="mat">
+            <div class="washes" aria-hidden="true"><span></span><span></span><span></span><span></span></div>
+            <div class="stage is-fill hover-still" id="googleCover">
+              <video width="1600" height="1200" src="assets/careers-web.mp4" poster="assets/careers-web-poster.jpg" muted loop playsinline preload="metadata" aria-label="Google Careers redesign: Explore locations opens office cards for Mountain View, London, Singapore and Zurich, and Mountain View opens into the new hero, Where We Build the Future"></video>
+              <img class="hover-img" src="assets/google-hover.jpg" width="1600" height="1200" alt="" aria-hidden="true" />
+            </div>
+          </div>
+          <div class="caption">
+            <span class="company">Google</span>
+            <span class="tags">Shipped 2026 · UX research · B2C</span>
+            <h3 class="title">Research-led redesign for high-intent candidates <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 14 14 6M7 6h7v7"/></svg></h3>
+          </div>
+        </a>
+
+        <a class="project t-reddit" href="reddit.html">
+          <div class="mat">
+            <div class="washes" aria-hidden="true"><span></span><span></span><span></span><span></span></div>
+            <!-- the hover video is still a placeholder: swap in Summer's design -->
+            <div class="stage is-fill cover-swap">
+              <video class="cover-video" width="1600" height="1130" src="assets/reddit-preview.mp4" muted loop playsinline preload="metadata" aria-hidden="true"></video>
+              <img class="cover-still" src="assets/reddit-cover-web.jpg" width="1600" height="1200" alt="Reddit Game Picker: the Reddit logo on the rust sun print" />
+            </div>
+          </div>
+          <div class="caption">
+            <span class="company">Reddit</span>
+            <span class="tags">Shipped 2025 · Product design · B2C</span>
+            <h3 class="title">Systems-led design for a live sports community <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 14 14 6M7 6h7v7"/></svg></h3>
+          </div>
+        </a>
+
+        <div class="project t-tech">
+          <div class="mat">
+            <div class="washes" aria-hidden="true"><span></span><span></span><span></span><span></span></div>
+            <div class="stage is-fill"><div class="lottie" id="techDomi" role="img" aria-label="Domi, the Tech Interactive app's orange building character, winks and turns into the Tech Interactive logo"></div></div>
+          </div>
+          <div class="caption">
+            <span class="company">Tech Interactive</span>
+            <span class="tags">Motion · Product design</span>
+            <h3 class="title">Coming soon</h3>
+          </div>
+        </div>
+
+        <a class="project t-art" href="https://www.figma.com/deck/iJSiaJcMZ0LgbxLn4annEb" target="_blank" rel="noopener">
+          <div class="mat">
+            <div class="washes" aria-hidden="true"><span></span><span></span><span></span><span></span></div>
+            <div class="stage"><img src="assets/art-explorer-cover.jpg" width="1396" height="782" loading="lazy" alt="Art Explorer title slide: the app icon beside a phone greeting the user with 'Hi there, Art Explorer!'" /></div>
+          </div>
+          <div class="caption">
+            <span class="company">Art Explorer</span>
+            <span class="tags">Mobile app · Slide deck</span>
+            <h3 class="title">An app for exploring art, as school art programs disappear <span class="sr-only">(opens the slide deck in Figma)</span><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 14 14 6M7 6h7v7"/></svg></h3>
+          </div>
+        </a>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <span>© 2026 Summer Sueki</span>
+    <a href="mailto:summersueki@gmail.com">summersueki@gmail.com</a>
+  </footer>
+
+  <dialog class="foil-view" id="foilView" aria-labelledby="fvTitle">
+    <div class="fv-bg"></div>
+    <canvas id="fvCanvas" role="img" aria-label="The foil etching in 3D"></canvas>
+    <div class="fv-bar">
+      <span id="fvTitle"></span>
+      <p>Drag to spin · double-click to face front · the light follows your cursor</p>
+      <button type="button" id="fvClose">Close</button>
+    </div>
+  </dialog>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.2/lottie_light.min.js"></script>
+  <script src="assets/tech-domi.js"></script>
+  <script>
+  const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  // ---------- nav frosts over once you scroll ----------
+  (() => {
+    const nav = document.getElementById("siteNav");
+    const onScroll = () => nav.classList.toggle("is-scrolled", scrollY > 12);
+    addEventListener("scroll", onScroll, { passive: true });
+    onScroll();
+  })();
+
+  // ---------- previews start as you scroll them into view ----------
+  // While a tile only peeks in under the intro it waits on its first frame, so the headline gets read
+  // first. It starts once 3/4 of it is on screen, keeps going while you scroll on, pauses when less
+  // than 1/4 is left, and rewinds once it's fully off screen so it plays from the top next time.
+  // Nothing plays with reduced motion.
+  const START = 0.75, STOP = 0.25;
+  const whenInView = (el, { start, pause, rewind }) => {
+    el.inView = false;
+    new IntersectionObserver(([e]) => {
+      const r = e.intersectionRatio;
+      if (!el.inView && r >= START) { el.inView = true; start(); }
+      else if (el.inView && r < STOP) { el.inView = false; pause(); }
+      if (!e.isIntersecting) rewind();
+    }, { threshold: [0, STOP, START] }).observe(el);
+  };
+  (() => {
+    if (reduceMotion) return;
+    document.querySelectorAll(".stage video:not(.cover-video)").forEach(v => whenInView(v, {
+      start: () => { if (!v.closest(".project").matches(":hover")) v.play().catch(() => {}); },
+      pause: () => v.pause(),
+      rewind: () => { v.pause(); v.currentTime = 0; },
+    }));
+  })();
+
+  // ---------- hover covers (Reddit): a still that plays its recording only while hovered ----------
+  // Mouse in: the recording plays (looping) over the still. Mouse out: it stops at once and the still returns.
+  // Touch screens and reduced motion only ever show the still.
+  (() => {
+    if (reduceMotion) return;
+    document.querySelectorAll(".stage.cover-swap").forEach(stage => {
+      const v = stage.querySelector("video"), tile = stage.closest(".project");
+      tile.addEventListener("pointerenter", e => {
+        if (e.pointerType !== "mouse") return;
+        v.currentTime = 0; stage.classList.add("is-playing"); v.play().catch(() => {});
+      });
+      tile.addEventListener("pointerleave", e => {
+        if (e.pointerType !== "mouse") return;
+        v.pause(); stage.classList.remove("is-playing");
+      });
+    });
+  })();
+
+  // ---------- Google: hovering shows the still cover and pauses the recording underneath ----------
+  // Leaving fades the still away and the recording carries on (only if the tile is still in view).
+  (() => {
+    const stage = document.getElementById("googleCover");
+    if (!stage || reduceMotion) return;
+    const v = stage.querySelector("video"), tile = stage.closest(".project");
+    tile.addEventListener("pointerenter", e => { if (e.pointerType === "mouse") v.pause(); });
+    tile.addEventListener("pointerleave", e => {
+      if (e.pointerType !== "mouse") return;
+      if (v.inView) v.play().catch(() => {});
+    });
+  })();
+
+  // ---------- Tech Interactive: Domi, a Lottie animation filling the card ----------
+  // Same rule as the videos: waits on its first frame (Domi's face) until scrolled into view, then plays
+  // from the top; a still frame with reduced motion.
+  (() => {
+    const el = document.getElementById("techDomi");
+    if (!el || !window.lottie || !window.TECH_DOMI) return;
+    const anim = lottie.loadAnimation({
+      container: el, renderer: "svg", loop: false, autoplay: false,
+      animationData: window.TECH_DOMI,
+      rendererSettings: { preserveAspectRatio: "xMidYMid slice" },
+    });
+    // reduced motion holds Domi mid-wink; otherwise it waits on frame 0
+    anim.addEventListener("DOMLoaded", () => anim.goToAndStop(reduceMotion ? 130 : 0, true));
+    if (reduceMotion) return;
+    // it ends on the Tech Interactive logo: hold there a while before starting over
+    const HOLD = 3000;
+    let waiting = false, timer = 0;
+    const restart = () => {
+      timer = 0;
+      if (!el.inView) return;          // scrolled away mid-hold: start over when it's back
+      waiting = false;
+      anim.goToAndPlay(0, true);
+    };
+    anim.addEventListener("complete", () => { waiting = true; timer = setTimeout(restart, HOLD); });
+    whenInView(el, {
+      start: () => { if (!waiting) anim.play(); else if (!timer) restart(); },
+      pause: () => anim.pause(),
+      rewind: () => { clearTimeout(timer); timer = 0; waiting = false; anim.goToAndStop(0, true); },
+    });
+  })();
+
+  // ---------- the colour washes lean, slowly, toward the cursor ----------
+  (() => {
+    if (reduceMotion || !matchMedia("(hover: hover)").matches) return;
+    document.querySelectorAll(".project").forEach(p => {
+      const washes = p.querySelector(".washes");
+      p.addEventListener("pointermove", e => {
+        const r = p.querySelector(".mat").getBoundingClientRect();
+        washes.style.setProperty("--mx", ((e.clientX - r.left) / r.width - 0.5).toFixed(3));
+        washes.style.setProperty("--my", ((e.clientY - r.top) / r.height - 0.5).toFixed(3));
+      });
+      p.addEventListener("pointerleave", () => {
+        washes.style.setProperty("--mx", 0);
+        washes.style.setProperty("--my", 0);
+      });
+    });
+  })();
+
+  // ---------- foils: pressed metal from the etching studio, lit by the cursor ----------
+  // The renderer is a trimmed copy of the one in metal-etching/index.html: each piece is a
+  // height map drawn as a displaced mesh, and every pixel reflects a small photo studio
+  // whose lamp sits wherever the cursor is. Click a piece to take it into 3D.
+  (() => {
+    const VS = `#version 300 es
+    precision highp float; precision highp int; precision highp sampler2D;
+    in vec2 aUV;
+    uniform sampler2D uH; uniform ivec2 uTex; uniform mat4 uModel, uVP; uniform vec2 uSize; uniform float uDisp;
+    out vec2 vUV; out vec3 vWorld;
+    void main(){
+      ivec2 t = clamp(ivec2(aUV*vec2(uTex)), ivec2(0), uTex-1);
+      float h = texelFetch(uH, t, 0).r;
+      vec4 w = uModel*vec4((aUV.x-.5)*uSize.x, (.5-aUV.y)*uSize.y, h*uDisp, 1.);
+      vWorld = w.xyz; vUV = aUV;
+      gl_Position = uVP*w;
+    }`;
+    const FS = `#version 300 es
+    precision highp float; precision highp int; precision highp sampler2D;
+    in vec2 vUV; in vec3 vWorld;
+    uniform sampler2D uH, uM; uniform ivec2 uTex; uniform mat3 uNM;
+    uniform vec3 uCam, uL, uL2, uF0; uniform float uRough, uGlint;
+    out vec4 o;
+    float T(ivec2 p){ return texelFetch(uH, clamp(p, ivec2(0), uTex-1), 0).r; }
+    float HB(vec2 p){
+      vec2 q = p - .5; vec2 fl = floor(q); ivec2 i = ivec2(fl); vec2 f = q - fl;
+      return mix(mix(T(i), T(i+ivec2(1,0)), f.x), mix(T(i+ivec2(0,1)), T(i+ivec2(1,1)), f.x), f.y);
+    }
+    vec3 env(vec3 r){
+      float rough = uRough, up = r.y;
+      float ph = atan(r.x, r.z), ph0 = atan(uL2.x, uL2.z);
+      float hz = mix(.16, .4, rough);
+      float wall = .52 + .2*sin(ph*2. + .6) + .1*sin(ph*5. + 2.) + .06*sin(ph*11. + 4.);
+      float v = mix(.2, wall, smoothstep(-.4 - hz, -.4 + hz, up));
+      v = mix(v, 1.2, smoothstep(.42 - hz, .58 + hz, up));
+      float dp = abs(mod(ph - ph0 + 3.14159265, 6.2831853) - 3.14159265);
+      float ws = mix(.18, .5, rough);
+      v *= 1. - .55*smoothstep(ws, ws*.25, dp)*(1. - smoothstep(.2, .7, up));
+      float wk = mix(.02, .28, rough);
+      v += 2.4*uGlint*exp((dot(r, uL) - 1.)/wk);
+      float ph1 = atan(uL.x, uL.z);
+      float d1 = abs(mod(ph - ph1 + 3.14159265, 6.2831853) - 3.14159265);
+      float w1 = mix(.06, .28, rough);
+      v += .6*smoothstep(w1, w1*.2, d1)*smoothstep(-.25, .35, up);
+      v *= 1. - .14*exp((r.z - 1.)/mix(.025, .12, rough));
+      v = mix(v, .55, rough*.3);
+      return vec3(v)*vec3(1.0, .985, .965);
+    }
+    void main(){
+      float m = texture(uM, vUV).r;
+      if (m < .02) discard;
+      vec2 p = vUV*vec2(uTex);
+      float hl = HB(p - vec2(1.,0.)), hr = HB(p + vec2(1.,0.));
+      float hu = HB(p - vec2(0.,1.)), hd = HB(p + vec2(0.,1.));
+      float hc = HB(p);
+      vec3 n = normalize(vec3(-(hr-hl)*.5, (hd-hu)*.5, 1.));
+      float ao = clamp(1. - ((hl+hr+hu+hd)*.25 - hc)*.6, .35, 1.15);
+      vec3 N = normalize(uNM*n);
+      if (!gl_FrontFacing) N = -N;
+      vec3 V = normalize(uCam - vWorld);
+      float nv = clamp(dot(N, V), 0., 1.);
+      vec3 F = uF0 + (1. - uF0)*pow(1. - nv, 5.);
+      vec3 c = env(reflect(-V, N))*F*ao;
+      c = 1. - exp(-c*2.25);
+      o = vec4(c*m, m);
+    }`;
+    const METALS = { silver: [0.92, 0.92, 0.93], pewter: [0.30, 0.31, 0.33] };
+
+    function compile(gl, type, src) {
+      const s = gl.createShader(type); gl.shaderSource(s, src); gl.compileShader(s);
+      if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(s));
+      return s;
+    }
+    function makeTex(gl, internal, w, h, filter) {
+      const t = gl.createTexture(); gl.bindTexture(gl.TEXTURE_2D, t);
+      gl.texStorage2D(gl.TEXTURE_2D, 1, internal, w, h);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, filter);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, filter);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+      return t;
+    }
+    function mul4(a, b) {
+      const o = new Float32Array(16);
+      for (let c = 0; c < 4; c++) for (let r = 0; r < 4; r++) { let s = 0; for (let k = 0; k < 4; k++) s += a[k * 4 + r] * b[c * 4 + k]; o[c * 4 + r] = s; }
+      return o;
+    }
+
+    class FoilGL {
+      constructor(canvas) {
+        const gl = canvas.getContext("webgl2", { alpha: true, premultipliedAlpha: true, antialias: true });
+        if (!gl) throw new Error("WebGL2 unavailable");
+        this.gl = gl; this.canvas = canvas;
+        const p = gl.createProgram();
+        gl.attachShader(p, compile(gl, gl.VERTEX_SHADER, VS));
+        gl.attachShader(p, compile(gl, gl.FRAGMENT_SHADER, FS));
+        gl.bindAttribLocation(p, 0, "aUV");
+        gl.linkProgram(p);
+        if (!gl.getProgramParameter(p, gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(p));
+        this.prog = p; this.u = {};
+        for (const n of ["uH", "uM", "uTex", "uModel", "uVP", "uSize", "uDisp", "uNM", "uCam", "uL", "uL2", "uF0", "uRough", "uGlint"])
+          this.u[n] = gl.getUniformLocation(p, n);
+        this.vao = gl.createVertexArray();
+        this.uvBuf = gl.createBuffer(); this.ixBuf = gl.createBuffer();
+      }
+      // a piece: heights (Float32) + mask (Uint8); grid sets mesh density
+      setPiece(piece, grid) {
+        const gl = this.gl, { tw, th } = piece;
+        if (this.hTex) { gl.deleteTexture(this.hTex); gl.deleteTexture(this.mTex); }
+        this.tw = tw; this.th = th;
+        this.hTex = makeTex(gl, gl.R32F, tw, th, gl.NEAREST);
+        this.mTex = makeTex(gl, gl.R8, tw, th, gl.LINEAR);
+        gl.bindTexture(gl.TEXTURE_2D, this.hTex);
+        gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, tw, th, gl.RED, gl.FLOAT, piece.heights);
+        gl.bindTexture(gl.TEXTURE_2D, this.mTex);
+        gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
+        gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, tw, th, gl.RED, gl.UNSIGNED_BYTE, piece.mask);
+        gl.pixelStorei(gl.UNPACK_ALIGNMENT, 4);
+        const gx = Math.min(grid, tw), gy = Math.max(2, Math.round(gx * th / tw));
+        const uv = new Float32Array((gx + 1) * (gy + 1) * 2);
+        let k = 0;
+        for (let y = 0; y <= gy; y++) for (let x = 0; x <= gx; x++) { uv[k++] = x / gx; uv[k++] = y / gy; }
+        const ix = new Uint32Array(gx * gy * 6); k = 0;
+        for (let y = 0; y < gy; y++) for (let x = 0; x < gx; x++) {
+          const a = y * (gx + 1) + x, b = a + 1, c = a + gx + 1, d = c + 1;
+          ix[k++] = a; ix[k++] = c; ix[k++] = b; ix[k++] = b; ix[k++] = c; ix[k++] = d;
+        }
+        this.count = ix.length;
+        gl.bindVertexArray(this.vao);
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.uvBuf); gl.bufferData(gl.ARRAY_BUFFER, uv, gl.STATIC_DRAW);
+        gl.enableVertexAttribArray(0); gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.ixBuf); gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, ix, gl.STATIC_DRAW);
+        gl.bindVertexArray(null);
+      }
+      // p: cssW cssH sheetW sheetH ox oy yaw pitch L (unit vector toward the lamp) shine f0
+      render(p) {
+        const gl = this.gl, cv = this.canvas;
+        const dpr = Math.min(2, devicePixelRatio || 1);
+        const bw = Math.max(1, Math.round(p.cssW * dpr)), bh = Math.max(1, Math.round(p.cssH * dpr));
+        if (cv.width !== bw || cv.height !== bh) { cv.width = bw; cv.height = bh; }
+        gl.viewport(0, 0, bw, bh);
+        gl.clearColor(0, 0, 0, 0); gl.clearDepth(1);
+        gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+        if (!this.tw) return;
+        gl.enable(gl.DEPTH_TEST); gl.depthFunc(gl.LEQUAL);
+        gl.enable(gl.BLEND); gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
+        // the z = 0 plane maps 1:1 to CSS pixels, so sheet sizes and offsets are in px
+        const D = Math.max(p.cssW, p.cssH) * 2.4, near = D * .2, far = D * 3;
+        const P = new Float32Array([2 * D / p.cssW, 0, 0, 0, 0, 2 * D / p.cssH, 0, 0, 0, 0, (far + near) / (near - far), -1, 0, 0, 2 * far * near / (near - far), 0]);
+        const Vw = new Float32Array([1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, -D, 1]);
+        const cy = Math.cos(p.yaw || 0), sy = Math.sin(p.yaw || 0), cx = Math.cos(p.pitch || 0), sx = Math.sin(p.pitch || 0);
+        const R = [cy, 0, -sy, sy * sx, cx, cy * sx, sy * cx, -sx, cy * cx];
+        const M = new Float32Array([R[0], R[1], R[2], 0, R[3], R[4], R[5], 0, R[6], R[7], R[8], 0, p.ox || 0, p.oy || 0, 0, 1]);
+        const L = p.L;
+        // a second, dim window opposite the lamp, low on the horizon
+        const az2 = Math.atan2(-L[1], L[0]) + Math.PI * .92, el2 = .12;
+        const L2 = [Math.cos(el2) * Math.cos(az2), -Math.cos(el2) * Math.sin(az2), Math.sin(el2)];
+        const u = this.u;
+        gl.useProgram(this.prog);
+        gl.uniformMatrix4fv(u.uVP, false, mul4(P, Vw));
+        gl.uniformMatrix4fv(u.uModel, false, M);
+        gl.uniformMatrix3fv(u.uNM, false, new Float32Array(R));
+        gl.uniform2f(u.uSize, p.sheetW, p.sheetH);
+        gl.uniform1f(u.uDisp, p.sheetW / this.tw);
+        gl.uniform2i(u.uTex, this.tw, this.th);
+        gl.uniform3f(u.uCam, 0, 0, D);
+        gl.uniform3fv(u.uL, L); gl.uniform3fv(u.uL2, L2);
+        gl.uniform3fv(u.uF0, p.f0);
+        gl.uniform1f(u.uGlint, p.f0[0] < .5 ? 2.2 : 1.35);
+        const sh = p.shine / 100;
+        gl.uniform1f(u.uRough, (1 - sh) * (1 - sh) * .9 + .02);
+        gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, this.hTex); gl.uniform1i(u.uH, 0);
+        gl.activeTexture(gl.TEXTURE1); gl.bindTexture(gl.TEXTURE_2D, this.mTex); gl.uniform1i(u.uM, 1);
+        gl.bindVertexArray(this.vao);
+        gl.drawElements(gl.TRIANGLES, this.count, gl.UNSIGNED_INT, 0);
+        gl.bindVertexArray(null);
+      }
+    }
+
+    // unpack a baked height map: R,G = 16-bit height over -40..40, B = mask
+    // Opened as a file, Chrome won't let the page read a PNG's pixels, so take the
+    // same height maps from an embedded copy (loaded only in that case).
+    let embedded = null;
+    const loadEmbedded = () => embedded || (embedded = new Promise((res, rej) => {
+      const s = document.createElement("script");
+      s.src = "assets/foils/foil-heights.js";
+      s.onload = () => res(window.FOIL_HEIGHTS);
+      s.onerror = rej;
+      document.head.appendChild(s);
+    }));
+    async function loadPiece(name) {
+      const img = new Image();
+      img.src = location.protocol === "file:"
+        ? (await loadEmbedded())[name]
+        : `assets/foils/foil-${name}-height.png`;
+      await img.decode();
+      const c = document.createElement("canvas");
+      c.width = img.naturalWidth; c.height = img.naturalHeight;
+      const x = c.getContext("2d", { willReadFrequently: true });
+      x.drawImage(img, 0, 0);
+      const d = x.getImageData(0, 0, c.width, c.height).data;
+      const n = c.width * c.height, heights = new Float32Array(n), mask = new Uint8Array(n);
+      for (let i = 0; i < n; i++) { heights[i] = ((d[i * 4] << 8 | d[i * 4 + 1]) / 65535) * 80 - 40; mask[i] = d[i * 4 + 2]; }
+      return { tw: c.width, th: c.height, heights, mask };
+    }
+
+    function damp(s, key, vkey, target, time, dt) {
+      const omega = 2 / time, x = omega * dt;
+      const exp = 1 / (1 + x + 0.48 * x * x + 0.235 * x * x * x);
+      const change = s[key] - target;
+      const temp = (s[vkey] + omega * change) * dt;
+      s[vkey] = (s[vkey] - omega * temp) * exp;
+      s[key] = target + (change + temp) * exp;
+    }
+    const ease = t => t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+
+    // ---- the lamp is wherever the cursor is ----
+    const pointer = { x: 0, y: 0, seen: false };
+    addEventListener("pointermove", e => { pointer.x = e.clientX; pointer.y = e.clientY; pointer.seen = true; }, { passive: true });
+    const finePointer = matchMedia("(hover: hover) and (pointer: fine)").matches;
+    // unit vector toward the lamp for something centred at (cx, cy) on screen.
+    // Right over a piece the lamp is high overhead; further away it sinks and rakes across the relief.
+    // rot: the piece's own tilt on the page (radians, clockwise), so the light is measured in its frame
+    function lampFor(cx, cy, t, rot = 0) {
+      let az, el;
+      if (pointer.seen) {
+        const dx = pointer.x - cx, dy = pointer.y - cy;
+        const reach = Math.min(1, Math.hypot(dx, dy) / (Math.hypot(innerWidth, innerHeight) * .45));
+        az = Math.atan2(dy, dx);
+        el = (78 - 58 * Math.sqrt(reach)) * Math.PI / 180;
+      } else {
+        // no cursor yet (or a touch screen): the lamp drifts slowly round the upper left
+        az = (225 + (reduceMotion ? 0 : 35 * Math.sin(t * .35))) * Math.PI / 180;
+        el = 40 * Math.PI / 180;
+      }
+      az -= rot;
+      return [Math.cos(el) * Math.cos(az), -Math.cos(el) * Math.sin(az), Math.sin(el)];
+    }
+    // light vectors ease toward their target, so the shine glides rather than snaps
+    function easeLamp(s, target, dt) {
+      for (let k = 0; k < 3; k++) damp(s.L, k, k + 3, target[k], .35, dt);
+      const n = Math.hypot(s.L[0], s.L[1], s.L[2]) || 1;
+      return [s.L[0] / n, s.L[1] / n, s.L[2] / n];
+    }
+
+    const els = [...document.querySelectorAll(".foil")];
+    const pieces = els.map((el, i) => ({
+      el, i, canvas: el.querySelector("canvas"),
+      name: el.dataset.foil, metal: el.dataset.metal, shine: +el.dataset.shine,
+      no: el.dataset.no, title: el.dataset.title,
+      x: 0, y: 0, vx: 0, vy: 0, yaw: 0, vyaw: 0, pitch: 0, vpitch: 0,
+      depth: [5, 6, 7][i] || 5,   // how far each piece shifts away from the cursor, in px
+      L: [0, 0, 1, 0, 0, 0],
+      data: null, gl: null,
+    }));
+
+    // the hero pieces: float, tilt a touch toward the cursor, and catch its light
+    const hero = document.querySelector(".hero");
+    let heroVisible = true;
+    new IntersectionObserver(([e]) => { heroVisible = e.isIntersecting; }).observe(hero);
+
+    let prev = performance.now();
+    function frame(now) {
+      requestAnimationFrame(frame);
+      const dt = Math.min(.05, (now - prev) / 1000);
+      prev = now;
+      if (!heroVisible || dt <= 0) return;
+      const t = now / 1000;
+      const px = pointer.seen ? pointer.x / innerWidth - .5 : 0;
+      const py = pointer.seen ? pointer.y / innerHeight - .5 : 0;
+      for (const p of pieces) {
+        if (!reduceMotion) {
+          // just a breath of drift: about a pixel or two
+          const fx = Math.sin(t * .32 + p.i * 1.7) * 1, fy = Math.sin(t * .41 + p.i * 2.3) * 1.5;
+          damp(p, "x", "vx", -px * p.depth + fx, 1.4, dt);
+          damp(p, "y", "vy", -py * p.depth + fy, 1.4, dt);
+          p.el.style.translate = `${p.x.toFixed(2)}px ${p.y.toFixed(2)}px`;
+        }
+        if (!p.gl || p.el.classList.contains("is-away")) continue;
+        // the bounding box grows with the tilt, so size comes from the unrotated box
+        const r = p.el.getBoundingClientRect(), w = p.el.offsetWidth, h = p.el.offsetHeight;
+        if (!w) continue;
+        const cx = r.left + r.width / 2, cy = r.top + r.height / 2;
+        const rot = parseFloat(getComputedStyle(p.el).rotate) * Math.PI / 180 || 0;
+        // a slight turn toward the cursor, as if picked up to look at
+        if (!reduceMotion && pointer.seen) {
+          const tx = Math.max(-1, Math.min(1, (pointer.x - cx) / (innerWidth * .5)));
+          const ty = Math.max(-1, Math.min(1, (pointer.y - cy) / (innerHeight * .5)));
+          damp(p, "yaw", "vyaw", tx * .22, .8, dt);
+          damp(p, "pitch", "vpitch", ty * .18, .8, dt);
+        }
+        const L = easeLamp(p, lampFor(cx, cy, t, rot), dt);
+        // the shadow falls away from the lamp, longer as the lamp gets lower (in the piece's frame, which CSS then rotates)
+        const low = 1 - L[2];
+        p.el.style.setProperty("--sx", (-L[0] * 22 * low).toFixed(1) + "px");
+        p.el.style.setProperty("--sy", (L[1] * 22 * low + 6).toFixed(1) + "px");
+        p.gl.render({
+          cssW: w * 1.28, cssH: h * 1.28, sheetW: w, sheetH: h,
+          yaw: p.yaw, pitch: p.pitch, L, shine: p.shine, f0: METALS[p.metal],
+        });
+      }
+    }
+
+    // ---------- 3D view ----------
+    const view = document.getElementById("foilView");
+    const vCanvas = document.getElementById("fvCanvas");
+    const vBg = view.querySelector(".fv-bg");
+    let vgl = null, vraf = 0, vlast = 0;
+    const vs = {
+      piece: null, t: 0, dir: 0, from: null,
+      yaw: 0, pitch: -.12, vy: 0, vp: 0, drag: false, idle: 0, lx: 0, ly: 0, lt: 0,
+      L: [0, 0, 1, 0, 0, 0],
+    };
+
+    function openView(p) {
+      if (!p.data) return;
+      try { if (!vgl) vgl = new FoilGL(vCanvas); } catch { return; }
+      vgl.setPiece(p.data, 256);
+      vs.piece = p;
+      const r = p.el.getBoundingClientRect();
+      vs.from = { cx: r.left + r.width / 2, cy: r.top + r.height / 2, w: p.el.offsetWidth, h: p.el.offsetHeight, yaw: p.yaw, pitch: p.pitch };
+      vs.L = [...p.L];
+      vs.yaw = p.yaw; vs.pitch = p.pitch;
+      vs.vy = reduceMotion ? 0 : 1.6; vs.vp = 0; vs.idle = 2; vs.drag = false;
+      vs.t = reduceMotion ? 1 : 0; vs.dir = 1;
+      document.getElementById("fvTitle").textContent =
+        `No. ${p.no} · ${p.title} · ${p.metal === "pewter" ? "Pewter" : "Silver"}`;
+      p.el.classList.add("is-away");
+      view.showModal();
+      view.classList.add("is-open");
+      vlast = 0; wake();
+    }
+    function closeView() {
+      if (!view.open || vs.dir === -1) return;
+      view.classList.remove("is-open");
+      if (reduceMotion) return finishClose();
+      // fly back to where it came from, facing front again
+      vs.dir = -1; vs.vy = 0; vs.vp = 0;
+      const r = vs.piece.el.getBoundingClientRect();
+      vs.from = { cx: r.left + r.width / 2, cy: r.top + r.height / 2, w: vs.piece.el.offsetWidth, h: vs.piece.el.offsetHeight, yaw: vs.piece.yaw, pitch: vs.piece.pitch };
+      // take the shortest way round to face front
+      const turns = Math.round((vs.yaw - vs.from.yaw) / (Math.PI * 2));
+      vs.backYaw = vs.yaw; vs.backPitch = vs.pitch; vs.homeYaw = vs.from.yaw + turns * Math.PI * 2;
+      wake();
+    }
+    function finishClose() {
+      vs.dir = 0;
+      vs.piece.el.classList.remove("is-away");
+      view.close();
+    }
+    const wake = () => { if (!vraf) vraf = requestAnimationFrame(vframe); };
+
+    function vframe(now) {
+      vraf = 0;
+      if (!view.open) return;
+      const dt = vlast ? Math.min(.05, (now - vlast) / 1000) : 1 / 60; vlast = now;
+      const p = vs.piece, f = vs.from;
+      const W = innerWidth, H = innerHeight;
+      // where it ends up: big and centred, above the caption bar
+      const k = Math.min(W * .58 / p.data.tw, (H - 120) * .72 / p.data.th);
+      const tw = p.data.tw * k, th = p.data.th * k;
+
+      if (vs.dir === 1) vs.t = Math.min(1, vs.t + dt / .75);
+      else if (vs.dir === -1) vs.t = Math.max(0, vs.t - dt / .6);
+      const e = ease(vs.t);
+
+      let yaw, pitch;
+      if (vs.dir === -1) {
+        yaw = vs.homeYaw + (vs.backYaw - vs.homeYaw) * e;
+        pitch = f.pitch + (vs.backPitch - f.pitch) * e;
+      } else {
+        // spin: drag, momentum, then a slow idle turn
+        if (!vs.drag) {
+          vs.yaw += vs.vy * dt; vs.pitch = Math.max(-1.3, Math.min(1.3, vs.pitch + vs.vp * dt));
+          vs.vy *= Math.exp(-dt * 2.2); vs.vp *= Math.exp(-dt * 3.5);
+          vs.idle += dt;
+          if (vs.idle > 1.6 && !reduceMotion) {
+            vs.vy += (.42 - vs.vy) * Math.min(1, dt * 1.2);
+            vs.pitch += (-.12 - vs.pitch) * Math.min(1, dt * .8);
+          }
+        }
+        yaw = vs.yaw; pitch = vs.pitch;
+      }
+
+      const cx = f.cx + (W / 2 - f.cx) * e, cy = f.cy + ((H - 60) / 2 - f.cy) * e;
+      vBg.style.opacity = e.toFixed(3);
+      const L = easeLamp(vs, lampFor(cx, cy, now / 1000), dt);
+      vgl.render({
+        cssW: W, cssH: H,
+        sheetW: f.w + (tw - f.w) * e, sheetH: f.h + (th - f.h) * e,
+        ox: cx - W / 2, oy: H / 2 - cy,
+        yaw, pitch, L, shine: p.shine, f0: METALS[p.metal],
+      });
+      if (vs.dir === -1 && vs.t <= 0) return finishClose();
+      wake();
+    }
+
+    vCanvas.addEventListener("pointerdown", e => {
+      if (vs.dir === -1) return;
+      vCanvas.setPointerCapture(e.pointerId);
+      vs.drag = true; vs.idle = 0; vs.lx = e.clientX; vs.ly = e.clientY; vs.lt = performance.now(); vs.vy = vs.vp = 0;
+    });
+    vCanvas.addEventListener("pointermove", e => {
+      if (!vs.drag) return;
+      const now = performance.now(), dt = Math.max(8, now - vs.lt) / 1000;
+      const dx = (e.clientX - vs.lx) * .0085, dy = (e.clientY - vs.ly) * .0085;
+      vs.yaw += dx; vs.pitch = Math.max(-1.3, Math.min(1.3, vs.pitch + dy));
+      vs.vy = dx / dt; vs.vp = dy / dt;
+      vs.lx = e.clientX; vs.ly = e.clientY; vs.lt = now;
+    });
+    const release = () => { vs.drag = false; vs.idle = 0; };
+    vCanvas.addEventListener("pointerup", release);
+    vCanvas.addEventListener("pointercancel", release);
+    vCanvas.addEventListener("dblclick", () => {
+      vs.yaw = Math.round(vs.yaw / (Math.PI * 2)) * Math.PI * 2; vs.pitch = -.12; vs.vy = vs.vp = 0; vs.idle = 0;
+    });
+    document.getElementById("fvClose").addEventListener("click", closeView);
+    view.addEventListener("cancel", e => { e.preventDefault(); closeView(); });   // Esc flies it home too
+
+    // ---------- boot: light each piece once its height map is in ----------
+    pieces.forEach(async p => {
+      try {
+        p.gl = new FoilGL(p.canvas);
+        p.data = await loadPiece(p.name);
+        p.gl.setPiece(p.data, 128);
+        p.L = [...lampFor(0, 0, 0), 0, 0, 0];
+        p.el.classList.add("is-lit");
+      } catch (err) {
+        // no WebGL 2, or the height map couldn't be read (opened as file://): the baked front-on image stays
+        console.warn(location.protocol === "file:"
+          ? "Foils: open the page through the local server (http://localhost:4321), not as a file, for the live lighting and 3D view."
+          : "Foils: live lighting is off.", err);
+        p.gl = null;
+        if (!p.data) p.el.disabled = true;
+      }
+    });
+    pieces.forEach(p => p.el.addEventListener("click", () => openView(p)));
+    requestAnimationFrame(frame);
+  })();
+  </script>
+  <script src="site.js" defer></script>
+</body>
+</html>

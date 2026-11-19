@@ -1,0 +1,1136 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Google Careers Case Study</title>
+  <meta name="description" content="Research-led redesign of the Google Careers location page for high-intent candidates." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300..500;1,6..72,300..500&family=Geist:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --wall: #e0dc62;
+      --shadow: 92, 106, 34;      /* rgb of the leaf shadows */
+      --ink: #2a300f;
+      --ink-soft: #4a521e;
+      --muted: #6d7248;
+      --hairline: rgba(42, 48, 15, 0.12);
+      --paper: #fdfdf8;
+      --custard: #f9e48a;
+      --petal: #ffd3e0;
+      --icy: #abd2ef;
+      --sage: #e4e5d6;
+      --rose: #a8456f;            /* eyebrow accent, readable on paper */
+      --serif: "Newsreader", "Iowan Old Style", Georgia, serif;
+      --sans: "Geist", -apple-system, "Helvetica Neue", Arial, sans-serif;
+      --ease: cubic-bezier(.2, .8, .2, 1);
+      --gutter: max(16px, env(safe-area-inset-left, 0px));
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--paper);
+      color: var(--ink);
+      font-family: var(--sans);
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+    img, video { max-width: 100%; display: block; }
+    a:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; border-radius: 4px; }
+
+    /* ---------- Nav (same as the home page) ---------- */
+    .site-nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 10;
+      display: flex;
+      justify-content: center;
+      transition: padding .55s var(--ease);
+    }
+    .nav-inner {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      gap: 40px;
+      padding: 26px max(20px, 4vw);
+      border: 1px solid transparent;
+      background: rgba(253, 253, 248, 0);
+      font-size: 14px;
+      line-height: 1;
+      transition: width .55s var(--ease), padding .55s var(--ease), gap .55s var(--ease),
+        border-radius .55s var(--ease), background-color .4s ease, border-color .4s ease, box-shadow .4s ease;
+    }
+    .brand {
+      margin-right: auto;
+      font-family: var(--serif);
+      font-size: 21px;
+      line-height: 1;
+      letter-spacing: -0.015em;
+      color: var(--ink);
+      text-decoration: none;
+      white-space: nowrap;
+    }
+    .divider { flex: none; width: 1px; height: 22px; background: var(--hairline); opacity: 0; transition: opacity .3s ease; }
+    .links { display: flex; align-items: center; gap: 28px; }
+    .links a { color: var(--ink-soft); text-decoration: none; white-space: nowrap; transition: color .2s; }
+    .links a:hover, .links a[aria-current="page"] { color: var(--ink); }
+    .site-nav.is-scrolled { padding-top: 16px; }
+    .site-nav.is-scrolled .nav-inner {
+      width: min(var(--pill-w, 640px), calc(100% - 32px));
+      gap: 24px;
+      padding: 14px 26px;
+      border-radius: 999px;
+      background: rgba(253, 253, 248, 0.82);
+      border-color: var(--hairline);
+      box-shadow: 0 1px 2px rgba(42, 48, 15, 0.05), 0 12px 32px -14px rgba(42, 48, 15, 0.28);
+      backdrop-filter: blur(16px) saturate(1.2);
+      -webkit-backdrop-filter: blur(16px) saturate(1.2);
+    }
+    .site-nav.is-scrolled .divider { opacity: 1; }
+
+    /* ---------- Hero ---------- */
+    .case-hero {
+      position: relative;
+      padding: 140px var(--gutter) 0;
+      overflow: hidden;
+    }
+    /* the home page's wall colour and leaf shadows, fading out into the page */
+    .case-hero::before {
+      content: "";
+      position: absolute;
+      inset: 0 0 auto;
+      height: 640px;
+      background:
+        radial-gradient(ellipse 60% 70% at 85% 0%, rgba(250, 205, 215, 0.55), transparent 70%),
+        linear-gradient(to bottom, rgba(224, 220, 98, 0.55), rgba(253, 253, 248, 0) 100%);
+      pointer-events: none;
+    }
+    .hero-shade {
+      position: absolute;
+      inset: -40px -40px auto;
+      height: 680px;
+      background-image: var(--leaf-shadow, none);
+      background-size: 1200px auto;
+      background-position: 70% 0;
+      opacity: 0.13;
+      filter: blur(10px);
+      mix-blend-mode: multiply;
+      -webkit-mask-image: linear-gradient(to bottom, #000 30%, transparent 95%);
+      mask-image: linear-gradient(to bottom, #000 30%, transparent 95%);
+      pointer-events: none;
+      animation: drift 28s ease-in-out infinite alternate;
+    }
+    @keyframes drift {
+      from { transform: translate3d(-14px, 0, 0) rotate(-0.4deg); }
+      to   { transform: translate3d(14px, 6px, 0) rotate(0.4deg); }
+    }
+    .wrap { position: relative; max-width: 1160px; margin: 0 auto; }
+
+    .kicker {
+      font-size: 13px;
+      line-height: 1.6;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--ink-soft);
+    }
+    .kicker .sep { opacity: .55; margin: 0 0.5em; }
+
+    h1 {
+      max-width: 18ch;
+      margin-top: 22px;
+      font-family: var(--serif);
+      font-weight: 380;
+      font-size: clamp(38px, 5.4vw, 74px);
+      font-variation-settings: "opsz" 72;
+      line-height: 1.12;
+      letter-spacing: -0.02em;
+      text-wrap: balance;
+    }
+    h1 em { font-style: italic; font-weight: 320; white-space: nowrap; }
+
+    .lede {
+      max-width: 62ch;
+      margin-top: 28px;
+      font-size: clamp(17px, 1.4vw, 19px);
+      line-height: 1.65;
+      color: var(--ink-soft);
+    }
+    .lede strong { color: var(--ink); font-weight: 600; }
+    .update {
+      display: inline-flex;
+      align-items: flex-start;
+      gap: 10px;
+      margin-top: 20px;
+      padding: 9px 16px;
+      border-radius: 12px;
+      line-height: 1.45;
+      background: rgba(255, 255, 255, 0.6);
+      border: 1px solid var(--hairline);
+      font-size: 14px;
+      color: var(--ink-soft);
+    }
+    .update::before {
+      content: "";
+      flex: none;
+      margin-top: 0.5em;
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: #5c8a3a;
+      box-shadow: 0 0 0 4px rgba(92, 138, 58, 0.18);
+    }
+
+    .hero-media { margin-top: 64px; }
+    .hero-media video {
+      width: 100%;
+      height: auto;
+      border-radius: 16px;
+      background: #fff;
+      box-shadow: 0 0 0 1px var(--hairline), 0 30px 60px -36px rgba(42, 48, 15, 0.35);
+    }
+
+    /* project facts */
+    .facts {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 24px;
+      padding: 48px 0 8px;
+      border-bottom: 1px solid var(--hairline);
+    }
+    .facts dt {
+      font-size: 12px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 10px;
+    }
+    .facts dd { font-size: 15px; line-height: 1.6; color: var(--ink); padding-bottom: 40px; }
+
+    /* ---------- Body: contents rail + story ---------- */
+    .case-body {
+      padding: 72px var(--gutter) 96px;
+    }
+    .case-grid {
+      max-width: 1160px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 210px minmax(0, 1fr);
+      gap: clamp(48px, 8vw, 128px);
+    }
+    .toc {
+      position: sticky;
+      top: 120px;
+      align-self: start;
+      padding-top: 6px;
+    }
+    .toc p {
+      font-size: 12px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 20px;
+    }
+    .toc ol { list-style: none; display: flex; flex-direction: column; gap: 6px; }
+    .toc a {
+      position: relative;
+      display: block;
+      padding: 8px 0 8px 20px;
+      font-size: 15px;
+      line-height: 1.3;
+      color: var(--muted);
+      text-decoration: none;
+      transition: color .25s ease;
+    }
+    .toc a::before {
+      content: "";
+      position: absolute;
+      left: 0; top: 50%;
+      width: 6px; height: 6px;
+      margin-top: -3px;
+      border-radius: 50%;
+      background: var(--ink);
+      transform: scale(0);
+      transition: transform .3s var(--ease);
+    }
+    .toc a:hover { color: var(--ink-soft); }
+    .toc a.is-active { color: var(--ink); }
+    .toc a.is-active::before { transform: scale(1); }
+
+    /* spacing rhythm: 12px eyebrow→heading, 20px between text, 40px around visual blocks */
+    .story { max-width: 780px; display: flex; flex-direction: column; gap: 128px; }
+    .chapter { display: flex; flex-direction: column; gap: 20px; scroll-margin-top: 100px; }
+    .chapter > .eyebrow + h2 { margin-top: -8px; }
+    .chapter > :is(.panel, figure, .split, .cohorts, .frictions, .brief, .kpis) { margin-block: 20px; }
+    .chapter > :first-child { margin-top: 0; }
+    .chapter > :last-child { margin-bottom: 0; }
+    .chapter-break { margin-top: 64px; }
+
+    .eyebrow {
+      font-size: 13px;
+      font-weight: 500;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--rose);
+    }
+    h2 {
+      font-family: var(--serif);
+      font-weight: 380;
+      font-size: clamp(30px, 3.4vw, 46px);
+      line-height: 1.1;
+      letter-spacing: -0.025em;
+      text-wrap: balance;
+    }
+    h2 em { font-style: italic; }
+    h3 {
+      font-family: var(--serif);
+      font-weight: 400;
+      font-size: clamp(24px, 2.4vw, 32px);
+      line-height: 1.15;
+      letter-spacing: -0.02em;
+    }
+    /* :where keeps this low-priority, so specific text styles below win */
+    :where(.story) p, :where(.story) li {
+      font-size: 17px;
+      line-height: 1.7;
+      color: var(--ink-soft);
+    }
+    :where(.story) em { color: var(--ink); }
+    .story strong { color: var(--ink); font-weight: 600; }
+
+    figure { display: flex; flex-direction: column; gap: 12px; }
+    figcaption { font-size: 14px; line-height: 1.5; color: var(--muted); }
+
+    .split {
+      display: grid;
+      grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+      gap: 48px;
+      align-items: center;
+    }
+    .split > .chapter { gap: 20px; }
+    .collage img { width: 100%; height: auto; filter: drop-shadow(0 18px 30px rgba(42, 48, 15, 0.18)); }
+
+    /* tinted panels: yellow for findings and numbers, sage for voices and artefacts */
+    .panel {
+      border-radius: 20px;
+      padding: clamp(28px, 4vw, 56px);
+      background: var(--tone, var(--sage));
+    }
+    .tint-custard { --tone: color-mix(in srgb, var(--custard) 55%, var(--paper)); }
+    .tint-sage { --tone: color-mix(in srgb, var(--sage) 80%, var(--paper)); }
+
+    .pull {
+      font-family: var(--serif);
+      font-weight: 380;
+      font-size: clamp(30px, 4vw, 52px);
+      line-height: 1.08;
+      letter-spacing: -0.03em;
+      color: var(--ink);
+      text-wrap: balance;
+    }
+    .pull-note { margin-top: 14px; }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      margin-top: 44px;
+    }
+    .stat {
+      padding: 0 28px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .stat:first-child { padding-left: 0; }
+    .stat:last-child { padding-right: 0; }
+    .stat + .stat { border-left: 1px solid rgba(42, 48, 15, 0.16); }
+    .stat .label {
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--rose);
+    }
+    .stat .num {
+      font-family: var(--serif);
+      font-weight: 380;
+      font-size: clamp(44px, 4.8vw, 60px);
+      line-height: 1;
+      letter-spacing: -0.03em;
+      font-variant-numeric: tabular-nums;
+      color: var(--ink);
+    }
+    .stat p { font-size: 15px; line-height: 1.5; max-width: 24ch; }
+
+    .voice {
+      display: grid;
+      grid-template-columns: 96px minmax(0, 1fr);
+      gap: 36px;
+      align-items: center;
+    }
+    .voice svg { width: 88px; height: 88px; color: var(--ink-soft); }
+    .voice blockquote {
+      font-family: var(--serif);
+      font-size: clamp(24px, 2.6vw, 34px);
+      line-height: 1.2;
+      letter-spacing: -0.02em;
+      color: var(--ink);
+    }
+    .voice cite { display: block; margin-top: 14px; font-style: normal; font-size: 15px; color: var(--muted); }
+
+    .cohorts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+    .cohort {
+      border-radius: 18px;
+      padding: 28px;
+      border: 1px solid var(--hairline);
+      background: #fff;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .cohort .label {
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--ink-soft);
+    }
+    .cohort .method { font-family: var(--serif); font-size: 24px; color: var(--ink); letter-spacing: -0.01em; }
+
+    .finding .eyebrow { margin-bottom: 14px; }
+    .finding h3 { font-size: clamp(28px, 3.2vw, 42px); }
+    .finding h3 em { font-style: italic; }
+    .finding p { margin-top: 14px; }
+
+    /* friction points: the list scrolls while the recording stays in view */
+    .frictions {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: 40px;
+      align-items: start;
+    }
+    .frictions ol { list-style: none; display: flex; flex-direction: column; gap: 40px; }
+    .frictions .n {
+      display: block;
+      font-family: var(--serif);
+      font-size: 52px;
+      line-height: 1;
+      letter-spacing: -0.03em;
+      color: color-mix(in srgb, var(--ink) 35%, var(--paper));
+      font-variant-numeric: tabular-nums;
+      margin-bottom: 10px;
+    }
+    .frictions h3 { font-family: var(--sans); font-size: 19px; font-weight: 600; letter-spacing: -0.01em; margin-bottom: 8px; }
+    .frictions figure { position: sticky; top: 110px; }
+    .frictions video { width: 100%; height: auto; border-radius: 12px; background: #fff; border: 1px solid var(--hairline); }
+
+    .brief-label { font-weight: 600; color: var(--ink); }
+    .brief {
+      border-radius: 18px;
+      overflow: hidden;
+      border: 1px solid var(--hairline);
+      background: #fff;
+    }
+    .brief-row {
+      display: grid;
+      grid-template-columns: minmax(0, 0.8fr) 32px minmax(0, 1.2fr);
+      gap: 16px;
+      align-items: center;
+      padding: 22px 28px;
+    }
+    .brief-row + .brief-row { border-top: 1px dashed rgba(42, 48, 15, 0.22); }
+    .brief-head {
+      background: color-mix(in srgb, var(--custard) 45%, var(--paper));
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--ink-soft);
+      padding-block: 16px;
+    }
+    .brief-row .q { font-family: var(--serif); font-size: 21px; line-height: 1.25; color: var(--ink); }
+    .brief-row .arrow { color: var(--muted); }
+    .brief-row .a { font-size: 16px; line-height: 1.6; color: var(--ink-soft); }
+
+    .component { display: flex; flex-direction: column; gap: 24px; }
+    .component .mat {
+      padding: clamp(12px, 2.4vw, 28px);
+      border-radius: 14px;
+      background: color-mix(in srgb, var(--custard) 50%, var(--paper));
+    }
+    .component video { width: 100%; border-radius: 10px; background: #fff; box-shadow: 0 24px 48px -24px rgba(42, 48, 15, 0.4); }
+
+    .kpis { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+    .kpi {
+      border-radius: 18px;
+      padding: 28px;
+      border: 1px solid var(--hairline);
+      background: #fff;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .kpi.lead { background: color-mix(in srgb, var(--custard) 55%, var(--paper)); border-color: transparent; }
+    .kpi .label {
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--rose);
+    }
+    .kpi .num {
+      font-family: var(--serif);
+      font-size: clamp(52px, 5.4vw, 72px);
+      line-height: 1;
+      letter-spacing: -0.03em;
+      font-variant-numeric: tabular-nums;
+      color: var(--ink);
+    }
+    .kpi .what { font-family: var(--serif); font-size: 22px; line-height: 1.2; color: var(--ink); }
+    .kpi p { font-size: 15px; line-height: 1.6; }
+
+    .reflections { list-style: none; display: flex; flex-direction: column; gap: 18px; }
+    .reflections li { position: relative; padding-left: 22px; }
+    .reflections li::before {
+      content: "";
+      position: absolute;
+      left: 0; top: 0.75em;
+      width: 8px; height: 1px;
+      background: var(--ink);
+    }
+    .team { border-radius: 18px; overflow: hidden; }
+    .team img { width: 100%; height: auto; }
+
+    .testimonial blockquote {
+      font-family: var(--serif);
+      font-size: clamp(22px, 2.3vw, 30px);
+      line-height: 1.35;
+      letter-spacing: -0.015em;
+      color: var(--ink);
+    }
+    .testimonial cite { display: block; margin-top: 18px; font-style: normal; font-size: 15px; color: var(--ink-soft); }
+
+    /* ---------- Next project ---------- */
+    .next {
+      padding: 0 var(--gutter) 96px;
+    }
+    .next a {
+      max-width: 1160px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+      padding: clamp(28px, 4vw, 48px);
+      border-radius: 20px;
+      background: color-mix(in srgb, var(--sage) 80%, var(--paper));
+      color: var(--ink);
+      text-decoration: none;
+    }
+    .next .label { font-size: 13px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-soft); }
+    .next .title { font-family: var(--serif); font-size: clamp(28px, 3.4vw, 44px); letter-spacing: -0.025em; margin-top: 6px; }
+    .next .go {
+      flex: none;
+      display: grid;
+      place-items: center;
+      width: 56px; height: 56px;
+      border: 1px solid var(--ink);
+      border-radius: 14px;
+      transition: background-color .25s, color .25s, transform .25s var(--ease);
+    }
+    .next a:hover .go { background: var(--ink); color: var(--paper); transform: rotate(45deg); }
+
+    footer {
+      border-top: 1px solid var(--hairline);
+      padding: 28px var(--gutter) 36px;
+      font-size: 14px;
+      color: var(--muted);
+    }
+    footer .wrap { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px; }
+    footer a { color: var(--ink); text-decoration: none; }
+    footer a:hover { text-decoration: underline; }
+
+    /* ---------- Scroll reveal ----------
+       Content is visible by default. Only when the script runs (and motion is allowed)
+       does it start slightly lowered and faded, then settle in as it enters view. */
+    .reveal-on .reveal {
+      opacity: 0;
+      transform: translate3d(0, 18px, 0);
+      transition: opacity .7s ease, transform .9s var(--ease);
+      transition-delay: var(--delay, 0ms);
+    }
+    .reveal-on .reveal.is-in { opacity: 1; transform: none; }
+    @media print { .reveal-on .reveal { opacity: 1; transform: none; } }
+
+    .chapter h2:focus { outline: none; }
+    .chapter h2:focus-visible { outline: 2px solid var(--ink); outline-offset: 6px; border-radius: 4px; }
+
+    /* ---------- Responsive ---------- */
+    @media (max-width: 960px) {
+      .case-grid { grid-template-columns: minmax(0, 1fr); }
+      .toc { display: none; }
+      .facts { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    }
+    @media (max-width: 720px) {
+      .case-hero { padding-top: 110px; }
+      .facts { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 20px; }
+      .facts dd { padding-bottom: 28px; }
+      .story { gap: 88px; }
+      .split, .frictions, .cohorts, .kpis { grid-template-columns: minmax(0, 1fr); }
+      .frictions figure { position: static; order: -1; }
+      .stats { grid-template-columns: minmax(0, 1fr); gap: 24px; margin-top: 32px; }
+      .stat, .stat:first-child, .stat:last-child { padding: 0; }
+      .stat + .stat { border-left: 0; border-top: 1px solid rgba(42, 48, 15, 0.16); padding-top: 24px; }
+      .voice { grid-template-columns: minmax(0, 1fr); gap: 16px; }
+      .voice svg { width: 56px; height: 56px; }
+      .brief-row { grid-template-columns: minmax(0, 1fr); gap: 8px; padding: 20px; }
+      .brief-row .arrow { transform: rotate(90deg); width: 18px; }
+      .brief-head { display: none; }
+      .nav-inner { padding: 18px 16px; gap: 16px; }
+      .links { gap: 18px; }
+      .brand { font-size: 19px; }
+      .site-nav.is-scrolled .nav-inner { gap: 14px; padding: 13px 20px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      .hero-shade { animation: none; }
+      .site-nav, .nav-inner, .toc a::before, .next .go { transition: none; }
+    }
+  </style>
+</head>
+<body id="top">
+  <header class="site-nav" id="siteNav">
+    <nav class="nav-inner" aria-label="Main">
+      <a class="brand" href="index.html">Summer Sueki</a>
+      <span class="divider" aria-hidden="true"></span>
+      <div class="links">
+        <a href="index.html#work" aria-current="page">Work</a>
+        <a href="index.html#play">Play</a>
+        <a href="index.html#about">About</a>
+      </div>
+    </nav>
+  </header>
+
+  <main>
+    <section class="case-hero">
+      <div class="hero-shade" aria-hidden="true"></div>
+      <div class="wrap">
+        <p class="kicker"><span>2026</span><span class="sep" aria-hidden="true">•</span><span>Google in partnership with Codelab</span></p>
+        <h1>Research-led redesign for <em>high-intent</em> candidates</h1>
+        <p class="lede">
+          Google Careers pulls in <strong>3M+ applications annually</strong>, but candidates were dropping off
+          before finishing a profile. I led research on Google's project with Codelab, UC Davis's student
+          design agency: <strong>180+ survey responses</strong>, user interviews, and two rounds of A/B testing.
+          The findings reshaped the page's information architecture, and I went beyond my research scope to
+          build mid-fi components within <strong>Brightspot CMS constraints</strong> that made it into the
+          final proof of concept.
+        </p>
+        <p class="update">Update, August 2026: Google is implementing the majority of our designs for launch later this year.</p>
+
+        <div class="hero-media">
+          <video src="../assets/google-pitch-web.mp4" poster="../assets/google-pitch-poster.jpg" width="1600" height="900"
+            autoplay muted loop playsinline aria-label="Pitch reel: Google office photos around the line 'Built to help candidates picture themselves here'"></video>
+        </div>
+
+        <dl class="facts">
+          <div><dt>Year</dt><dd>2026</dd></div>
+          <div><dt>Team</dt><dd>Research<br />Design<br />Product<br />Engineering</dd></div>
+          <div><dt>Role</dt><dd>UX Researcher</dd></div>
+          <div><dt>Tools</dt><dd>Figma<br />Google Forms<br />Brightspot CMS</dd></div>
+          <div><dt>Skills</dt><dd>Survey · Design · A/B testing · Data synthesis · Mid-fi wireframing</dd></div>
+        </dl>
+      </div>
+    </section>
+
+    <div class="case-body">
+      <div class="case-grid">
+        <nav class="toc" aria-label="Case study sections">
+          <p>Contents</p>
+          <ol>
+            <li><a href="#problem">Problem</a></li>
+            <li><a href="#investigation">Investigation</a></li>
+            <li><a href="#discovery">Discovery</a></li>
+            <li><a href="#patterns">Patterns</a></li>
+            <li><a href="#contributions">My contributions</a></li>
+            <li><a href="#constraints">Constraints</a></li>
+            <li><a href="#results">Did it work?</a></li>
+            <li><a href="#reflection">Reflection</a></li>
+          </ol>
+        </nav>
+
+        <article class="story">
+          <!-- Problem -->
+          <section class="chapter" id="problem">
+            <p class="eyebrow">The problem</p>
+            <h2>Google Careers' location page was losing candidates before they ever hit apply.</h2>
+            <p>
+              The page was clean and well organized, <em>but it was built to inform rather than to make someone
+              get a feel for what it was like to work and live there.</em> It told candidates what jobs existed
+              without telling them what life at that location actually looked like: no sense of commute,
+              neighborhood, or daily routine. Candidates got a row of job listings and a small photo carousel instead.
+            </p>
+          </section>
+
+          <!-- Investigation -->
+          <section class="chapter" id="investigation">
+            <div class="split">
+              <div class="chapter">
+                <p class="eyebrow">The investigation</p>
+                <h2>What 180+ people told us (and what they didn't)</h2>
+                <p>
+                  We ran a survey across five universities—UC Davis, UCLA, UCI, Georgia Tech, Boston University.
+                  Tabling, Slack, Discord, campus flyers. We conducted 12 moderated interviews. We tested nine
+                  different page variations to see what actually moved the needle.
+                </p>
+              </div>
+              <figure class="collage">
+                <img src="../assets/google-outreach.png" width="610" height="700" loading="lazy"
+                  alt="Photo collage of the research team tabling on campus with Google survey QR-code flyers" />
+                <figcaption>The UXR team doing outreach for survey participants around the UC Davis campus</figcaption>
+              </figure>
+            </div>
+
+            <div class="panel tint-custard">
+              <p class="pull">“It doesn't scream ‘Google’ like other sites do.”</p>
+              <p class="pull-note">The survey told us the page felt sterile, overwhelming, off-brand.</p>
+              <div class="stats">
+                <div class="stat"><span class="num">48%</span><span class="label">Perception</span><p>negative word associations: sterile, bland, lifeless</p></div>
+                <div class="stat"><span class="num">53%</span><span class="label">Overwhelming</span><p>drop-off among highest-intent candidates after viewing</p></div>
+                <div class="stat"><span class="num">50%</span><span class="label">Off-brand</span><p>left with low to moderate confidence in understanding the location</p></div>
+              </div>
+            </div>
+
+            <p>
+              To synthesize 180+ open-ended responses, I used Gemini to surface clusters and patterns.
+              The question remained: “What do candidates want? And why?”
+            </p>
+
+            <div class="panel tint-sage voice">
+              <!-- "hard to picture yourself": an empty frame with a faint, dashed figure -->
+              <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <rect x="6" y="8" width="36" height="32" rx="5" />
+                <circle cx="24" cy="21" r="5" stroke-dasharray="2.4 2.6" />
+                <path d="M14.5 34c1.8-4.6 5.4-7 9.5-7s7.7 2.4 9.5 7" stroke-dasharray="2.4 2.6" />
+              </svg>
+              <div>
+                <blockquote>“There's a lack of information and images. It makes it hard to actually picture yourself working there.”</blockquote>
+                <cite>— High-intent, early-career candidate</cite>
+              </div>
+            </div>
+          </section>
+
+          <!-- Discovery -->
+          <section class="chapter" id="discovery">
+            <p class="eyebrow">The discovery</p>
+            <h2>Two cohorts. Two completely different mental models.</h2>
+            <p>Entry-level candidates wanted a lifestyle. Experienced hires wanted logistics.</p>
+            <div class="cohorts">
+              <div class="cohort">
+                <span class="label">Entry-level candidates</span>
+                <span class="method">We surveyed.</span>
+                <p>Entry-level candidates cared about lifestyle, city culture, and social scene. What does daily life actually feel like?</p>
+              </div>
+              <div class="cohort">
+                <span class="label">Experienced hires</span>
+                <span class="method">We interviewed.</span>
+                <p>Experienced professionals cared about logistics, commute times, and family relocation.</p>
+              </div>
+            </div>
+            <p>
+              Google wanted one page for both, but they weren't reading it the same way. This split surfaced in
+              how people talked about weighing relocation through both the interviews and surveys. To get
+              experienced hires into the study at all, we reached into our own networks instead of waiting on a
+              formal recruiting pipeline, which gave us more candid responses than a screened panel would have.
+            </p>
+            <div class="panel tint-custard finding">
+              <p class="eyebrow">One finding surprised Google the most</p>
+              <h3>We had to lead with <em>place</em>, not just <em>workplace</em>.</h3>
+              <p>Across both cohorts, candidates ranked city culture and proximity to loved ones above office amenities.</p>
+            </div>
+          </section>
+
+          <!-- Patterns -->
+          <section class="chapter" id="patterns">
+            <p class="eyebrow">The patterns that emerged</p>
+            <h2>Three key friction points: navigation, authenticity, decision making</h2>
+            <div class="frictions">
+              <ol>
+                <li>
+                  <span class="n">01</span>
+                  <h3>The map wasn't helping anyone navigate.</h3>
+                  <p>
+                    We tested it. Users got confused, the map wasn't functional or intuitive and it was hard to
+                    find specific locations. Clients told us: interactive maps are a consistent pain point across
+                    their entire product suite, but implementing search bars was not feasible here. We had to get creative.
+                  </p>
+                </li>
+                <li>
+                  <span class="n">02</span>
+                  <h3>The content informed but didn't inspire.</h3>
+                  <p>
+                    None of that “Google innovation” was being conveyed. One candidate wrote: “Putting pictures at
+                    the top doesn't give me any idea of what it would be like to work there.” Images alone weren't
+                    enough. They needed real voices. Real context.
+                  </p>
+                </li>
+                <li>
+                  <span class="n">03</span>
+                  <h3>Candidates left without enough to decide.</h3>
+                  <p>The top three things they needed—daily logistics, lifestyle fit, living conditions—weren't on the page.</p>
+                </li>
+              </ol>
+              <figure>
+                <video src="../assets/google-audit.mp4" poster="../assets/google-audit-poster.jpg" width="1578" height="928" muted loop playsinline preload="metadata"
+                  aria-label="Screen recording of a usability audit on the original Google Careers location map"></video>
+                <figcaption>Screen recording of me conducting a usability audit of the original Google Careers location page</figcaption>
+              </figure>
+            </div>
+          </section>
+
+          <!-- My contributions -->
+          <section class="chapter" id="contributions">
+            <p class="eyebrow">From insight to direction</p>
+            <h2>I built a handoff document that became the design brief</h2>
+            <p>
+              We used the iceberg model and five whys across FigJam boards to move from raw data to direction.
+              I took those findings and translated them into a strategic framework: a handoff document mapping
+              candidate pain points directly to UI strategy within Brightspot's CMS constraints.
+            </p>
+            <p>I presented this directly to Google. It became the design team's foundation for the sprints that followed.</p>
+            <p class="brief-label">A peek into the document:</p>
+            <div class="brief" role="table" aria-label="Insights mapped to design direction">
+              <div class="brief-row brief-head" role="row"><span role="columnheader">Insight</span><span></span><span role="columnheader">Direction</span></div>
+              <div class="brief-row" role="row">
+                <span class="q" role="cell">“Visuals feel lifeless”</span><span class="arrow" aria-hidden="true">→</span>
+                <span class="a" role="cell">Segment-specific cultural imagery: city life and social scene for entry-level candidates, localized logistics and commute context for experienced hires. Add interaction.</span>
+              </div>
+              <div class="brief-row" role="row">
+                <span class="q" role="cell">“It's overwhelming”</span><span class="arrow" aria-hidden="true">→</span>
+                <span class="a" role="cell">Progressive disclosure, designed to work within Brightspot's grid rather than fight it</span>
+              </div>
+              <div class="brief-row" role="row">
+                <span class="q" role="cell">“I want real experiences”</span><span class="arrow" aria-hidden="true">→</span>
+                <span class="a" role="cell">Day-in-the-life modules and employee voice</span>
+              </div>
+              <div class="brief-row" role="row">
+                <span class="q" role="cell">“It feels intimidating”</span><span class="arrow" aria-hidden="true">→</span>
+                <span class="a" role="cell">Encouraging microcopy and qualification transparency woven into the application flow itself</span>
+              </div>
+            </div>
+
+            <p class="eyebrow chapter-break">Where I stepped in</p>
+            <h2>Research showed candidates couldn't picture themselves at this location, so I translated that into a mid-fi exploration the design team built from.</h2>
+            <p>
+              The original page led with nine job tiles and a thin paragraph of copy. That's a directory, not a
+              living, breathing workplace. Candidates couldn't picture themselves there.
+            </p>
+            <p>
+              I used Gemini and Figma Make early to explore concepts that lived outside Brightspot: campus tours,
+              interactive commute maps, salary transparency hubs. This was a great starting point to make abstract
+              concepts tangible enough to convey and pitch early ideas.
+            </p>
+          </section>
+
+          <!-- Constraints -->
+          <section class="chapter" id="constraints">
+            <p class="eyebrow">The constraint</p>
+            <h2>Brightspot's constraints became our creative ally.</h2>
+            <p>
+              80% had to work within Brightspot's module system. 20% could be custom-engineered. The 80/20 budget
+              meant I had to design mid-fidelity components that worked within its module system while identifying
+              where a custom 20% would create the most impact.
+            </p>
+            <p>
+              Working with Brightspot forced us to solve the problem through content, information hierarchy, and
+              editorial choices, and that made us think smarter. Working within the constraint made us more
+              disciplined and more creative, and pushed us to create components that were intentional.
+            </p>
+            <div class="panel tint-sage component">
+              <h3>The custom component built directly from research.</h3>
+              <div class="mat">
+                <video src="../assets/google-preview.mp4" width="1020" height="608" muted loop playsinline preload="metadata"
+                  aria-label="The 'One Workplace. Countless Stories.' component: a carousel of employee story cards"></video>
+              </div>
+              <p>
+                I designed ‘One Workplace. Countless Stories.’ specifically to put employee voice front and center
+                in an interactive way. Standard testimonial blocks are large, heavy, and slow to read through.
+                Candidates scroll past them. But we needed candidates to engage with real stories, not just read
+                about them. So this component lets users click through, interact with media, and build a felt sense
+                of what working there actually feels like.
+              </p>
+            </div>
+          </section>
+
+          <!-- Results -->
+          <section class="chapter" id="results">
+            <p class="eyebrow">So… did it work?</p>
+            <h2>Confidence shifted from low-to-medium to medium-to-high.</h2>
+            <p>We ran 12 user acceptance testing sessions tracking three metrics:</p>
+            <div class="kpis">
+              <div class="kpi lead">
+                <span class="label">Confidence</span>
+                <span class="num">45%</span>
+                <span class="what">increase in confidence</span>
+                <p>Jumped from low-to-medium to medium-to-high. Candidates left understanding the location.</p>
+              </div>
+              <div class="kpi">
+                <span class="label">Time on page</span>
+                <span class="num">23%</span>
+                <span class="what">increase in time on the new page</span>
+                <p>Compared to the original. Users lingered in the “One Workplace” section longer than anywhere else.</p>
+              </div>
+              <div class="kpi">
+                <span class="label">Intent to apply</span>
+                <span class="num">31%</span>
+                <span class="what">intent to apply</span>
+                <p><strong>Intent to apply</strong> rose to 31% versus 12% on the original.</p>
+              </div>
+            </div>
+            <p>
+              The barriers that remained—imposter syndrome, hiring anxiety—live outside what design can solve.
+              Knowing that boundary is part of doing honest research. We fixed what we could. We were honest about
+              what we couldn't.
+            </p>
+          </section>
+
+          <!-- Reflection -->
+          <section class="chapter" id="reflection">
+            <p class="eyebrow">Looking back</p>
+            <h2>Reflection</h2>
+            <ul class="reflections">
+              <li>
+                Looking back, the biggest lesson was about listening. Not just to what people said, but
+                <em>how they were thinking underneath what they said</em>. Candidates said “I want information.”
+                What they meant was “I want to feel like I belong here.” That's two different problems.
+              </li>
+              <li>
+                Gemini got great at clustering 180 responses into patterns. But it would have missed that shift
+                from <em>what</em> to <em>why</em>. The tool is excellent at processing volume. It's terrible at
+                noticing the thing nobody thought to ask yet. That's still the human job.
+              </li>
+              <li>
+                Getting better at asking those questions—before diving into analysis—that's what I want to keep sharpening.
+              </li>
+            </ul>
+            <figure class="team">
+              <img src="../assets/google-team.jpg" width="2000" height="1334" loading="lazy" alt="The Codelab project team posing together in black outfits" />
+            </figure>
+            <div class="panel tint-sage testimonial">
+              <blockquote>
+                “The Employment Brand team at Google has been incredibly impressed with the thoughtfulness,
+                expertise, and design-forward approach shown in the work for our Careers location pages. The team
+                came to every meeting prepared and concise, asked insightful questions, and delivered exactly what
+                we expected.”
+              </blockquote>
+              <cite>— Amy Lynam, Integrated Marketing Manager, Google</cite>
+            </div>
+          </section>
+        </article>
+      </div>
+    </div>
+
+    <section class="next">
+      <a href="reddit.html">
+        <div>
+          <p class="label">Next case study</p>
+          <p class="title">Reddit</p>
+        </div>
+        <span class="go" aria-hidden="true">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 14 14 6M7 6h7v7"/></svg>
+        </span>
+      </a>
+    </section>
+  </main>
+
+  <footer>
+    <div class="wrap">
+      <span>© 2026 Summer Sueki</span>
+      <a href="mailto:summersueki@gmail.com">summersueki@gmail.com</a>
+    </div>
+  </footer>
+
+  <script>
+  // ---------- nav: shrink into a floating pill once you scroll ----------
+  (() => {
+    const nav = document.getElementById("siteNav");
+    const inner = nav.querySelector(".nav-inner");
+    function measurePill() {
+      const visible = [...inner.children].filter(el => getComputedStyle(el).display !== "none");
+      const content = visible.reduce((sum, el) => sum + el.getBoundingClientRect().width, 0);
+      const small = innerWidth <= 720;
+      const gap = small ? 14 : 24, padding = small ? 40 : 52, border = 2;
+      nav.style.setProperty("--pill-w", Math.ceil(content + gap * (visible.length - 1) + padding + border) + "px");
+    }
+    document.fonts.ready.then(measurePill);
+    measurePill();
+    addEventListener("resize", measurePill);
+    const onScroll = () => nav.classList.toggle("is-scrolled", scrollY > 24);
+    addEventListener("scroll", onScroll, { passive: true });
+    onScroll();
+  })();
+
+  // ---------- contents rail: highlight the chapter you're reading, glide to the one you pick ----------
+  (() => {
+    const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const links = [...document.querySelectorAll(".toc a")];
+    const chapters = links.map(a => document.querySelector(a.getAttribute("href")));
+    let gliding = false;
+
+    function setActive(i) {
+      links.forEach((a, k) => {
+        a.classList.toggle("is-active", k === i);
+        if (k === i) a.setAttribute("aria-current", "true"); else a.removeAttribute("aria-current");
+      });
+    }
+    function update() {
+      if (gliding) return;
+      const line = innerHeight * 0.35;
+      let current = 0;
+      chapters.forEach((c, i) => { if (c.getBoundingClientRect().top <= line) current = i; });
+      setActive(current);
+    }
+    addEventListener("scroll", update, { passive: true });
+    addEventListener("resize", update);
+    update();
+
+    // ease in and out; longer jumps take a little longer, but never drag
+    const easeInOut = t => t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+    let raf = 0;
+    // "instant" so each frame isn't handed to the browser's own smooth scrolling
+    const jump = top => scrollTo({ top, behavior: "instant" });
+    function glideTo(y, done) {
+      cancelAnimationFrame(raf);
+      const start = scrollY, dist = y - start;
+      if (reduceMotion || Math.abs(dist) < 2) { jump(y); done(); return; }
+      const duration = Math.min(1100, Math.max(450, Math.abs(dist) * 0.35));
+      const t0 = performance.now();
+      gliding = true;
+      // any wheel, touch or key press hands control straight back to the reader
+      const cancel = () => { cancelAnimationFrame(raf); finish(); };
+      const finish = () => {
+        gliding = false;
+        removeEventListener("wheel", cancel); removeEventListener("touchstart", cancel); removeEventListener("keydown", cancel);
+        update();
+      };
+      addEventListener("wheel", cancel, { passive: true, once: true });
+      addEventListener("touchstart", cancel, { passive: true, once: true });
+      addEventListener("keydown", cancel, { once: true });
+      const step = now => {
+        const t = Math.min(1, (now - t0) / duration);
+        jump(start + dist * easeInOut(t));
+        if (t < 1) raf = requestAnimationFrame(step);
+        else { finish(); done(); }
+      };
+      raf = requestAnimationFrame(step);
+    }
+
+    links.forEach((a, i) => {
+      a.addEventListener("click", e => {
+        e.preventDefault();
+        const target = chapters[i];
+        const offset = parseFloat(getComputedStyle(target).scrollMarginTop) || 0;
+        const y = Math.min(target.getBoundingClientRect().top + scrollY - offset,
+                           document.documentElement.scrollHeight - innerHeight);
+        setActive(i);
+        // the destination is shown straight away rather than waiting to animate in
+        target.querySelectorAll(".reveal").forEach(el => el.classList.add("is-in"));
+        history.replaceState(null, "", a.getAttribute("href"));
+        glideTo(y, () => {
+          // move keyboard and screen-reader focus to the chapter heading, without jumping
+          const heading = target.querySelector("h2");
+          if (heading) { heading.setAttribute("tabindex", "-1"); heading.focus({ preventScroll: true }); }
+        });
+      });
+    });
+  })();
+
+  // ---------- reveal text and media as they scroll into view ----------
+  (() => {
+    if (matchMedia("(prefers-reduced-motion: reduce)").matches || !("IntersectionObserver" in window)) return;
+    const targets = [
+      ...document.querySelectorAll(".story .chapter > *, .split > figure, .hero-media, .facts > div, .next a"),
+    ].filter(el => !el.querySelector(".chapter"));   // animate the pieces, not the wrappers around them
+    // anything already on screen at load stays put; only content further down animates
+    const fold = innerHeight;
+    targets.forEach(el => {
+      if (el.getBoundingClientRect().top < fold) return;
+      el.classList.add("reveal");
+    });
+    document.documentElement.classList.add("reveal-on");
+
+    const io = new IntersectionObserver(entries => {
+      // stagger things that arrive together, but only slightly
+      let n = 0;
+      entries.filter(e => e.isIntersecting).forEach(e => {
+        e.target.style.setProperty("--delay", `${Math.min(n++, 3) * 70}ms`);
+        e.target.classList.add("is-in");
+        io.unobserve(e.target);
+      });
+    }, { rootMargin: "0px 0px -8% 0px", threshold: 0.12 });
+    document.querySelectorAll(".reveal").forEach(el => io.observe(el));
+
+    // if someone jumps here via a link, find-in-page or a restored scroll, show what's in view at once
+    addEventListener("hashchange", () => document.querySelectorAll(".reveal").forEach(el => {
+      if (el.getBoundingClientRect().top < innerHeight) el.classList.add("is-in");
+    }));
+  })();
+
+  // ---------- videos: play only while on screen ----------
+  (() => {
+    const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const io = new IntersectionObserver(entries => {
+      entries.forEach(e => {
+        const v = e.target;
+        if (e.isIntersecting && !reduceMotion) v.play().catch(() => {});
+        else v.pause();
+      });
+    }, { threshold: 0.25 });
+    document.querySelectorAll("video").forEach(v => io.observe(v));
+  })();
+
+  // ---------- the home page's leaf shadows, painted once for the hero ----------
+  (() => {
+    const shadowRGB = getComputedStyle(document.documentElement).getPropertyValue("--shadow").trim();
+    let seed = 5;
+    const r = () => { seed = (seed * 16807) % 2147483647; return (seed - 1) / 2147483646; };
+    const w = 1200, h = 800, unit = Math.min(w, h) / 900, leafSize = 1.3;
+    const c = document.createElement("canvas");
+    c.width = w; c.height = h;
+    const ctx = c.getContext("2d");
+    ctx.fillStyle = ctx.strokeStyle = `rgba(${shadowRGB}, 1)`;
+    for (let b = 0; b < 3; b++) {
+      const fromTop = r() < 0.55;
+      const sx = fromTop ? w * (0.15 + r() * 0.85) : (r() < 0.5 ? 0 : w);
+      const sy = fromTop ? 0 : h * (0.05 + r() * 0.6);
+      const ex = w * (0.1 + r() * 0.8), ey = h * (0.35 + r() * 0.6);
+      const cx = (sx + ex) / 2 + (r() - 0.5) * w * 0.5, cy = (sy + ey) / 2 + (r() - 0.5) * h * 0.4;
+      ctx.lineWidth = (3 + r() * 4) * unit;
+      ctx.beginPath(); ctx.moveTo(sx, sy); ctx.quadraticCurveTo(cx, cy, ex, ey); ctx.stroke();
+      const steps = 18 + Math.floor(r() * 14);
+      for (let i = 0; i < steps; i++) {
+        const t = i / steps, it = 1 - t;
+        const px = it * it * sx + 2 * it * t * cx + t * t * ex, py = it * it * sy + 2 * it * t * cy + t * t * ey;
+        const angle = Math.atan2(2 * it * (cy - sy) + 2 * t * (ey - cy), 2 * it * (cx - sx) + 2 * t * (ex - cx));
+        const count = 1 + Math.floor(r() * 3);
+        for (let k = 0; k < count; k++) {
+          const side = (i + k) % 2 ? 1 : -1;
+          const len = (55 + r() * 70) * unit * leafSize, wid = len * (0.28 + r() * 0.16);
+          ctx.save();
+          ctx.globalAlpha = 0.65 + r() * 0.35;
+          ctx.translate(px, py);
+          ctx.rotate(angle + side * (0.5 + r() * 0.9));
+          ctx.beginPath(); ctx.moveTo(0, 0);
+          ctx.bezierCurveTo(len * 0.25, -wid, len * 0.75, -wid * 0.9, len, 0);
+          ctx.bezierCurveTo(len * 0.75, wid * 0.9, len * 0.25, wid, 0, 0);
+          ctx.fill();
+          ctx.restore();
+        }
+      }
+    }
+    document.documentElement.style.setProperty("--leaf-shadow", `url(${c.toDataURL("image/png")})`);
+  })();
+  </script>
+  <script src="site.js" defer></script>
+</body>
+</html>

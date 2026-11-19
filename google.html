@@ -1,0 +1,1206 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Google Careers Case Study</title>
+  <meta name="description" content="Research-led redesign of the Google Careers location page for high-intent candidates." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@700;800&family=Newsreader:ital,opsz,wght@0,6..72,300..500;1,6..72,300..500&family=Plus+Jakarta+Sans:wght@400;500;600&family=Gochi+Hand&family=Geist+Mono:wght@400&display=swap" rel="stylesheet" />
+  <style>
+    /* ---------- v3 case study: the home page's dark system ----------
+       Near-black page, off-white ink, colour only from the project's own print and tone.
+       Per page: --tone (the print's colour, for findings and numbers), --on-tone (text on it),
+       --accent (eyebrows, readable on the dark page), --backdrop / --next-backdrop (the prints). */
+    :root {
+      color-scheme: dark;
+      --bg: #141414;
+      --surface: #1c1c1c;
+      --ink: #eeece8;
+      --ink-soft: #b9b7b2;
+      --muted: #8f8f8f;
+      --hairline: rgba(238, 236, 232, 0.1);
+      --display: "Helvetica Now Display", "Inter Tight", "Helvetica Neue", Arial, sans-serif;
+      --sans: "Plus Jakarta Sans", -apple-system, "Helvetica Neue", Arial, sans-serif;
+      --hand: "Gochi Hand", "Comic Sans MS", cursive;
+      --serif: "Newsreader", "Iowan Old Style", Georgia, serif;
+      --mono: "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace;
+      --ease: cubic-bezier(.2, .8, .2, 1);
+      --gutter: max(16px, env(safe-area-inset-left, 0px), calc((100% - 1320px) / 2));
+      --cursor-dot: #fff;          /* site.js cursor */
+      --cursor-blend: difference;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--bg);
+      color: var(--ink);
+      font-family: var(--sans);
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+    img, video { max-width: 100%; display: block; }
+    a { color: inherit; }
+    a:focus-visible { outline: 2px solid var(--ink); outline-offset: 4px; }
+
+    /* ---------- Nav (same as the home page) ---------- */
+    .site-nav {
+      position: fixed;
+      inset: 0 0 auto;
+      z-index: 10;
+      border-bottom: 1px solid transparent;
+      transition: background-color .35s ease, border-color .35s ease;
+    }
+    .site-nav.is-scrolled {
+      background: rgba(20, 20, 20, 0.78);
+      border-color: var(--hairline);
+      backdrop-filter: blur(14px) saturate(1.2);
+      -webkit-backdrop-filter: blur(14px) saturate(1.2);
+    }
+    .nav-inner {
+      display: flex;
+      align-items: center;
+      gap: 32px;
+      padding: 22px var(--gutter);
+      font-size: 14px;
+      line-height: 1;
+    }
+    .brand {
+      margin-right: auto;
+      font-family: var(--display);
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: -0.04em;
+      text-transform: uppercase;
+      text-decoration: none;
+    }
+    .links { display: flex; align-items: center; gap: 28px; font-family: var(--mono); font-size: 13px; }
+    .links a { color: var(--ink); text-decoration: none; transition: color .2s; }
+    .links a:hover { color: rgba(238, 236, 232, 0.4); }
+    .links .hand {
+      display: inline-block;
+      font-family: var(--hand);
+      font-size: 19px;
+      letter-spacing: 0.05em;
+      transform: rotate(-4deg);
+    }
+
+    /* ---------- Hero ---------- */
+    .case-hero { padding: clamp(132px, 18vh, 180px) var(--gutter) 0; }
+    .wrap { position: relative; max-width: 1320px; margin: 0 auto; }
+
+    .kicker {
+      font-family: var(--mono);
+      font-size: 12px;
+      line-height: 1.6;
+      color: var(--muted);
+    }
+    .kicker .sep { margin: 0 0.6em; }
+
+    h1 {
+      max-width: 20ch;
+      margin-top: 18px;
+      font-family: var(--serif);
+      font-optical-sizing: auto;
+      font-weight: 360;
+      font-size: clamp(36px, 4.6vw, 64px);
+      line-height: 1.08;
+      letter-spacing: -0.02em;
+      text-wrap: balance;
+    }
+    h1 em { font-style: italic; font-weight: 320; white-space: nowrap; }
+
+    .lede {
+      max-width: 64ch;
+      margin-top: 26px;
+      font-size: clamp(16px, 1.25vw, 18px);
+      line-height: 1.7;
+      color: var(--ink-soft);
+    }
+    .lede strong { color: var(--ink); font-weight: 600; }
+    .update {
+      display: inline-flex;
+      align-items: flex-start;
+      gap: 10px;
+      margin-top: 22px;
+      padding: 9px 14px;
+      background: var(--surface);
+      font-family: var(--mono);
+      font-size: 12px;
+      line-height: 1.5;
+      color: var(--ink);
+    }
+    .update::before {
+      content: "";
+      flex: none;
+      margin-top: 0.45em;
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: #7fa35a;
+      box-shadow: 0 0 0 3px rgba(127, 163, 90, .18);
+    }
+
+    /* the hero media sits whole on the project's print, like its tile on the home page */
+    .hero-media {
+      margin-top: 56px;
+      padding: clamp(18px, 5%, 72px);
+      background: var(--tone) var(--backdrop) center / cover;
+    }
+    .hero-media img, .hero-media video {
+      width: 100%;
+      height: auto;
+      background: #fff;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, .12), 0 30px 60px -30px rgba(0, 0, 0, .55);
+    }
+
+    /* project facts, labelled like the home page's [Currently] row */
+    .facts {
+      display: grid;
+      grid-template-columns: repeat(var(--facts, 5), minmax(0, 1fr));
+      gap: 24px;
+      padding: 44px 0 8px;
+      border-bottom: 1px solid var(--hairline);
+    }
+    .facts dt { font-family: var(--mono); font-size: 12px; color: var(--muted); margin-bottom: 10px; }
+    .facts dt::before { content: "["; }
+    .facts dt::after { content: "]"; }
+    .facts dd { font-size: 15px; line-height: 1.6; color: var(--ink); padding-bottom: 36px; }
+
+    /* ---------- Body: contents rail + story ---------- */
+    /* the contents list hugs the left edge of the window, small and quiet; the story gets the room */
+    .case-body { --body-pad: clamp(20px, 3.2vw, 48px); padding: 72px var(--body-pad) 112px; overflow-x: clip; }   /* clip, not hidden: the sticky contents list keeps working */
+    .case-grid {
+      --rail-w: 150px;
+      --rail-gap: clamp(40px, 9vw, 180px);
+      --band-left: var(--rail-gap);   /* bands stop at the contents column, which stays page-coloured top to bottom */
+      display: grid;
+      grid-template-columns: var(--rail-w) minmax(0, 1fr);
+      gap: var(--rail-gap);
+    }
+    .toc {
+      position: sticky;
+      z-index: 2;   /* stays above the full-width bands as they scroll under it */
+      top: 112px;
+      align-self: start;
+      padding-top: 6px;
+      font-family: var(--mono);
+    }
+    .toc p { font-size: 11px; color: rgba(238, 236, 232, 0.4); margin-bottom: 16px; }
+    .toc ol { list-style: none; display: flex; flex-direction: column; gap: 2px; }
+    .toc a {
+      position: relative;
+      display: block;
+      padding: 6px 0 6px 18px;
+      font-size: 11px;
+      line-height: 1.3;
+      color: rgba(238, 236, 232, 0.4);
+      text-decoration: none;
+      transition: color .25s ease;
+    }
+    .toc a::before {
+      content: "";
+      position: absolute;
+      left: 0; top: 50%;
+      width: 10px; height: 1px;
+      background: var(--ink);
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform .3s var(--ease);
+    }
+    .toc a:hover { color: var(--ink-soft); }
+    .toc a.is-active { color: var(--ink-soft); }
+    .toc a.is-active::before { transform: scaleX(1); }
+
+    /* spacing rhythm: 12px eyebrow→heading, 20px between text, 40px around visual blocks */
+    .story { max-width: 920px; display: flex; flex-direction: column; gap: 128px; }
+    .chapter { display: flex; flex-direction: column; gap: 20px; scroll-margin-top: 100px; }
+    .chapter > .eyebrow + h2 { margin-top: -8px; }
+    .chapter > :is(.panel, figure, .split, .cohorts, .frictions, .brief, .kpis) { margin-block: 20px; }
+    .chapter > :first-child { margin-top: 0; }
+    .chapter > :last-child { margin-bottom: 0; }
+    .chapter-break { margin-top: 64px; }
+
+    .eyebrow { font-family: var(--mono); font-size: 12px; color: var(--accent); }
+    h2 {
+      font-family: var(--serif);
+      font-optical-sizing: auto;
+      font-weight: 360;
+      font-size: clamp(28px, 3vw, 42px);
+      line-height: 1.12;
+      letter-spacing: -0.02em;
+      text-wrap: balance;
+    }
+    h2 em { font-style: italic; }
+    h3 {
+      font-family: var(--serif);
+      font-weight: 380;
+      font-size: clamp(23px, 2.2vw, 30px);
+      line-height: 1.18;
+      letter-spacing: -0.015em;
+    }
+    /* :where keeps this low-priority, so specific text styles below win */
+    :where(.story) p, :where(.story) li { font-size: 17px; line-height: 1.7; color: var(--ink-soft); }
+    :where(.story) em { color: var(--ink); }
+    .story strong { color: var(--ink); font-weight: 600; }
+
+    figure { display: flex; flex-direction: column; gap: 12px; }
+    figcaption { font-family: var(--mono); font-size: 12px; line-height: 1.5; color: var(--muted); }
+
+    .split {
+      display: grid;
+      grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+      gap: 48px;
+      align-items: center;
+    }
+    .split > .chapter { gap: 20px; }
+    .collage img { width: 100%; height: auto; filter: drop-shadow(0 18px 30px rgba(0, 0, 0, 0.45)); }
+
+    /* panels in two tones only: the project's colour for findings and numbers,
+       a quiet dark surface for voices and supporting material */
+    .panel { padding: clamp(28px, 4vw, 56px); background: var(--surface); }
+    .tint-custard, .on-tone, .kpi.lead {
+      background: var(--tone);
+      --ink: var(--on-tone);
+      --ink-soft: color-mix(in srgb, var(--on-tone) 78%, var(--tone));
+      --muted: color-mix(in srgb, var(--on-tone) 62%, var(--tone));
+      --accent: var(--on-tone);
+      --hairline: color-mix(in srgb, var(--on-tone) 22%, transparent);
+      color: var(--ink);
+    }
+    .tint-sage { background: var(--surface); }
+    /* a band: plain dark grey that runs the full width of the window, its content still in the text column */
+    .band {
+      position: relative;
+      padding-block: clamp(48px, 6vw, 88px);
+      padding-inline: 0;
+      background: none;
+    }
+    /* the same band, used for a big statement or a row of headline numbers */
+    .band.finding h3 { font-size: clamp(34px, 4.6vw, 64px); line-height: 1.06; letter-spacing: -0.025em; max-width: 18ch; }
+    .band.finding p { max-width: 56ch; margin-top: 18px; }
+    .band.results .stats { margin-top: 0; }
+    .band.results .num { font-size: clamp(56px, 6.4vw, 96px); }
+    .band.results .stat p { max-width: 30ch; }
+    /* a band with footage behind it: the video fills the band from the contents column to the window edge,
+       under a dark scrim (heaviest behind the text, on the left) so the type stays legible */
+    .band.has-video { padding-block: clamp(96px, 11vw, 168px); }
+    .band-media {
+      position: absolute;
+      top: 0; bottom: 0;
+      left: calc(-1 * var(--band-left, 100vw));
+      width: calc(100vw - var(--body-pad) - var(--rail-w));
+      z-index: -1;
+      overflow: hidden;
+      background: #232323;
+    }
+    .band-media video { width: 100%; height: 100%; max-width: none; object-fit: cover; }
+    .band-media::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(90deg, rgba(14, 14, 14, 0.82) 0%, rgba(14, 14, 14, 0.62) 48%, rgba(14, 14, 14, 0.18) 100%),
+        linear-gradient(0deg, rgba(14, 14, 14, 0.3), rgba(14, 14, 14, 0) 45%);
+    }
+    .band.has-video h3, .band.has-video p { text-shadow: 0 1px 24px rgba(0, 0, 0, 0.45); }
+    .band.has-video p { color: var(--ink); }
+    .band::before {
+      content: "";
+      position: absolute;
+      inset: 0 -100vw 0 calc(-1 * var(--band-left, 100vw));
+      z-index: -1;
+      background: #232323;
+    }
+
+    .pull {
+      font-family: var(--serif);
+      font-weight: 360;
+      font-size: clamp(30px, 4vw, 52px);
+      line-height: 1.08;
+      letter-spacing: -0.025em;
+      color: var(--ink);
+      text-wrap: balance;
+    }
+    .pull-note { margin-top: 14px; }
+
+    .stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); margin-top: 44px; }
+    .stat { padding: 0 28px; display: flex; flex-direction: column; gap: 10px; }
+    .stat:first-child { padding-left: 0; }
+    .stat:last-child { padding-right: 0; }
+    .stat + .stat { border-left: 1px solid var(--hairline); }
+    .stat .label, .kpi .label { font-family: var(--mono); font-size: 12px; color: var(--accent); }
+    .stat .num {
+      font-family: var(--serif);
+      font-weight: 360;
+      font-size: clamp(44px, 4.8vw, 60px);
+      line-height: 1;
+      letter-spacing: -0.03em;
+      font-variant-numeric: tabular-nums;
+      color: var(--ink);
+    }
+    .stat p { font-size: 15px; line-height: 1.5; max-width: 24ch; }
+
+    .voice { display: grid; grid-template-columns: 96px minmax(0, 1fr); gap: 36px; align-items: center; }
+    .voice svg { width: 88px; height: 88px; color: var(--muted); }
+    .voice blockquote {
+      font-family: var(--serif);
+      font-size: clamp(24px, 2.6vw, 34px);
+      line-height: 1.2;
+      letter-spacing: -0.02em;
+      color: var(--ink);
+    }
+    .voice cite, .testimonial cite { display: block; margin-top: 14px; font-style: normal; font-family: var(--mono); font-size: 12px; color: var(--muted); }
+
+    .cohorts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+    .cohort, .kpi {
+      padding: 28px;
+      background: var(--surface);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .cohort .label { font-family: var(--mono); font-size: 12px; color: var(--muted); }
+    .cohort .method { font-family: var(--serif); font-size: 24px; color: var(--ink); letter-spacing: -0.01em; }
+
+    .finding .eyebrow { margin-bottom: 14px; }
+    .finding h3 { font-size: clamp(28px, 3.2vw, 42px); }
+    .finding h3 em { font-style: italic; }
+    .finding p { margin-top: 14px; }
+
+    /* friction points: the list scrolls while the recording stays in view */
+    .frictions { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 40px; align-items: start; }
+    .frictions ol { list-style: none; display: flex; flex-direction: column; gap: 40px; }
+    .frictions .n {
+      display: block;
+      font-family: var(--mono);
+      font-size: 13px;
+      color: var(--accent);
+      margin-bottom: 12px;
+    }
+    .frictions h3 { font-family: var(--sans); font-size: 19px; font-weight: 600; letter-spacing: -0.01em; margin-bottom: 8px; }
+    .frictions figure { position: sticky; top: 110px; }
+    .frictions video { width: 100%; height: auto; background: #fff; }
+
+    .brief-label { font-weight: 600; color: var(--ink); }
+    .brief { background: var(--surface); }
+    .brief-row {
+      display: grid;
+      grid-template-columns: minmax(0, 0.8fr) 32px minmax(0, 1.2fr);
+      gap: 16px;
+      align-items: center;
+      padding: 22px 28px;
+    }
+    .brief-row + .brief-row { border-top: 1px dashed var(--hairline); }
+    .brief-head {
+      background: var(--tone);
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--on-tone);
+      padding-block: 14px;
+    }
+    .brief-row .q { font-family: var(--serif); font-size: 21px; line-height: 1.25; color: var(--ink); }
+    .brief-row .arrow { color: var(--muted); }
+    .brief-row .a { font-size: 16px; line-height: 1.6; color: var(--ink-soft); }
+
+    .component { display: flex; flex-direction: column; gap: 24px; }
+    .component .mat { padding: clamp(14px, 5%, 48px); background: var(--tone) var(--backdrop) center / cover; }
+    .component video { width: 100%; background: #fff; box-shadow: 0 24px 48px -24px rgba(0, 0, 0, 0.55); }
+
+    .kpis { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+    .kpi .num {
+      font-family: var(--serif);
+      font-weight: 360;
+      font-size: clamp(52px, 5.4vw, 72px);
+      line-height: 1;
+      letter-spacing: -0.03em;
+      font-variant-numeric: tabular-nums;
+      color: var(--ink);
+    }
+    .kpi .what { font-family: var(--serif); font-size: 22px; line-height: 1.2; color: var(--ink); }
+    .kpi p { font-size: 15px; line-height: 1.6; }
+
+    .reflections { list-style: none; display: flex; flex-direction: column; gap: 18px; }
+    .reflections li { position: relative; padding-left: 22px; }
+    .reflections li::before {
+      content: "";
+      position: absolute;
+      left: 0; top: 0.8em;
+      width: 10px; height: 1px;
+      background: var(--accent);
+    }
+    .reflections strong { display: block; font-family: var(--sans); color: var(--ink); margin-bottom: 4px; }
+    .team img, .photo-wall img { width: 100%; height: auto; }
+    .photo-wall { background: #000; }
+
+    .testimonial blockquote {
+      font-family: var(--serif);
+      font-size: clamp(22px, 2.3vw, 30px);
+      line-height: 1.35;
+      letter-spacing: -0.015em;
+      color: var(--ink);
+    }
+
+    /* features: each recording sits whole on the project's print, then what it's for */
+    .feature { display: flex; flex-direction: column; gap: 18px; }
+    .feature + .feature { margin-top: 40px; }
+    .feature video, .feature img {
+      width: 100%;
+      height: auto;
+      padding: clamp(14px, 4.5%, 44px);
+      background: var(--tone) var(--backdrop) center / cover;
+    }
+    .feature h3 { font-family: var(--sans); font-size: 19px; font-weight: 600; letter-spacing: -0.01em; }
+    .feature p { margin-top: -10px; }
+    .group-label {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--muted);
+    }
+    .group-label::after { content: ""; flex: 1; height: 1px; background: var(--hairline); }
+    .chapter > .group-label { margin-top: 28px; }
+
+    .cta-row { margin-top: 28px; }
+    .btn-ink {
+      display: inline-flex;
+      align-items: center;
+      gap: 14px;
+      height: 44px;
+      padding: 0 6px 0 18px;
+      background: var(--ink);
+      color: var(--bg);
+      font-family: var(--mono);
+      font-size: 13px;
+      text-decoration: none;
+      transition: background-color .2s;
+    }
+    .btn-ink span {
+      display: grid;
+      place-items: center;
+      width: 32px; height: 32px;
+      background: var(--bg);
+      color: var(--ink);
+      transition: transform .3s var(--ease);
+    }
+    .btn-ink:hover { background: #fff; }
+    .btn-ink:hover span { transform: translateX(3px); }
+
+    /* ---------- Icons and small data visuals ----------
+       Icons: 24px grid, 1.5 stroke, in the page accent. Charts: square ends (no rounded corners anywhere),
+       2px gaps between touching marks, values in text colours. --mark is the chart colour, checked against
+       the dark page with the dataviz validator; the original page is always neutral grey. */
+    .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+    .icon {
+      flex: none;
+      width: 26px; height: 26px;
+      color: var(--accent);
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 1.5;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+    .methods { list-style: none; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 2px; margin-block: 20px; }
+    .glance { display: flex; flex-direction: column; gap: 8px; padding: 22px; background: var(--surface); }
+    .glance .num {
+      font-family: var(--serif);
+      font-weight: 360;
+      font-size: clamp(32px, 3vw, 42px);
+      line-height: 1;
+      letter-spacing: -0.02em;
+      color: var(--ink);
+      font-variant-numeric: tabular-nums;
+    }
+    .glance .label { font-family: var(--mono); font-size: 12px; line-height: 1.5; color: var(--muted); }
+
+    .meter { height: 6px; margin: 2px 0 4px; background: rgba(238, 236, 232, 0.08); }
+    .meter i { display: block; height: 100%; width: var(--v); background: var(--mark, var(--accent)); }
+
+    .chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+    .chips span {
+      padding: 5px 9px;
+      background: rgba(238, 236, 232, 0.06);
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--ink-soft);
+    }
+    .frictions .n { display: flex; align-items: center; gap: 12px; }
+
+    /* the 80/20 build budget, as one split bar */
+    .budget { display: flex; flex-direction: column; gap: 12px; margin-block: 20px; }
+    .budget-bar, .budget-key { display: flex; gap: 2px; }
+    .budget-bar span { height: 40px; }
+    .budget-bar span, .budget-key > div { flex: var(--v) 1 0; min-width: 0; }
+    .budget .modules { background: #6b6b66; }
+    .budget .custom { background: var(--mark, var(--accent)); }
+    .budget-key > div { display: flex; flex-direction: column; gap: 4px; }
+    .budget-key b { font-family: var(--serif); font-weight: 360; font-size: 28px; line-height: 1; color: var(--ink); }
+    .budget-key span { font-family: var(--mono); font-size: 12px; line-height: 1.4; color: var(--muted); }
+
+    /* results: original page vs redesign, one small chart per measure */
+    .compare { display: flex; flex-direction: column; gap: 32px; margin-block: 20px; padding: clamp(24px, 3.4vw, 44px); background: var(--surface); }
+    .legend { display: flex; flex-wrap: wrap; gap: 8px 24px; font-family: var(--mono); font-size: 12px; color: var(--ink-soft); }
+    .legend span { display: inline-flex; align-items: center; gap: 8px; }
+    .legend i { width: 10px; height: 10px; background: var(--c); }
+    .cmp { display: flex; flex-direction: column; gap: 10px; }
+    .cmp h4 { font-family: var(--sans); font-size: 15px; font-weight: 600; color: var(--ink); margin-bottom: 4px; }
+    .cmp .row { display: grid; grid-template-columns: 76px minmax(0, 1fr) 64px; align-items: center; gap: 14px; }
+    .cmp .who { font-family: var(--mono); font-size: 11px; color: var(--muted); }
+    .cmp .track { position: relative; height: 14px; background: rgba(238, 236, 232, 0.05); }
+    .cmp .fill { position: absolute; top: 0; bottom: 0; left: var(--from, 0%); width: var(--v); background: var(--c); }
+    .cmp .val { font-family: var(--mono); font-size: 12px; color: var(--ink); text-align: right; }
+    .cmp .scale { display: flex; justify-content: space-between; margin-left: 90px; margin-right: 78px; font-family: var(--mono); font-size: 11px; color: var(--muted); }
+    .c-orig { --c: #6b6b66; }
+    .c-new  { --c: var(--mark, var(--accent)); }
+
+    /* a schematic of a page, drawn in outline */
+    .schematic { background: var(--surface); padding: clamp(18px, 3vw, 36px); }
+    .schematic svg { display: block; width: 100%; height: auto; }
+
+    /* ---------- Next project: a band of the next project's print ---------- */
+    .next { padding: 0 var(--gutter) 112px; }
+    .next a {
+      max-width: 1320px;
+      margin: 0 auto;
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 16px;
+      min-height: clamp(200px, 22vw, 300px);
+      padding: clamp(16px, 2.4vw, 28px);
+      background: var(--next-tone) var(--next-backdrop) center / cover;
+      color: var(--ink);
+      text-decoration: none;
+    }
+    .next a > div, .next .go { background: var(--bg); }
+    .next a > div { padding: 18px 22px; }
+    .next .label { font-family: var(--mono); font-size: 12px; color: var(--muted); }
+    .next .title { font-family: var(--serif); font-weight: 360; font-size: clamp(28px, 3.2vw, 42px); letter-spacing: -0.02em; margin-top: 6px; }
+    .next .go {
+      flex: none;
+      display: grid;
+      place-items: center;
+      width: 56px; height: 56px;
+      transition: background-color .25s, color .25s;
+    }
+    .next a:hover .go { background: var(--ink); color: var(--bg); }
+    .next .go svg { transition: transform .3s var(--ease); }
+    .next a:hover .go svg { transform: rotate(45deg); }
+
+    footer {
+      border-top: 1px solid var(--hairline);
+      padding: 28px var(--gutter) 36px;
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--muted);
+    }
+    footer .wrap { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px; }
+    footer a { color: var(--ink); text-decoration: none; }
+    footer a:hover { text-decoration: underline; text-underline-offset: 3px; }
+
+    /* ---------- Scroll reveal ----------
+       Content is visible by default. Only when the script runs (and motion is allowed)
+       does it start slightly lowered and faded, then settle in as it enters view. */
+    .reveal-on .reveal {
+      opacity: 0;
+      transform: translate3d(0, 18px, 0);
+      transition: opacity .7s ease, transform .9s var(--ease);
+      transition-delay: var(--delay, 0ms);
+    }
+    .reveal-on .reveal.is-in { opacity: 1; transform: none; }
+    @media print { .reveal-on .reveal { opacity: 1; transform: none; } }
+
+    .chapter h2:focus { outline: none; }
+    .chapter h2:focus-visible { outline: 2px solid var(--ink); outline-offset: 6px; }
+
+    /* ---------- Responsive ---------- */
+    @media (max-width: 960px) {
+      .case-grid { grid-template-columns: minmax(0, 1fr); --band-left: 100vw; }
+      .band-media { left: calc(-1 * var(--body-pad)); width: 100vw; }
+      .toc { display: none; }
+      .facts { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    }
+    @media (max-width: 720px) {
+      .case-hero { padding-top: 112px; }
+      .hero-media { margin-top: 40px; }
+      .facts { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 20px; }
+      .facts dd { padding-bottom: 28px; }
+      .story { gap: 88px; }
+      .split, .frictions, .cohorts, .kpis { grid-template-columns: minmax(0, 1fr); }
+      .methods { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .cmp .row { grid-template-columns: 60px minmax(0, 1fr) 66px; gap: 10px; }
+      .cmp .scale { margin-left: 70px; margin-right: 76px; }
+      .cmp .val { white-space: nowrap; }
+      .feature + .feature { margin-top: 28px; }
+      .frictions figure { position: static; order: -1; }
+      .stats { grid-template-columns: minmax(0, 1fr); gap: 24px; margin-top: 32px; }
+      .stat, .stat:first-child, .stat:last-child { padding: 0; }
+      .stat + .stat { border-left: 0; border-top: 1px solid var(--hairline); padding-top: 24px; }
+      .voice { grid-template-columns: minmax(0, 1fr); gap: 16px; }
+      .voice svg { width: 56px; height: 56px; }
+      .brief-row { grid-template-columns: minmax(0, 1fr); gap: 8px; padding: 20px; }
+      .brief-row .arrow { transform: rotate(90deg); width: 18px; }
+      .brief-head { display: none; }
+      .nav-inner { padding: 18px 16px; gap: 16px; }
+      .links { gap: 18px; }
+      .next a { min-height: 180px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      .site-nav, .toc a::before, .next .go, .next .go svg, .btn-ink span { transition: none; }
+    }
+
+    /* Google: the green sun print */
+    :root {
+      --tone: #c8c27f;
+      --on-tone: #1b1c12;
+      --accent: #d6d08f;
+      --mark: #9a9534;   /* chart marks: validated for the dark page (lightness band, CVD vs the grey) */
+      --backdrop: url("assets/backdrops/green-print.jpg");
+      --next-tone: #9e4436;
+      --next-backdrop: url("assets/backdrops/rust-print.jpg");
+    }
+  </style>
+</head>
+<body id="top">
+  <header class="site-nav" id="siteNav">
+    <nav class="nav-inner" aria-label="Main">
+      <a class="brand" href="index.html">Summer Sueki</a>
+      <div class="links">
+        <a href="index.html#work" aria-current="page">Work</a>
+        <a href="index.html#play"><span class="hand">Play!</span></a>
+        <a href="index.html#about">About</a>
+      </div>
+    </nav>
+  </header>
+
+  <main>
+    <section class="case-hero">
+      <div class="wrap">
+        <p class="kicker"><span>2026</span><span class="sep" aria-hidden="true">•</span><span>Google in partnership with Codelab</span></p>
+        <h1>Research-led redesign for <em>high-intent</em> candidates</h1>
+        <p class="lede">
+          Google Careers pulls in <strong>3M+ applications annually</strong>, but candidates were dropping off
+          before finishing a profile. Summer led research on Google's project with Codelab, UC Davis's student
+          design agency: <strong>180+ survey responses</strong>, user interviews, and two rounds of A/B testing.
+          The findings reshaped the page's information architecture, and the work went past the research scope into
+          mid-fi components within <strong>Brightspot CMS constraints</strong> that made it into the
+          final proof of concept.
+        </p>
+        <p class="cta-row"><a class="btn-ink" href="https://www.google.com/about/careers/applications/locations/" target="_blank" rel="noopener">View on Google Careers <span aria-hidden="true"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8h10M9 4l4 4-4 4"/></svg></span></a></p>
+
+        <div class="hero-media">
+          <video src="assets/google-pitch-web.mp4" poster="assets/google-pitch-poster.jpg" width="1600" height="900"
+            autoplay muted loop playsinline aria-label="Pitch reel: Google office photos around the line 'Built to help candidates picture themselves here'"></video>
+        </div>
+
+        <dl class="facts">
+          <div><dt>Year</dt><dd>2026</dd></div>
+          <div><dt>Team</dt><dd>Research<br />Design<br />Product<br />Engineering</dd></div>
+          <div><dt>Role</dt><dd>UX Researcher</dd></div>
+          <div><dt>Tools</dt><dd>Figma<br />Google Forms<br />Brightspot CMS</dd></div>
+          <div><dt>Skills</dt><dd>Survey · Design · A/B testing · Data synthesis · Mid-fi wireframing</dd></div>
+        </dl>
+      </div>
+    </section>
+
+    <div class="case-body">
+      <div class="case-grid">
+        <nav class="toc" aria-label="Case study sections">
+          <p>Contents</p>
+          <ol>
+            <li><a href="#problem">Problem</a></li>
+            <li><a href="#investigation">Investigation</a></li>
+            <li><a href="#discovery">Discovery</a></li>
+            <li><a href="#patterns">Patterns</a></li>
+            <li><a href="#contributions">Contributions</a></li>
+            <li><a href="#constraints">Constraints</a></li>
+            <li><a href="#results">Did it work?</a></li>
+            <li><a href="#reflection">Reflection</a></li>
+          </ol>
+        </nav>
+
+        <article class="story">
+          <!-- Problem -->
+          <section class="chapter" id="problem">
+            <p class="eyebrow">The problem</p>
+            <h2>Google Careers' location page was losing candidates before they ever hit apply.</h2>
+            <p>
+              The page was clean and well organized, <em>but it was built to inform rather than to make someone
+              get a feel for what it was like to work and live there.</em> It told candidates what jobs existed
+              without telling them what life at that location actually looked like: no sense of commute,
+              neighborhood, or daily routine. Candidates got a row of job listings and a small photo carousel instead.
+            </p>
+          </section>
+
+          <!-- Investigation -->
+          <section class="chapter" id="investigation">
+            <div class="split">
+              <div class="chapter">
+                <p class="eyebrow">The investigation</p>
+                <h2>What 180+ people told us (and what they didn't)</h2>
+                <p>
+                  We ran a survey across five universities—UC Davis, UCLA, UCI, Georgia Tech, Boston University.
+                  Tabling, Slack, Discord, campus flyers. We conducted 12 moderated interviews. We tested nine
+                  different page variations to see what actually moved the needle.
+                </p>
+              </div>
+              <figure class="collage">
+                <img src="assets/google-outreach.png" width="610" height="700" loading="lazy"
+                  alt="Photo collage of the research team tabling on campus with Google survey QR-code flyers" />
+                <figcaption>The UXR team doing outreach for survey participants around the UC Davis campus</figcaption>
+              </figure>
+            </div>
+
+            <ul class="methods" aria-label="Research at a glance">
+              <li class="glance"><span class="num">180+</span><span class="label">survey responses</span></li>
+              <li class="glance"><span class="num">5</span><span class="label">universities surveyed</span></li>
+              <li class="glance"><span class="num">12</span><span class="label">moderated interviews</span></li>
+              <li class="glance"><span class="num">9</span><span class="label">page variations tested</span></li>
+            </ul>
+
+            <div class="panel band">
+              <p class="pull">“It doesn't scream ‘Google’ like other sites do.”</p>
+              <p class="pull-note">The survey told us the page felt sterile, overwhelming, off-brand.</p>
+              <div class="stats">
+                <div class="stat"><span class="num">48%</span><span class="meter" aria-hidden="true"><i style="--v: 48%"></i></span><span class="label">Perception</span><p>negative word associations: sterile, bland, lifeless</p></div>
+                <div class="stat"><span class="num">53%</span><span class="meter" aria-hidden="true"><i style="--v: 53%"></i></span><span class="label">Overwhelming</span><p>drop-off among highest-intent candidates after viewing</p></div>
+                <div class="stat"><span class="num">50%</span><span class="meter" aria-hidden="true"><i style="--v: 50%"></i></span><span class="label">Off-brand</span><p>left with low to moderate confidence in understanding the location</p></div>
+              </div>
+            </div>
+
+            <p>
+              Gemini helped synthesize 180+ open-ended responses into clusters and patterns.
+              The question remained: “What do candidates want? And why?”
+            </p>
+
+            <div class="panel tint-sage voice">
+              <!-- "hard to picture yourself": an empty frame with a faint, dashed figure -->
+              <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <rect x="6" y="8" width="36" height="32" rx="5" />
+                <circle cx="24" cy="21" r="5" stroke-dasharray="2.4 2.6" />
+                <path d="M14.5 34c1.8-4.6 5.4-7 9.5-7s7.7 2.4 9.5 7" stroke-dasharray="2.4 2.6" />
+              </svg>
+              <div>
+                <blockquote>“There's a lack of information and images. It makes it hard to actually picture yourself working there.”</blockquote>
+                <cite>— High-intent, early-career candidate</cite>
+              </div>
+            </div>
+          </section>
+
+          <!-- Discovery -->
+          <section class="chapter" id="discovery">
+            <p class="eyebrow">The discovery</p>
+            <h2>Two cohorts. Two completely different mental models.</h2>
+            <p>Entry-level candidates wanted a lifestyle. Experienced hires wanted logistics.</p>
+            <div class="cohorts">
+              <div class="cohort">
+                <span class="label">Entry-level candidates</span>
+                <span class="method">We surveyed.</span>
+                <p>Entry-level candidates cared about lifestyle, city culture, and social scene. What does daily life actually feel like?</p>
+                <p class="chips" aria-label="What mattered"><span>Lifestyle</span><span>City culture</span><span>Social scene</span></p>
+              </div>
+              <div class="cohort">
+                <span class="label">Experienced hires</span>
+                <span class="method">We interviewed.</span>
+                <p>Experienced professionals cared about logistics, commute times, and family relocation.</p>
+                <p class="chips" aria-label="What mattered"><span>Logistics</span><span>Commute times</span><span>Family relocation</span></p>
+              </div>
+            </div>
+            <p>
+              Google wanted one page for both, but they weren't reading it the same way. This split surfaced in
+              how people talked about weighing relocation through both the interviews and surveys. To get
+              experienced hires into the study at all, we reached into our own networks instead of waiting on a
+              formal recruiting pipeline, which gave us more candid responses than a screened panel would have.
+            </p>
+            <div class="panel band finding has-video">
+              <div class="band-media" aria-hidden="true">
+                <video src="assets/google-mountain-view.mp4" poster="assets/google-mountain-view-poster.jpg" width="1600" height="864" muted loop playsinline preload="metadata"></video>
+              </div>
+              <p class="eyebrow">One finding surprised Google the most</p>
+              <h3>We had to lead with <em>place</em>, not just <em>workplace</em>.</h3>
+              <p>Across both cohorts, candidates ranked city culture and proximity to loved ones above office amenities.</p>
+            </div>
+          </section>
+
+          <!-- Patterns -->
+          <section class="chapter" id="patterns">
+            <p class="eyebrow">The patterns that emerged</p>
+            <h2>Three key friction points: navigation, authenticity, decision making</h2>
+            <div class="frictions">
+              <ol>
+                <li>
+                  <span class="n">01</span>
+                  <h3>The map wasn't helping anyone navigate.</h3>
+                  <p>
+                    We tested it. Users got confused, the map wasn't functional or intuitive and it was hard to
+                    find specific locations. Clients told us: interactive maps are a consistent pain point across
+                    their entire product suite, but implementing search bars was not feasible here. We had to get creative.
+                  </p>
+                </li>
+                <li>
+                  <span class="n">02</span>
+                  <h3>The content informed but didn't inspire.</h3>
+                  <p>
+                    None of that “Google innovation” was being conveyed. One candidate wrote: “Putting pictures at
+                    the top doesn't give me any idea of what it would be like to work there.” Images alone weren't
+                    enough. They needed real voices. Real context.
+                  </p>
+                </li>
+                <li>
+                  <span class="n">03</span>
+                  <h3>Candidates left without enough to decide.</h3>
+                  <p>The top three things they needed—daily logistics, lifestyle fit, living conditions—weren't on the page.</p>
+                </li>
+              </ol>
+              <figure>
+                <video src="assets/google-audit.mp4" poster="assets/google-audit-poster.jpg" width="1578" height="928" muted loop playsinline preload="metadata"
+                  aria-label="Screen recording of a usability audit on the original Google Careers location map"></video>
+                <figcaption>Screen recording of a usability audit of the original Google Careers location page</figcaption>
+              </figure>
+            </div>
+          </section>
+
+          <!-- Contributions -->
+          <section class="chapter" id="contributions">
+            <p class="eyebrow">From insight to direction</p>
+            <h2>A handoff document that became the design brief</h2>
+            <p>
+              We used the iceberg model and five whys across FigJam boards to move from raw data to direction.
+              Those findings became a strategic framework: a handoff document mapping
+              candidate pain points directly to UI strategy within Brightspot's CMS constraints.
+            </p>
+            <p>Presented directly to Google, it became the design team's foundation for the sprints that followed.</p>
+            <p class="brief-label">A peek into the document:</p>
+            <div class="brief" role="table" aria-label="Insights mapped to design direction">
+              <div class="brief-row brief-head" role="row"><span role="columnheader">Insight</span><span></span><span role="columnheader">Direction</span></div>
+              <div class="brief-row" role="row">
+                <span class="q" role="cell">“Visuals feel lifeless”</span><span class="arrow" aria-hidden="true">→</span>
+                <span class="a" role="cell">Segment-specific cultural imagery: city life and social scene for entry-level candidates, localized logistics and commute context for experienced hires. Add interaction.</span>
+              </div>
+              <div class="brief-row" role="row">
+                <span class="q" role="cell">“It's overwhelming”</span><span class="arrow" aria-hidden="true">→</span>
+                <span class="a" role="cell">Progressive disclosure, designed to work within Brightspot's grid rather than fight it</span>
+              </div>
+              <div class="brief-row" role="row">
+                <span class="q" role="cell">“I want real experiences”</span><span class="arrow" aria-hidden="true">→</span>
+                <span class="a" role="cell">Day-in-the-life modules and employee voice</span>
+              </div>
+              <div class="brief-row" role="row">
+                <span class="q" role="cell">“It feels intimidating”</span><span class="arrow" aria-hidden="true">→</span>
+                <span class="a" role="cell">Encouraging microcopy and qualification transparency woven into the application flow itself</span>
+              </div>
+            </div>
+
+            <p class="eyebrow chapter-break">Beyond research</p>
+            <h2>Research showed candidates couldn't picture themselves at this location, so the next step was a mid-fi exploration the design team built from.</h2>
+            <p>
+              The original page led with nine job tiles and a thin paragraph of copy. That's a directory, not a
+              living, breathing workplace. Candidates couldn't picture themselves there.
+            </p>
+            <figure class="schematic">
+              <svg viewBox="0 0 760 330" fill="none" stroke="#6b6b66" stroke-width="1.5" role="img" aria-label="Schematic of the original location page: a short paragraph, nine job tiles in a grid, and a small photo carousel">
+                <rect x="1" y="1" width="758" height="328" stroke="#3a3a38"/>
+                <path d="M1 30h758" stroke="#3a3a38"/>
+                <circle cx="20" cy="15.5" r="4" stroke="#3a3a38"/><circle cx="34" cy="15.5" r="4" stroke="#3a3a38"/>
+                <path d="M40 62h300M40 76h240" stroke-width="5" stroke="#4a4a47"/>
+                <g>
+                  <rect x="40" y="100" width="148" height="44"/><rect x="198" y="100" width="148" height="44"/><rect x="356" y="100" width="148" height="44"/>
+                  <rect x="40" y="152" width="148" height="44"/><rect x="198" y="152" width="148" height="44"/><rect x="356" y="152" width="148" height="44"/>
+                  <rect x="40" y="204" width="148" height="44"/><rect x="198" y="204" width="148" height="44"/><rect x="356" y="204" width="148" height="44"/>
+                </g>
+                <rect x="534" y="100" width="186" height="148" stroke="#9a9534"/>
+                <path d="M548 236l38-46 26 30 18-20 30 36" stroke="#9a9534"/>
+                <circle cx="690" cy="128" r="9" stroke="#9a9534"/>
+                <path d="M600 270h56M612 270h.01" stroke="#9a9534"/>
+                <circle cx="614" cy="270" r="2.5" fill="#9a9534" stroke="none"/><circle cx="627" cy="270" r="2.5" stroke="#9a9534"/><circle cx="640" cy="270" r="2.5" stroke="#9a9534"/>
+                <g font-family="Geist Mono, monospace" font-size="12" fill="#8f8f8f" stroke="none">
+                  <text x="40" y="290">thin paragraph of copy + nine job tiles</text>
+                  <text x="534" y="300">small photo carousel</text>
+                </g>
+              </svg>
+              <figcaption>Schematic of the original page's main pieces, drawn from the audit: a thin paragraph, nine job tiles, a small photo carousel. Nothing about the place itself.</figcaption>
+            </figure>
+            <p>
+              Early concepts that lived outside Brightspot were explored in Gemini and Figma Make: campus tours,
+              interactive commute maps, salary transparency hubs. This was a great starting point to make abstract
+              concepts tangible enough to convey and pitch early ideas.
+            </p>
+          </section>
+
+          <!-- Constraints -->
+          <section class="chapter" id="constraints">
+            <p class="eyebrow">The constraint</p>
+            <h2>Brightspot's constraints became our creative ally.</h2>
+            <p>
+              80% had to work within Brightspot's module system. 20% could be custom-engineered. The 80/20 budget
+              meant designing mid-fidelity components that worked within its module system while identifying
+              where a custom 20% would create the most impact.
+            </p>
+            <div class="budget" role="img" aria-label="Build budget: 80% within Brightspot's module system, 20% custom-engineered">
+              <div class="budget-bar" aria-hidden="true"><span class="modules" style="--v: 80"></span><span class="custom" style="--v: 20"></span></div>
+              <div class="budget-key" aria-hidden="true">
+                <div style="--v: 80"><b>80%</b><span>Brightspot's module system</span></div>
+                <div style="--v: 20"><b>20%</b><span>custom-engineered</span></div>
+              </div>
+            </div>
+            <p>
+              Working with Brightspot forced us to solve the problem through content, information hierarchy, and
+              editorial choices, and that made us think smarter. Working within the constraint made us more
+              disciplined and more creative, and pushed us to create components that were intentional.
+            </p>
+            <div class="panel tint-sage component">
+              <h3>The custom component built directly from research.</h3>
+              <div class="mat">
+                <video src="assets/google-preview.mp4" width="1020" height="608" muted loop playsinline preload="metadata"
+                  aria-label="The 'One Workplace. Countless Stories.' component: a carousel of employee story cards"></video>
+              </div>
+              <p>
+                ‘One Workplace. Countless Stories.’ was designed specifically to put employee voice front and center
+                in an interactive way. Standard testimonial blocks are large, heavy, and slow to read through.
+                Candidates scroll past them. But we needed candidates to engage with real stories, not just read
+                about them. So this component lets users click through, interact with media, and build a felt sense
+                of what working there actually feels like.
+              </p>
+            </div>
+          </section>
+
+          <!-- Results -->
+          <section class="chapter" id="results">
+            <p class="eyebrow">So… did it work?</p>
+            <h2>Confidence shifted from low-to-medium to medium-to-high.</h2>
+            <p>We ran 12 user acceptance testing sessions tracking three metrics:</p>
+            <div class="panel band results">
+              <div class="stats">
+                <div class="stat"><span class="num">45%</span><span class="label">Confidence</span><p><strong>increase in confidence.</strong> Jumped from low-to-medium to medium-to-high. Candidates left understanding the location.</p></div>
+                <div class="stat"><span class="num">23%</span><span class="label">Time on page</span><p><strong>increase in time on the new page,</strong> compared to the original. Users lingered in the “One Workplace” section longer than anywhere else.</p></div>
+                <div class="stat"><span class="num">31%</span><span class="label">Intent to apply</span><p><strong>Intent to apply</strong> rose to 31% versus 12% on the original.</p></div>
+              </div>
+            </div>
+            <figure class="compare">
+              <div class="legend" aria-hidden="true"><span><i class="c-orig"></i>Original page</span><span><i class="c-new"></i>Redesign</span></div>
+              <div class="cmp" aria-hidden="true">
+                <h4>Confidence in understanding the location</h4>
+                <div class="row c-orig"><span class="who">Original</span><span class="track"><span class="fill" style="--from: 0%; --v: 50%"></span></span><span class="val">low–med</span></div>
+                <div class="row c-new"><span class="who">Redesign</span><span class="track"><span class="fill" style="--from: 50%; --v: 50%"></span></span><span class="val">med–high</span></div>
+                <div class="scale"><span>Low</span><span>Medium</span><span>High</span></div>
+              </div>
+              <div class="cmp" aria-hidden="true">
+                <h4>Time on page</h4>
+                <div class="row c-orig"><span class="who">Original</span><span class="track"><span class="fill" style="--v: 81.3%"></span></span><span class="val">baseline</span></div>
+                <div class="row c-new"><span class="who">Redesign</span><span class="track"><span class="fill" style="--v: 100%"></span></span><span class="val">+23%</span></div>
+              </div>
+              <div class="cmp" aria-hidden="true">
+                <h4>Intent to apply</h4>
+                <div class="row c-orig"><span class="who">Original</span><span class="track"><span class="fill" style="--v: 12%"></span></span><span class="val">12%</span></div>
+                <div class="row c-new"><span class="who">Redesign</span><span class="track"><span class="fill" style="--v: 31%"></span></span><span class="val">31%</span></div>
+              </div>
+              <table class="sr-only">
+                <caption>Original page vs redesign, from 12 user acceptance testing sessions</caption>
+                <tr><th scope="col">Measure</th><th scope="col">Original</th><th scope="col">Redesign</th></tr>
+                <tr><th scope="row">Confidence in understanding the location</th><td>Low to medium</td><td>Medium to high</td></tr>
+                <tr><th scope="row">Time on page</th><td>Baseline</td><td>23% longer</td></tr>
+                <tr><th scope="row">Intent to apply</th><td>12%</td><td>31%</td></tr>
+              </table>
+              <figcaption>From the 12 user acceptance testing sessions. Time on page is relative to the original, so its bars are indexed, not absolute.</figcaption>
+            </figure>
+            <p>
+              The barriers that remained—imposter syndrome, hiring anxiety—live outside what design can solve.
+              Knowing that boundary is part of doing honest research. We fixed what we could. We were honest about
+              what we couldn't.
+            </p>
+          </section>
+
+          <!-- Reflection -->
+          <section class="chapter" id="reflection">
+            <p class="eyebrow">Looking back</p>
+            <h2>Reflection</h2>
+            <ul class="reflections">
+              <li>
+                Looking back, the biggest lesson was about listening. Not just to what people said, but
+                <em>how they were thinking underneath what they said</em>. Candidates said “I want information.”
+                What they meant was “I want to feel like I belong here.” That's two different problems.
+              </li>
+              <li>
+                Gemini got great at clustering 180 responses into patterns. But it would have missed that shift
+                from <em>what</em> to <em>why</em>. The tool is excellent at processing volume. It's terrible at
+                noticing the thing nobody thought to ask yet. That's still the human job.
+              </li>
+              <li>
+                Getting better at asking those questions—before diving into analysis—that's the skill to keep sharpening.
+              </li>
+            </ul>
+            <figure class="team">
+              <img src="assets/google-team.jpg" width="2000" height="1334" loading="lazy" alt="The Codelab project team posing together in black outfits" />
+            </figure>
+            <div class="panel tint-sage testimonial">
+              <blockquote>
+                “The Employment Brand team at Google has been incredibly impressed with the thoughtfulness,
+                expertise, and design-forward approach shown in the work for our Careers location pages. The team
+                came to every meeting prepared and concise, asked insightful questions, and delivered exactly what
+                we expected.”
+              </blockquote>
+              <cite>— Amy Lynam, Integrated Marketing Manager, Google</cite>
+            </div>
+          </section>
+        </article>
+      </div>
+    </div>
+
+    <section class="next">
+      <a href="reddit.html">
+        <div>
+          <p class="label">Next case study</p>
+          <p class="title">Reddit</p>
+        </div>
+        <span class="go" aria-hidden="true">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 14 14 6M7 6h7v7"/></svg>
+        </span>
+      </a>
+    </section>
+  </main>
+
+  <footer>
+    <div class="wrap">
+      <span>© 2026 Summer Sueki</span>
+      <a href="mailto:summersueki@gmail.com">summersueki@gmail.com</a>
+    </div>
+  </footer>
+
+  <script>
+  // ---------- nav frosts over once you scroll (same as the home page) ----------
+  (() => {
+    const nav = document.getElementById("siteNav");
+    const onScroll = () => nav.classList.toggle("is-scrolled", scrollY > 12);
+    addEventListener("scroll", onScroll, { passive: true });
+    onScroll();
+  })();
+
+  // ---------- contents rail: highlight the chapter you're reading, glide to the one you pick ----------
+  (() => {
+    const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const links = [...document.querySelectorAll(".toc a")];
+    const chapters = links.map(a => document.querySelector(a.getAttribute("href")));
+    let gliding = false;
+
+    function setActive(i) {
+      links.forEach((a, k) => {
+        a.classList.toggle("is-active", k === i);
+        if (k === i) a.setAttribute("aria-current", "true"); else a.removeAttribute("aria-current");
+      });
+    }
+    function update() {
+      if (gliding) return;
+      const line = innerHeight * 0.35;
+      let current = 0;
+      chapters.forEach((c, i) => { if (c.getBoundingClientRect().top <= line) current = i; });
+      setActive(current);
+    }
+    addEventListener("scroll", update, { passive: true });
+    addEventListener("resize", update);
+    update();
+
+    // ease in and out; longer jumps take a little longer, but never drag
+    const easeInOut = t => t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+    let raf = 0;
+    // "instant" so each frame isn't handed to the browser's own smooth scrolling
+    const jump = top => scrollTo({ top, behavior: "instant" });
+    function glideTo(y, done) {
+      cancelAnimationFrame(raf);
+      const start = scrollY, dist = y - start;
+      if (reduceMotion || Math.abs(dist) < 2) { jump(y); done(); return; }
+      const duration = Math.min(1100, Math.max(450, Math.abs(dist) * 0.35));
+      const t0 = performance.now();
+      gliding = true;
+      // any wheel, touch or key press hands control straight back to the reader
+      const cancel = () => { cancelAnimationFrame(raf); finish(); };
+      const finish = () => {
+        gliding = false;
+        removeEventListener("wheel", cancel); removeEventListener("touchstart", cancel); removeEventListener("keydown", cancel);
+        update();
+      };
+      addEventListener("wheel", cancel, { passive: true, once: true });
+      addEventListener("touchstart", cancel, { passive: true, once: true });
+      addEventListener("keydown", cancel, { once: true });
+      const step = now => {
+        const t = Math.min(1, (now - t0) / duration);
+        jump(start + dist * easeInOut(t));
+        if (t < 1) raf = requestAnimationFrame(step);
+        else { finish(); done(); }
+      };
+      raf = requestAnimationFrame(step);
+    }
+
+    links.forEach((a, i) => {
+      a.addEventListener("click", e => {
+        e.preventDefault();
+        const target = chapters[i];
+        const offset = parseFloat(getComputedStyle(target).scrollMarginTop) || 0;
+        const y = Math.min(target.getBoundingClientRect().top + scrollY - offset,
+                           document.documentElement.scrollHeight - innerHeight);
+        setActive(i);
+        // the destination is shown straight away rather than waiting to animate in
+        target.querySelectorAll(".reveal").forEach(el => el.classList.add("is-in"));
+        history.replaceState(null, "", a.getAttribute("href"));
+        glideTo(y, () => {
+          // move keyboard and screen-reader focus to the chapter heading, without jumping
+          const heading = target.querySelector("h2");
+          if (heading) { heading.setAttribute("tabindex", "-1"); heading.focus({ preventScroll: true }); }
+        });
+      });
+    });
+  })();
+
+  // ---------- reveal text and media as they scroll into view ----------
+  (() => {
+    if (matchMedia("(prefers-reduced-motion: reduce)").matches || !("IntersectionObserver" in window)) return;
+    const targets = [
+      ...document.querySelectorAll(".story .chapter > *, .split > figure, .hero-media, .facts > div, .next a"),
+    ].filter(el => !el.querySelector(".chapter"));   // animate the pieces, not the wrappers around them
+    // anything already on screen at load stays put; only content further down animates
+    const fold = innerHeight;
+    targets.forEach(el => {
+      if (el.getBoundingClientRect().top < fold) return;
+      el.classList.add("reveal");
+    });
+    document.documentElement.classList.add("reveal-on");
+
+    const io = new IntersectionObserver(entries => {
+      // stagger things that arrive together, but only slightly
+      let n = 0;
+      entries.filter(e => e.isIntersecting).forEach(e => {
+        e.target.style.setProperty("--delay", `${Math.min(n++, 3) * 70}ms`);
+        e.target.classList.add("is-in");
+        io.unobserve(e.target);
+      });
+    }, { rootMargin: "0px 0px -8% 0px", threshold: 0.12 });
+    document.querySelectorAll(".reveal").forEach(el => io.observe(el));
+
+    // if someone jumps here via a link, find-in-page or a restored scroll, show what's in view at once
+    addEventListener("hashchange", () => document.querySelectorAll(".reveal").forEach(el => {
+      if (el.getBoundingClientRect().top < innerHeight) el.classList.add("is-in");
+    }));
+  })();
+
+  // ---------- videos: play only while on screen ----------
+  (() => {
+    const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const io = new IntersectionObserver(entries => {
+      entries.forEach(e => {
+        const v = e.target;
+        if (e.isIntersecting && !reduceMotion) v.play().catch(() => {});
+        else v.pause();
+      });
+    }, { threshold: 0.25 });
+    document.querySelectorAll("video").forEach(v => io.observe(v));
+  })();
+
+  </script>
+  <script src="site.js" defer></script>
+</body>
+</html>
