@@ -1,0 +1,1211 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Play · Summer Sueki</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,300..500&family=Plus+Jakarta+Sans:wght@400;500;600&family=Geist+Mono:wght@400&display=swap" rel="stylesheet" />
+  <style>
+    /* ---------- the same dark system as the home page ---------- */
+    :root {
+      color-scheme: dark;
+      --bg: #141414;
+      --surface: #1c1c1c;
+      --ink: #eeece8;
+      --ink-soft: #b9b7b2;
+      --muted: #8f8f8f;
+      --hairline: rgba(238, 236, 232, 0.1);
+      --cursor-dot: #fff;          /* site.js cursor */
+      --cursor-blend: difference;
+      --sans: "Plus Jakarta Sans", -apple-system, "Helvetica Neue", Arial, sans-serif;
+      --serif: "Newsreader", "Iowan Old Style", Georgia, serif;
+      --mono: "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace;
+      --ease: cubic-bezier(.2, .8, .2, 1);
+      --gutter: max(16px, env(safe-area-inset-left, 0px), calc((100% - 1320px) / 2));
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--bg);
+      color: var(--ink);
+      font-family: var(--sans);
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { color: inherit; }
+    a:focus-visible, .tile:focus-visible { outline: 2px solid var(--ink); outline-offset: 4px; }
+    .sr-only {
+      position: absolute; width: 1px; height: 1px;
+      overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap;
+    }
+
+    /* ---------- Nav (same as home) ---------- */
+    .site-nav {
+      position: fixed;
+      inset: 0 0 auto;
+      z-index: 10;
+      border-bottom: 1px solid transparent;
+      transition: background-color .35s ease, border-color .35s ease;
+    }
+    .site-nav.is-scrolled {
+      background: rgba(20, 20, 20, 0.78);
+      border-color: var(--hairline);
+      backdrop-filter: blur(14px) saturate(1.2);
+      -webkit-backdrop-filter: blur(14px) saturate(1.2);
+    }
+    .nav-inner {
+      display: flex;
+      align-items: center;
+      gap: 32px;
+      padding: 22px var(--gutter);
+      font-size: 14px;
+      line-height: 1;
+    }
+    .brand {
+      margin-right: auto;
+      font-family: var(--mono);
+      font-size: 13px;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      text-decoration: none;
+    }
+    .links { display: flex; align-items: center; gap: 28px; font-family: var(--mono); font-size: 13px; }
+    .links a { color: var(--ink); text-decoration: none; transition: color .2s; }
+    .links a:hover { color: rgba(238, 236, 232, 0.4); }
+
+    /* ---------- Hero: "Just for fun!" in a box of loose foil pendants ----------
+       The box is a little physics world: the pendants fall, can be grabbed and thrown, and
+       every letter of the heading is a solid block, so they lean on it and stack on it but never overlap it. */
+    .fun {
+      position: relative;
+      height: clamp(380px, 58vh, 540px);
+      margin-top: 68px;            /* starts under the nav, so nothing hides behind it */
+      overflow: hidden;
+      touch-action: pan-y;         /* empty space still scrolls the page on touch screens */
+      user-select: none;
+      -webkit-user-select: none;
+    }
+    .fun h1 {
+      position: absolute;
+      left: var(--gutter);
+      bottom: 0;
+      font-family: var(--serif);
+      font-optical-sizing: auto;
+      font-weight: 400;
+      font-size: clamp(52px, 8.4vw, 120px);
+      line-height: 1;
+      letter-spacing: -0.02em;
+      white-space: nowrap;
+      padding-bottom: 0.12em;      /* room for the descender of the J */
+    }
+    .pendant {
+      position: absolute;
+      left: 0; top: 0;
+      transform-origin: 0 0;
+      will-change: transform;
+      touch-action: none;
+      cursor: grab;
+      -webkit-user-drag: none;
+      filter: drop-shadow(3px 7px 7px rgba(0, 0, 0, .55)) drop-shadow(0 1px 1px rgba(0, 0, 0, .5));
+      opacity: 0;
+      transition: opacity .3s ease;
+    }
+    .pendant.is-in { opacity: 1; }
+    .pendant.held { cursor: grabbing; filter: drop-shadow(10px 22px 18px rgba(0, 0, 0, .6)) drop-shadow(0 2px 2px rgba(0, 0, 0, .5)); }
+    .fun-tools {
+      position: absolute;
+      right: var(--gutter);
+      top: 18px;
+      z-index: 2;
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      font-family: var(--mono);
+      font-size: 11px;
+      color: rgba(238, 236, 232, 0.4);
+    }
+    /* quiet: it reads as a note until you hover it */
+    .press-open {
+      font: inherit;
+      color: rgba(238, 236, 232, 0.55);
+      background: none;
+      border: 0;
+      padding: 6px 0;
+      cursor: pointer;
+      transition: color .2s;
+    }
+    .press-open:hover { color: var(--ink); }
+    .press-open:focus-visible { outline: 2px solid var(--ink); outline-offset: 4px; }
+
+    /* ---------- the press: a small, simple version of the metal-etching studio ---------- */
+    .press {
+      margin: auto;
+      width: min(880px, calc(100vw - 32px));
+      max-height: calc(100vh - 32px);
+      padding: 0;
+      border: 0;
+      background: var(--surface);
+      color: var(--ink);
+      overflow: auto;
+    }
+    .press::backdrop { background: rgba(0, 0, 0, .66); }
+    .press-inner { display: grid; grid-template-columns: minmax(0, 1fr) 248px; }
+    .press-stage {
+      position: relative;
+      aspect-ratio: 4 / 4.4;
+      background: #232323;
+      touch-action: none;   /* drawing, not scrolling */
+    }
+    .press-stage canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+    .press-side {
+      display: flex;
+      flex-direction: column;
+      gap: 22px;
+      padding: 28px 24px 24px;
+      font-family: var(--mono);
+      font-size: 12px;
+    }
+    .press-side h2 { font-family: var(--serif); font-weight: 400; font-size: 28px; line-height: 1.1; letter-spacing: -0.01em; }
+    .press-note { color: var(--muted); line-height: 1.5; margin-top: -10px; }
+    .press fieldset { border: 0; display: flex; flex-direction: column; gap: 8px; }
+    .press legend { margin-bottom: 8px; color: var(--muted); }
+    .press legend::before { content: "["; }
+    .press legend::after { content: "]"; }
+    .seg { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: var(--hairline); border: 1px solid var(--hairline); }
+    .seg button, .press-btn {
+      font: inherit;
+      color: var(--ink-soft);
+      background: var(--surface);
+      border: 0;
+      padding: 9px 10px;
+      cursor: pointer;
+      transition: background-color .2s, color .2s;
+    }
+    .seg button:hover { color: var(--ink); }
+    .seg button[aria-pressed="true"] { background: var(--ink); color: var(--bg); }
+    .press-btn { border: 1px solid var(--hairline); text-align: center; }
+    .press-btn:hover { color: var(--ink); border-color: rgba(238, 236, 232, .3); }
+    .press-actions { margin-top: auto; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .press-btn.primary { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+    .press-btn.primary:hover { background: #fff; }
+    .press button:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+    @media (max-width: 680px) {
+      .press-inner { grid-template-columns: minmax(0, 1fr); }
+      .press-stage { aspect-ratio: 1 / 1; }
+      .press-side { padding: 20px 16px 16px; gap: 16px; }
+    }
+
+    /* ---------- Body: contents list + the work, laid out like the old playground ---------- */
+    .play-body { padding: clamp(28px, 4vw, 48px) var(--gutter) clamp(80px, 10vw, 128px); }
+    .play-grid {
+      display: grid;
+      grid-template-columns: 150px minmax(0, 1fr);
+      gap: clamp(32px, 6vw, 100px);
+    }
+    .toc {
+      position: sticky;
+      top: 112px;
+      align-self: start;
+      padding-top: 6px;
+      font-family: var(--mono);
+    }
+    .toc p { font-size: 11px; color: rgba(238, 236, 232, 0.4); margin-bottom: 16px; }
+    .toc ol { list-style: none; display: flex; flex-direction: column; gap: 2px; }
+    .toc a {
+      position: relative;
+      display: block;
+      padding: 6px 0 6px 18px;
+      font-size: 11px;
+      line-height: 1.3;
+      color: rgba(238, 236, 232, 0.4);
+      text-decoration: none;
+      transition: color .25s ease;
+    }
+    .toc a::before {
+      content: "";
+      position: absolute;
+      left: 0; top: 50%;
+      width: 10px; height: 1px;
+      background: var(--ink);
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform .3s var(--ease);
+    }
+    .toc a:hover, .toc a.is-active { color: var(--ink-soft); }
+    .toc a.is-active::before { transform: scaleX(1); }
+
+    .work { display: flex; flex-direction: column; gap: 10px; }
+    .work section { display: flex; flex-direction: column; gap: 10px; scroll-margin-top: 96px; }
+    /* two independent columns, like masonry */
+    .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; align-items: start; }
+    .cols > div { display: flex; flex-direction: column; gap: 10px; }
+    /* a row of pieces at one height: each grows by its own aspect ratio (set inline as --ar) */
+    .row { display: flex; gap: 10px; }
+    .row > .tile { flex: var(--ar) 1 0; }
+    .narrow { width: 76%; }
+
+    /* each piece: the image, and on hover (or keyboard focus) a short note and a date */
+    .tile {
+      position: relative;
+      display: block;
+      overflow: hidden;
+      background: var(--surface);
+    }
+    .tile img, .tile video { display: block; width: 100%; height: auto; transition: transform .8s var(--ease); }
+    .tile figcaption {
+      position: absolute;
+      inset: auto 0 0 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      gap: 16px;
+      padding: 48px 16px 14px;
+      background: linear-gradient(to top, rgba(10, 10, 10, .82), rgba(10, 10, 10, .5) 55%, transparent);
+      opacity: 0;
+      transform: translateY(6px);
+      transition: opacity .35s ease, transform .45s var(--ease);
+      pointer-events: none;
+    }
+    .tile .desc { max-width: 46ch; font-size: 14px; line-height: 1.4; color: var(--ink); }
+    .tile .date { flex: none; font-family: var(--mono); font-size: 11px; color: var(--ink-soft); }
+    .tile:hover figcaption, .tile:focus-visible figcaption, .tile:focus-within figcaption { opacity: 1; transform: none; }
+    .tile:hover img, .tile:hover video { transform: scale(1.015); }
+
+    /* touch screens have no hover: the note sits under each piece instead */
+    @media (hover: none) {
+      .tile { overflow: visible; background: none; }
+      .tile figcaption {
+        position: static;
+        padding: 10px 0 6px;
+        background: none;
+        opacity: 1;
+        transform: none;
+      }
+      .tile .desc { font-size: 13px; color: var(--ink-soft); }
+    }
+
+    /* ---------- Footer (same as the other pages) ---------- */
+    footer {
+      border-top: 1px solid var(--hairline);
+      padding: 28px var(--gutter) 36px;
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--muted);
+    }
+    footer .wrap { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px; }
+    footer a { color: var(--ink); text-decoration: none; }
+    footer a:hover { text-decoration: underline; text-underline-offset: 3px; }
+    footer .foot-links { display: flex; gap: 24px; }
+    footer .foot-small { margin-top: 18px; }
+
+    @media (max-width: 860px) {
+      .play-grid { grid-template-columns: minmax(0, 1fr); }
+      .toc { display: none; }
+    }
+    @media (max-width: 640px) {
+      .nav-inner { padding: 18px 16px; gap: 16px; }
+      .links { gap: 18px; }
+      .fun { height: 420px; }
+      .fun-hint { display: none; }
+      .fun-tools { top: 12px; }
+      .cols { grid-template-columns: minmax(0, 1fr); }
+      .row { flex-direction: column; }
+      .narrow { width: 100%; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      .site-nav, .toc a::before, .tile figcaption, .tile img, .tile video, .pendant { transition: none; }
+    }
+  </style>
+</head>
+<body id="top">
+  <header class="site-nav" id="siteNav">
+    <nav class="nav-inner" aria-label="Main">
+      <a class="brand" href="index.html">Summer Sueki</a>
+      <div class="links">
+        <a href="index.html#work">Work</a>
+        <a href="play.html" aria-current="page">Play</a>
+        <a href="about.html">About</a>
+      </div>
+    </nav>
+  </header>
+
+  <main>
+    <section class="fun" id="funBox" aria-labelledby="fun-title">
+      <h1 id="fun-title">Just for fun!</h1>
+      <div class="fun-tools">
+        <span class="fun-hint" aria-hidden="true">Grab one and throw it</span>
+        <button type="button" class="press-open" id="pressOpen" hidden>+ Press your own</button>
+      </div>
+    </section>
+
+    <div class="play-body">
+      <div class="play-grid">
+        <nav class="toc" aria-label="Playground sections">
+          <p>Contents</p>
+          <ol>
+            <li><a href="#graphic-design">Graphic design</a></li>
+            <li><a href="#touch-design">Touch design</a></li>
+            <li><a href="#photography">Photography</a></li>
+            <li><a href="#exhibition">Exhibition</a></li>
+            <li><a href="#artwork">Artwork</a></li>
+          </ol>
+        </nav>
+
+        <!-- Each piece: a short note and a date, shown on hover. Dates marked "Date TBC" still need confirming. -->
+        <div class="work">
+          <section id="graphic-design" aria-labelledby="h-gd">
+            <h2 class="sr-only" id="h-gd">Graphic design</h2>
+            <div class="cols">
+              <div>
+                <figure class="tile" tabindex="0">
+                  <img src="assets/play/codelab-shirt.jpg" width="1279" height="1600" loading="lazy" alt="A black CodeLab T-shirt on a hanger, its logo printed in white" />
+                  <figcaption><span class="desc">T-shirt graphic for CodeLab.</span><span class="date">Date TBC</span></figcaption>
+                </figure>
+                <figure class="tile" tabindex="0">
+                  <img src="assets/play/pamphlet.jpg" width="1000" height="666" loading="lazy" alt="An open photography zine with spreads titled Capture Emotions and Photograph With Intention" />
+                  <figcaption><span class="desc">A photography zine: "Photograph with intention" and "Capture emotions."</span><span class="date">Date TBC</span></figcaption>
+                </figure>
+              </div>
+              <div>
+                <figure class="tile" tabindex="0">
+                  <img src="assets/play/lanyards.jpg" width="1600" height="1267" loading="lazy" alt="Two lanyard badges, one with a member photo and name, one reading Board Member" />
+                  <figcaption><span class="desc">Member and board badges, designed as a set.</span><span class="date">Date TBC</span></figcaption>
+                </figure>
+                <figure class="tile" tabindex="0">
+                  <img src="assets/play/di-poster.jpg" width="666" height="1000" loading="lazy" alt="A poster reading Bloom with Design Interactive, Spring '26 recruitment, with cut-paper flowers" />
+                  <figcaption><span class="desc">Recruitment poster for Design Interactive.</span><span class="date">Spring 2026</span></figcaption>
+                </figure>
+              </div>
+            </div>
+          </section>
+
+          <section id="touch-design" aria-labelledby="h-td">
+            <h2 class="sr-only" id="h-td">Touch design</h2>
+            <figure class="tile" tabindex="0">
+              <video src="assets/play/touchdesigner.mp4" poster="assets/play/touchdesigner-poster.jpg" width="1600" height="1028" muted loop playsinline preload="metadata" aria-label="A TouchDesigner patch: glowing type smearing and glitching across the screen"></video>
+              <figcaption><span class="desc">Generative type, built in TouchDesigner.</span><span class="date">Date TBC</span></figcaption>
+            </figure>
+          </section>
+
+          <section id="photography" aria-labelledby="h-ph">
+            <h2 class="sr-only" id="h-ph">Photography</h2>
+            <div class="cols">
+              <div>
+                <figure class="tile" tabindex="0">
+                  <img src="assets/play/iceland.jpg" width="1600" height="1066" loading="lazy" alt="Sheep grazing in front of two white houses under green mountains" />
+                  <figcaption><span class="desc">Sheep at dusk, Iceland.</span><span class="date">Date TBC</span></figcaption>
+                </figure>
+                <figure class="tile" tabindex="0">
+                  <img src="assets/play/biodiversity-museum.jpg" width="1600" height="1066" loading="lazy" alt="Visitors leaning over a lit specimen case in a museum" />
+                  <figcaption><span class="desc">Leaning in at a biodiversity museum.</span><span class="date">Date TBC</span></figcaption>
+                </figure>
+              </div>
+              <div>
+                <figure class="tile" tabindex="0">
+                  <img src="assets/play/campus-dance.jpg" width="1600" height="1066" loading="lazy" alt="Dancers twirling on a lawn in front of a campus building" />
+                  <figcaption><span class="desc">Dancers on a campus lawn.</span><span class="date">Date TBC</span></figcaption>
+                </figure>
+                <figure class="tile" tabindex="0">
+                  <img src="assets/play/station-night.jpg" width="1600" height="1138" loading="lazy" alt="Two people waiting on a dark train platform under lit signs" />
+                  <figcaption><span class="desc">A station at night, Japan.</span><span class="date">Oct 2023</span></figcaption>
+                </figure>
+              </div>
+            </div>
+            <figure class="tile narrow" tabindex="0">
+              <img src="assets/play/swimmer.jpg" width="1280" height="831" loading="lazy" alt="A swimmer in a white cap mid-butterfly stroke, water spraying" />
+              <figcaption><span class="desc">Mid-butterfly.</span><span class="date">Date TBC</span></figcaption>
+            </figure>
+          </section>
+
+          <section id="exhibition" aria-labelledby="h-ex">
+            <h2 class="sr-only" id="h-ex">Exhibition</h2>
+            <figure class="tile" tabindex="0">
+              <img src="assets/play/kings-cross.jpg" width="1600" height="736" loading="lazy" alt="A collage of King's Cross station's concourse, with a large compass rose" />
+              <figcaption><span class="desc">King's Cross, London: the concourse, collaged around a compass.</span><span class="date">Date TBC</span></figcaption>
+            </figure>
+            <figure class="tile" tabindex="0">
+              <img src="assets/play/projection.jpg" width="1600" height="1066" loading="lazy" alt="A wildflower painting projected across a dark gallery wall, a visitor silhouetted in front" />
+              <figcaption><span class="desc">The wildflower painting, scaled up to fill a gallery wall.</span><span class="date">Date TBC</span></figcaption>
+            </figure>
+          </section>
+
+          <section id="artwork" aria-labelledby="h-art">
+            <h2 class="sr-only" id="h-art">Artwork</h2>
+            <div class="row">
+              <figure class="tile" tabindex="0" style="--ar: 0.671">
+                <img src="assets/play/ink-portrait.jpg" width="707" height="1053" loading="lazy" alt="An ink drawing of an older man in a heavy coat" />
+                <figcaption><span class="desc">Ink portrait study.</span><span class="date">Date TBC</span></figcaption>
+              </figure>
+              <figure class="tile" tabindex="0" style="--ar: 0.844">
+                <img src="assets/play/charcoal-bust.jpg" width="921" height="1091" loading="lazy" alt="A charcoal drawing of a classical bust of a woman" />
+                <figcaption><span class="desc">Charcoal study of a classical bust.</span><span class="date">Date TBC</span></figcaption>
+              </figure>
+            </div>
+            <figure class="tile" tabindex="0">
+              <img src="assets/play/flower-painting.jpg" width="1600" height="1045" loading="lazy" alt="A loose, colourful painting of wildflowers: purple bells, pink clover, green stems" />
+              <figcaption><span class="desc">Wildflowers, painted loose and bright.</span><span class="date">Oct 2025</span></figcaption>
+            </figure>
+          </section>
+        </div>
+      </div>
+    </div>
+  </main>
+
+
+  <dialog class="press" id="press" aria-labelledby="pressTitle">
+    <div class="press-inner">
+      <div class="press-stage">
+        <canvas id="pressCanvas" role="img" aria-label="The sheet of metal. Draw on it to press a line into it."></canvas>
+      </div>
+      <div class="press-side">
+        <div>
+          <h2 id="pressTitle">Press your own</h2>
+        </div>
+        <p class="press-note">Draw on the sheet to press a line into it, then drop it in with the others.</p>
+        <fieldset>
+          <legend>Shape</legend>
+          <div class="seg" data-group="shape">
+            <button type="button" data-v="square" aria-pressed="true">Square</button>
+            <button type="button" data-v="round" aria-pressed="false">Round</button>
+            <button type="button" data-v="arch" aria-pressed="false">Arch</button>
+            <button type="button" data-v="stamp" aria-pressed="false">Stamp</button>
+          </div>
+        </fieldset>
+        <fieldset>
+          <legend>Texture</legend>
+          <div class="seg" data-group="texture">
+            <button type="button" data-v="smooth" aria-pressed="true">Smooth</button>
+            <button type="button" data-v="brushed" aria-pressed="false">Brushed</button>
+            <button type="button" data-v="grain" aria-pressed="false">Grain</button>
+            <button type="button" data-v="hammer" aria-pressed="false">Hammer</button>
+          </div>
+        </fieldset>
+        <button type="button" class="press-btn" id="pressClear">Clear the drawing</button>
+        <div class="press-actions">
+          <button type="button" class="press-btn" id="pressCancel">Cancel</button>
+          <button type="button" class="press-btn primary" id="pressDrop">Drop it in</button>
+        </div>
+      </div>
+    </div>
+  </dialog>
+
+  <footer>
+    <div class="wrap">
+      <a href="mailto:summersueki26@gmail.com">summersueki26@gmail.com</a>
+      <span class="foot-links">
+        <a href="https://www.linkedin.com/in/summer-sueki" target="_blank" rel="noopener">LinkedIn ↗<span class="sr-only"> (opens in a new tab)</span></a>
+        <a href="resume.pdf" target="_blank" rel="noopener">Resume ↗<span class="sr-only"> (PDF, opens in a new tab)</span></a>
+      </span>
+    </div>
+    <div class="wrap foot-small">
+      <span>© 2026 Summer Sueki</span>
+      <span>Designed and engineered with love</span>
+      <span>Last updated Nov 2026</span>
+    </div>
+  </footer>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js"></script>
+  <script>
+  const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  // ---------- nav frosts over once you scroll ----------
+  (() => {
+    const nav = document.getElementById("siteNav");
+    const onScroll = () => nav.classList.toggle("is-scrolled", scrollY > 12);
+    addEventListener("scroll", onScroll, { passive: true });
+    onScroll();
+  })();
+
+  // ---------- the pendant box ----------
+  // Adapted from Summer's gravity box (Foil Drawer artifact): Matter.js bodies traced from each foil's
+  // cut-out, drawn as images. No gravity controls; five pieces drop in on load. Each letter of the
+  // heading is a static block cut to that glyph's ink height, so the pieces rest on the words, never in them.
+  (() => {
+    const box = document.getElementById("funBox");
+    const h1 = box.querySelector("h1");
+    if (!window.Matter) return;   // no physics library (offline): the heading still stands on its own
+    const { Engine, Bodies, Body, Composite, Constraint, Query, Vertices, Vector } = Matter;
+
+    // [file, title, width, height, where it drops (0–1 across the box)]
+    const PIECES = [
+      ["moon-face", "Moon face", 437, 440, .68],
+      ["seed-pods", "Seed pods", 134, 440, .6],
+      ["moth", "Moth", 440, 424, .8],
+      ["leaf-on-bubbles", "Leaf on bubbles", 353, 440, .9],
+      ["wild-carrot", "Wild carrot", 355, 440, .74],
+    ];
+    const WALL = 400, MAX_SPEED = 38;
+
+    // trace each foil's outline from its transparency, so round and cut pieces collide like themselves
+    async function trace([file, title, w, h, at]) {
+      const img = new Image();
+      img.src = `assets/play/foils/${file}.webp`;
+      await img.decode();
+      const S = 96, k = S / Math.max(w, h);
+      const cw = Math.max(2, Math.round(w * k)), ch = Math.max(2, Math.round(h * k));
+      const c = document.createElement("canvas"); c.width = cw; c.height = ch;
+      const x = c.getContext("2d", { willReadFrequently: true });
+      x.drawImage(img, 0, 0, cw, ch);
+      const square = [{ x: 0, y: 0 }, { x: 1, y: 0 }, { x: 1, y: 1 }, { x: 0, y: 1 }];
+      let a;
+      try { a = x.getImageData(0, 0, cw, ch).data; } catch { return { file, title, w, h, at, hull: square }; }   // file:// blocks pixels
+      const pts = [];
+      for (let y = 0; y < ch; y++) {
+        let l = -1, r = -1;
+        for (let i = 0; i < cw; i++) if (a[(y * cw + i) * 4 + 3] > 110) { if (l < 0) l = i; r = i; }
+        if (l >= 0) pts.push({ x: l / cw, y: y / ch }, { x: (r + 1) / cw, y: y / ch }, { x: l / cw, y: (y + 1) / ch }, { x: (r + 1) / cw, y: (y + 1) / ch });
+      }
+      return { file, title, w, h, at, hull: pts.length > 2 ? Vertices.hull(pts) : square };
+    }
+
+    const engine = Engine.create({ positionIterations: 10, velocityIterations: 8 });
+    engine.gravity.y = 1;
+    const s = { walls: [], letters: [], pieces: [], drag: null, w: 0, h: 0, raf: 0, last: 0, visible: true };
+    box.physics = { engine, s };   // handy for inspecting from the console
+    const solid = (cx, cy, w, h) => Bodies.rectangle(cx, cy, w, h, { isStatic: true, restitution: 0, friction: .6 });
+
+    // the heading's letters, each a block from its ink top down to the floor
+    function letterBlocks() {
+      const cs = getComputedStyle(h1), boxR = box.getBoundingClientRect(), r = h1.getBoundingClientRect();
+      const c = document.createElement("canvas").getContext("2d");
+      c.font = `${cs.fontWeight} ${cs.fontSize} ${cs.fontFamily}`;
+      if ("letterSpacing" in c) c.letterSpacing = cs.letterSpacing;
+      const text = h1.textContent, size = parseFloat(cs.fontSize);
+      const fm = c.measureText(text);
+      // the baseline sits half the leftover line height below the font's ascent
+      const lineH = parseFloat(cs.lineHeight) || size;
+      const top = r.top - boxR.top + parseFloat(cs.paddingTop || 0);
+      const baseline = top + (lineH - (fm.fontBoundingBoxAscent + fm.fontBoundingBoxDescent)) / 2 + fm.fontBoundingBoxAscent;
+      const left0 = r.left - boxR.left + parseFloat(cs.paddingLeft || 0);
+      const blocks = [];
+      for (let i = 0; i < text.length; i++) {
+        const ch = text[i];
+        if (!ch.trim()) continue;
+        const m = c.measureText(ch);
+        const x0 = left0 + c.measureText(text.slice(0, i)).width - m.actualBoundingBoxLeft;
+        const wdt = Math.max(4, m.actualBoundingBoxLeft + m.actualBoundingBoxRight);
+        const inkTop = baseline - m.actualBoundingBoxAscent;
+        const bottom = s.h + 10;   // down to (and into) the floor, so nothing slips under a letter
+        blocks.push(solid(x0 + wdt / 2, (inkTop + bottom) / 2, wdt, bottom - inkTop));
+      }
+      return blocks;
+    }
+
+    function layout() {
+      const r = box.getBoundingClientRect();
+      s.w = r.width; s.h = r.height;
+      const span = s.w + WALL * 2, tall = s.h + WALL * 2;
+      const walls = [
+        solid(s.w / 2, s.h + WALL / 2, span, WALL), solid(s.w / 2, -WALL / 2, span, WALL),
+        solid(-WALL / 2, s.h / 2, WALL, tall), solid(s.w + WALL / 2, s.h / 2, WALL, tall),
+      ];
+      const letters = letterBlocks();
+      Composite.remove(engine.world, [...s.walls, ...s.letters]);
+      Composite.add(engine.world, [...walls, ...letters]);
+      s.walls = walls; s.letters = letters;
+      // after a resize, lift anything now caught inside a letter (or outside the box) back into the clear
+      for (const p of s.pieces) {
+        let { x, y } = p.body.position;
+        x = Math.min(Math.max(x, p.r), s.w - p.r); y = Math.min(Math.max(y, p.r), s.h - p.r);
+        Body.setPosition(p.body, { x, y });
+        if (Query.collides(p.body, letters).length) Body.setPosition(p.body, { x, y: p.r + 4 });
+      }
+    }
+
+    function draw() {
+      for (const p of s.pieces) {
+        const b = p.body;
+        p.el.style.transform = `translate(${b.position.x}px,${b.position.y}px) rotate(${b.angle}rad) translate(${p.ox}px,${p.oy}px)`;
+      }
+    }
+    // A grabbed piece is pulled toward the cursor harder than a letter can push back, so after every
+    // step anything overlapping a letter is moved straight back out along the contact (and stops moving
+    // into it). The words are never covered, however hard a piece is dragged into them.
+    function keepOffLetters() {
+      for (const p of s.pieces) {
+        for (let pass = 0; pass < 3; pass++) {
+          const hits = Query.collides(p.body, s.letters);
+          if (!hits.length) break;
+          for (const c of hits) {
+            const other = c.bodyA === p.body ? c.bodyB : c.bodyA;
+            // push away from the letter: flip the contact normal if it points back toward the letter's centre
+            let nx = c.normal.x, ny = c.normal.y;
+            if (nx * (p.body.position.x - other.position.x) + ny * (p.body.position.y - other.position.y) < 0) { nx = -nx; ny = -ny; }
+            const d = c.depth + .5;
+            Body.translate(p.body, { x: nx * d, y: ny * d });
+            // and stop any motion into it
+            const v = p.body.velocity, into = v.x * nx + v.y * ny;
+            if (into < 0) Body.setVelocity(p.body, { x: v.x - nx * into, y: v.y - ny * into });
+          }
+        }
+      }
+    }
+    function tick(now) {
+      s.raf = requestAnimationFrame(tick);
+      if (!s.visible) { s.last = 0; return; }
+      const dt = Math.min(32, s.last ? now - s.last : 16.67); s.last = now;
+      for (let i = 0; i < 2; i++) { Engine.update(engine, dt / 2); keepOffLetters(); }
+      for (const p of s.pieces) {
+        const v = p.body.velocity, sp = Math.hypot(v.x, v.y);
+        if (sp > MAX_SPEED) Body.setVelocity(p.body, { x: v.x / sp * MAX_SPEED, y: v.y / sp * MAX_SPEED });
+      }
+      draw();
+    }
+
+    function addPiece(item, y) {
+      // the long side is about a ninth of the box's width, held between 96 and 168px
+      const long = Math.max(96, Math.min(168, s.w * .11));
+      const k = long / Math.max(item.w, item.h), w = item.w * k, h = item.h * k;
+      const pts = item.hull.map(p => ({ x: p.x * w, y: p.y * h }));
+      const centre = Vertices.centre(pts);
+      const x = Math.min(Math.max(item.at * s.w, w / 2 + 8), s.w - w / 2 - 8);
+      const body = Bodies.fromVertices(x, y ?? h / 2 + 6, [pts], { restitution: .25, friction: .55, frictionStatic: .9, frictionAir: .012, density: .0012 }, true);
+      Body.setAngle(body, (Math.random() - .5) * .7);
+      Body.setAngularVelocity(body, (Math.random() - .5) * .06);
+      Composite.add(engine.world, body);
+      const el = document.createElement("img");
+      el.className = "pendant";
+      el.src = item.src || `assets/play/foils/${item.file}.webp`;
+      el.alt = "";                      // decorative: the heading carries the meaning
+      el.draggable = false;
+      el.style.width = w + "px"; el.style.height = h + "px";
+      box.appendChild(el);
+      const piece = { body, el, ox: -centre.x, oy: -centre.y, r: Math.min(w, h) / 2 };
+      el.addEventListener("pointerdown", e => grab(e, piece));
+      s.pieces.push(piece);
+      return piece;
+    }
+
+    // ---- grab and throw ----
+    const local = e => { const r = box.getBoundingClientRect(); return { x: e.clientX - r.left, y: e.clientY - r.top }; };
+    function grab(e, piece) {
+      if (e.pointerType === "mouse" && e.button !== 0) return;
+      const pt = local(e);
+      // only the metal counts, not the transparent corners around a cut piece
+      if (!Query.point([piece.body], pt).length) {
+        const hit = Query.point(s.pieces.map(q => q.body), pt)[0];
+        if (!hit) return;
+        piece = s.pieces.find(q => q.body === hit);
+      }
+      e.preventDefault();
+      if (s.drag) release();
+      try { box.setPointerCapture(e.pointerId); } catch {}
+      const b = piece.body;
+      const c = Constraint.create({ pointA: pt, bodyB: b, pointB: Vector.rotate(Vector.sub(pt, b.position), -b.angle), stiffness: .16, damping: .12, length: 0 });
+      Composite.add(engine.world, c);
+      s.drag = { c, piece, id: e.pointerId };
+      piece.el.classList.add("held");
+      box.appendChild(piece.el);   // bring it to the front
+    }
+    function release() {
+      const d = s.drag; if (!d) return;
+      Composite.remove(engine.world, d.c);
+      d.piece.el.classList.remove("held");
+      s.drag = null;
+    }
+    // a pressing made in the studio below drops in on the right; the box keeps at most 14
+    const added = [];
+    box.addPressing = item => {
+      if (!s.w) return;
+      if (added.length >= 9) {
+        const old = added.shift();
+        Composite.remove(engine.world, old.body); old.el.remove();
+        s.pieces = s.pieces.filter(q => q !== old);
+      }
+      const p = addPiece({ ...item, at: .6 + Math.random() * .34 });
+      added.push(p);
+      draw();
+      requestAnimationFrame(() => p.el.classList.add("is-in"));
+    };
+    box.addEventListener("pointermove", e => { if (s.drag && e.pointerId === s.drag.id) s.drag.c.pointA = local(e); });
+    for (const t of ["pointerup", "pointercancel", "lostpointercapture"])
+      box.addEventListener(t, e => { if (s.drag && e.pointerId === s.drag.id) release(); });
+
+    // ---- start: once the heading's font is in (the letter blocks are measured from it) ----
+    Promise.all([document.fonts.ready, ...PIECES.map(trace)]).then(([, ...items]) => {
+      layout();
+      new ResizeObserver(() => layout()).observe(box);
+      new IntersectionObserver(([e]) => { s.visible = e.isIntersecting; }).observe(box);
+      if (reduceMotion) {
+        // no falling show: drop them all, let them settle out of sight, then show them at rest
+        items.forEach(it => addPiece(it));
+        for (let i = 0; i < 600; i++) Engine.update(engine, 1000 / 60);
+        draw();
+        s.pieces.forEach(p => p.el.classList.add("is-in"));
+        s.raf = requestAnimationFrame(tick);
+        return;
+      }
+      s.raf = requestAnimationFrame(tick);
+      items.forEach((it, i) => setTimeout(() => {
+        const p = addPiece(it);
+        draw();
+        requestAnimationFrame(() => p.el.classList.add("is-in"));
+      }, 250 + i * 260));
+    }).catch(err => console.warn("Pendants: couldn't load the foils.", err));
+  })();
+
+  // ---------- the press: draw, pick a shape and a texture, drop it in ----------
+  // A much smaller version of the metal-etching studio. The sheet is a height map: soft bends and a
+  // light crinkle, the chosen texture, edges rolling down, and every drawn line raised into the metal.
+  // It's lit by the same renderer as the home page's foils (a trimmed copy). "Drop it in" renders it
+  // front-on in silver, traces its outline from the shape, and hands it to the box above.
+  (() => {
+    const box = document.getElementById("funBox");
+    const dlg = document.getElementById("press"), open = document.getElementById("pressOpen");
+    const cv = document.getElementById("pressCanvas");
+    if (!dlg.showModal) return;
+      const VS = `#version 300 es
+      precision highp float; precision highp int; precision highp sampler2D;
+      in vec2 aUV;
+      uniform sampler2D uH; uniform ivec2 uTex; uniform mat4 uModel, uVP; uniform vec2 uSize; uniform float uDisp;
+      out vec2 vUV; out vec3 vWorld;
+      void main(){
+        ivec2 t = clamp(ivec2(aUV*vec2(uTex)), ivec2(0), uTex-1);
+        float h = texelFetch(uH, t, 0).r;
+        vec4 w = uModel*vec4((aUV.x-.5)*uSize.x, (.5-aUV.y)*uSize.y, h*uDisp, 1.);
+        vWorld = w.xyz; vUV = aUV;
+        gl_Position = uVP*w;
+      }`;
+      const FS = `#version 300 es
+      precision highp float; precision highp int; precision highp sampler2D;
+      in vec2 vUV; in vec3 vWorld;
+      uniform sampler2D uH, uM; uniform ivec2 uTex; uniform mat3 uNM;
+      uniform vec3 uCam, uL, uL2, uF0; uniform float uRough, uGlint;
+      out vec4 o;
+      float T(ivec2 p){ return texelFetch(uH, clamp(p, ivec2(0), uTex-1), 0).r; }
+      float HB(vec2 p){
+        vec2 q = p - .5; vec2 fl = floor(q); ivec2 i = ivec2(fl); vec2 f = q - fl;
+        return mix(mix(T(i), T(i+ivec2(1,0)), f.x), mix(T(i+ivec2(0,1)), T(i+ivec2(1,1)), f.x), f.y);
+      }
+      vec3 env(vec3 r){
+        float rough = uRough, up = r.y;
+        float ph = atan(r.x, r.z), ph0 = atan(uL2.x, uL2.z);
+        float hz = mix(.16, .4, rough);
+        float wall = .52 + .2*sin(ph*2. + .6) + .1*sin(ph*5. + 2.) + .06*sin(ph*11. + 4.);
+        float v = mix(.2, wall, smoothstep(-.4 - hz, -.4 + hz, up));
+        v = mix(v, 1.2, smoothstep(.42 - hz, .58 + hz, up));
+        float dp = abs(mod(ph - ph0 + 3.14159265, 6.2831853) - 3.14159265);
+        float ws = mix(.18, .5, rough);
+        v *= 1. - .55*smoothstep(ws, ws*.25, dp)*(1. - smoothstep(.2, .7, up));
+        float wk = mix(.02, .28, rough);
+        v += 2.4*uGlint*exp((dot(r, uL) - 1.)/wk);
+        float ph1 = atan(uL.x, uL.z);
+        float d1 = abs(mod(ph - ph1 + 3.14159265, 6.2831853) - 3.14159265);
+        float w1 = mix(.06, .28, rough);
+        v += .6*smoothstep(w1, w1*.2, d1)*smoothstep(-.25, .35, up);
+        v *= 1. - .14*exp((r.z - 1.)/mix(.025, .12, rough));
+        v = mix(v, .55, rough*.3);
+        return vec3(v)*vec3(1.0, .985, .965);
+      }
+      void main(){
+        float m = texture(uM, vUV).r;
+        if (m < .02) discard;
+        vec2 p = vUV*vec2(uTex);
+        float hl = HB(p - vec2(1.,0.)), hr = HB(p + vec2(1.,0.));
+        float hu = HB(p - vec2(0.,1.)), hd = HB(p + vec2(0.,1.));
+        float hc = HB(p);
+        vec3 n = normalize(vec3(-(hr-hl)*.5, (hd-hu)*.5, 1.));
+        float ao = clamp(1. - ((hl+hr+hu+hd)*.25 - hc)*.6, .35, 1.15);
+        vec3 N = normalize(uNM*n);
+        if (!gl_FrontFacing) N = -N;
+        vec3 V = normalize(uCam - vWorld);
+        float nv = clamp(dot(N, V), 0., 1.);
+        vec3 F = uF0 + (1. - uF0)*pow(1. - nv, 5.);
+        vec3 c = env(reflect(-V, N))*F*ao;
+        c = 1. - exp(-c*2.25);
+        o = vec4(c*m, m);
+      }`;
+      const METALS = { silver: [0.92, 0.92, 0.93], pewter: [0.30, 0.31, 0.33] };
+
+      function compile(gl, type, src) {
+        const s = gl.createShader(type); gl.shaderSource(s, src); gl.compileShader(s);
+        if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(s));
+        return s;
+      }
+      function makeTex(gl, internal, w, h, filter) {
+        const t = gl.createTexture(); gl.bindTexture(gl.TEXTURE_2D, t);
+        gl.texStorage2D(gl.TEXTURE_2D, 1, internal, w, h);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, filter);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, filter);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+        return t;
+      }
+      function mul4(a, b) {
+        const o = new Float32Array(16);
+        for (let c = 0; c < 4; c++) for (let r = 0; r < 4; r++) { let s = 0; for (let k = 0; k < 4; k++) s += a[k * 4 + r] * b[c * 4 + k]; o[c * 4 + r] = s; }
+        return o;
+      }
+
+      class FoilGL {
+        constructor(canvas) {
+          const gl = canvas.getContext("webgl2", { alpha: true, premultipliedAlpha: true, antialias: true });
+          if (!gl) throw new Error("WebGL2 unavailable");
+          this.gl = gl; this.canvas = canvas;
+          const p = gl.createProgram();
+          gl.attachShader(p, compile(gl, gl.VERTEX_SHADER, VS));
+          gl.attachShader(p, compile(gl, gl.FRAGMENT_SHADER, FS));
+          gl.bindAttribLocation(p, 0, "aUV");
+          gl.linkProgram(p);
+          if (!gl.getProgramParameter(p, gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(p));
+          this.prog = p; this.u = {};
+          for (const n of ["uH", "uM", "uTex", "uModel", "uVP", "uSize", "uDisp", "uNM", "uCam", "uL", "uL2", "uF0", "uRough", "uGlint"])
+            this.u[n] = gl.getUniformLocation(p, n);
+          this.vao = gl.createVertexArray();
+          this.uvBuf = gl.createBuffer(); this.ixBuf = gl.createBuffer();
+        }
+        // a piece: heights (Float32) + mask (Uint8); grid sets mesh density
+        setPiece(piece, grid) {
+          const gl = this.gl, { tw, th } = piece;
+          if (this.hTex) { gl.deleteTexture(this.hTex); gl.deleteTexture(this.mTex); }
+          this.tw = tw; this.th = th;
+          this.hTex = makeTex(gl, gl.R32F, tw, th, gl.NEAREST);
+          this.mTex = makeTex(gl, gl.R8, tw, th, gl.LINEAR);
+          gl.bindTexture(gl.TEXTURE_2D, this.hTex);
+          gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, tw, th, gl.RED, gl.FLOAT, piece.heights);
+          gl.bindTexture(gl.TEXTURE_2D, this.mTex);
+          gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
+          gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, tw, th, gl.RED, gl.UNSIGNED_BYTE, piece.mask);
+          gl.pixelStorei(gl.UNPACK_ALIGNMENT, 4);
+          const gx = Math.min(grid, tw), gy = Math.max(2, Math.round(gx * th / tw));
+          const uv = new Float32Array((gx + 1) * (gy + 1) * 2);
+          let k = 0;
+          for (let y = 0; y <= gy; y++) for (let x = 0; x <= gx; x++) { uv[k++] = x / gx; uv[k++] = y / gy; }
+          const ix = new Uint32Array(gx * gy * 6); k = 0;
+          for (let y = 0; y < gy; y++) for (let x = 0; x < gx; x++) {
+            const a = y * (gx + 1) + x, b = a + 1, c = a + gx + 1, d = c + 1;
+            ix[k++] = a; ix[k++] = c; ix[k++] = b; ix[k++] = b; ix[k++] = c; ix[k++] = d;
+          }
+          this.count = ix.length;
+          gl.bindVertexArray(this.vao);
+          gl.bindBuffer(gl.ARRAY_BUFFER, this.uvBuf); gl.bufferData(gl.ARRAY_BUFFER, uv, gl.STATIC_DRAW);
+          gl.enableVertexAttribArray(0); gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
+          gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.ixBuf); gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, ix, gl.STATIC_DRAW);
+          gl.bindVertexArray(null);
+        }
+        // swap the heights or the mask in place (same size), for live drawing
+        updateHeights(h) {
+          const gl = this.gl;
+          gl.bindTexture(gl.TEXTURE_2D, this.hTex);
+          gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, this.tw, this.th, gl.RED, gl.FLOAT, h);
+        }
+        // p: cssW cssH sheetW sheetH ox oy yaw pitch L (unit vector toward the lamp) shine f0
+        render(p) {
+          const gl = this.gl, cv = this.canvas;
+          const dpr = Math.min(2, devicePixelRatio || 1);
+          const bw = Math.max(1, Math.round(p.cssW * dpr)), bh = Math.max(1, Math.round(p.cssH * dpr));
+          if (cv.width !== bw || cv.height !== bh) { cv.width = bw; cv.height = bh; }
+          gl.viewport(0, 0, bw, bh);
+          gl.clearColor(0, 0, 0, 0); gl.clearDepth(1);
+          gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+          if (!this.tw) return;
+          gl.enable(gl.DEPTH_TEST); gl.depthFunc(gl.LEQUAL);
+          gl.enable(gl.BLEND); gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
+          // the z = 0 plane maps 1:1 to CSS pixels, so sheet sizes and offsets are in px
+          const D = Math.max(p.cssW, p.cssH) * 2.4, near = D * .2, far = D * 3;
+          const P = new Float32Array([2 * D / p.cssW, 0, 0, 0, 0, 2 * D / p.cssH, 0, 0, 0, 0, (far + near) / (near - far), -1, 0, 0, 2 * far * near / (near - far), 0]);
+          const Vw = new Float32Array([1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, -D, 1]);
+          const cy = Math.cos(p.yaw || 0), sy = Math.sin(p.yaw || 0), cx = Math.cos(p.pitch || 0), sx = Math.sin(p.pitch || 0);
+          const R = [cy, 0, -sy, sy * sx, cx, cy * sx, sy * cx, -sx, cy * cx];
+          const M = new Float32Array([R[0], R[1], R[2], 0, R[3], R[4], R[5], 0, R[6], R[7], R[8], 0, p.ox || 0, p.oy || 0, 0, 1]);
+          const L = p.L;
+          // a second, dim window opposite the lamp, low on the horizon
+          const az2 = Math.atan2(-L[1], L[0]) + Math.PI * .92, el2 = .12;
+          const L2 = [Math.cos(el2) * Math.cos(az2), -Math.cos(el2) * Math.sin(az2), Math.sin(el2)];
+          const u = this.u;
+          gl.useProgram(this.prog);
+          gl.uniformMatrix4fv(u.uVP, false, mul4(P, Vw));
+          gl.uniformMatrix4fv(u.uModel, false, M);
+          gl.uniformMatrix3fv(u.uNM, false, new Float32Array(R));
+          gl.uniform2f(u.uSize, p.sheetW, p.sheetH);
+          gl.uniform1f(u.uDisp, p.sheetW / this.tw);
+          gl.uniform2i(u.uTex, this.tw, this.th);
+          gl.uniform3f(u.uCam, 0, 0, D);
+          gl.uniform3fv(u.uL, L); gl.uniform3fv(u.uL2, L2);
+          gl.uniform3fv(u.uF0, p.f0);
+          gl.uniform1f(u.uGlint, p.f0[0] < .5 ? 2.2 : 1.35);
+          const sh = p.shine / 100;
+          gl.uniform1f(u.uRough, (1 - sh) * (1 - sh) * .9 + .02);
+          gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, this.hTex); gl.uniform1i(u.uH, 0);
+          gl.activeTexture(gl.TEXTURE1); gl.bindTexture(gl.TEXTURE_2D, this.mTex); gl.uniform1i(u.uM, 1);
+          gl.bindVertexArray(this.vao);
+          gl.drawElements(gl.TRIANGLES, this.count, gl.UNSIGNED_INT, 0);
+          gl.bindVertexArray(null);
+        }
+      }
+
+
+    let gl;
+    try { gl = new FoilGL(cv); } catch { return; }   // no WebGL 2: the button stays hidden
+    open.hidden = false;
+
+    const W = 480, H = 600, N = W * H;
+    const K = W / 640;   // the studio's marks are sized for a 640px sheet
+    const state = { shape: "square", texture: "smooth" };
+
+    // ---- the studio's value noise ----
+    const rng = seed => { let a = seed >>> 0; return () => { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; };
+    function noise(out, sx, sy, amp, rand, ridged) {
+      sx *= K; sy *= K; amp *= K;
+      const gw = Math.ceil(W / sx) + 2, gh = Math.ceil(H / sy) + 2, g = new Float32Array(gw * gh);
+      for (let k = 0; k < g.length; k++) g[k] = rand() * 2 - 1;
+      const ox = rand() * sx, oy = rand() * sy;
+      for (let y = 0; y < H; y++) {
+        const fy0 = (y + oy) / sy, iy = fy0 | 0, fy = fy0 - iy, ty = fy * fy * (3 - 2 * fy), r0 = iy * gw, r1 = r0 + gw;
+        for (let x = 0; x < W; x++) {
+          const fx0 = (x + ox) / sx, ix = fx0 | 0, fx = fx0 - ix, tx = fx * fx * (3 - 2 * fx);
+          const a = g[r0 + ix] + (g[r0 + ix + 1] - g[r0 + ix]) * tx, b = g[r1 + ix] + (g[r1 + ix + 1] - g[r1 + ix]) * tx;
+          let v = a + (b - a) * ty;
+          if (ridged) { v = 1 - Math.abs(v); v = v * v * v; }
+          out[y * W + x] += v * amp;
+        }
+      }
+    }
+    const tmp = new Float32Array(N);
+    function blur(src, dst, r, passes = 3) {   // box blurs ≈ a gaussian
+      const k = 1 / (2 * r + 1);
+      dst.set(src);
+      for (let p = 0; p < passes; p++) {
+        for (let y = 0; y < H; y++) {
+          const o = y * W; let sum = 0;
+          for (let i = -r; i <= r; i++) sum += dst[o + Math.min(W - 1, Math.max(0, i))];
+          for (let x = 0; x < W; x++) { tmp[o + x] = sum * k; sum += dst[o + Math.min(W - 1, x + r + 1)] - dst[o + Math.max(0, x - r)]; }
+        }
+        for (let x = 0; x < W; x++) {
+          let sum = 0;
+          for (let i = -r; i <= r; i++) sum += tmp[Math.min(H - 1, Math.max(0, i)) * W + x];
+          for (let y = 0; y < H; y++) { dst[y * W + x] = sum * k; sum += tmp[Math.min(H - 1, y + r + 1) * W + x] - tmp[Math.max(0, y - r) * W + x]; }
+        }
+      }
+    }
+
+    // ---- the sheet: bends and a light crinkle, made once ----
+    const sheet = new Float32Array(N);
+    {
+      const rand = rng(1119);
+      noise(sheet, 300, 420, 14, rand); noise(sheet, 130, 160, 2.6, rand);
+      const crk = new Float32Array(N);
+      noise(crk, 120, 120, .9, rand, true); noise(crk, 48, 48, .45, rand, true); noise(crk, 14, 14, .12, rand);
+      for (let i = 0; i < N; i++) sheet[i] += crk[i] * .5;
+    }
+
+    // ---- texture ----
+    const tex = new Float32Array(N);
+    function makeTexture() {
+      const rand = rng(2026);
+      tex.fill(0);
+      const kind = state.texture;
+      if (kind === "brushed") {
+        noise(tex, 220, 1.6, .03, rand); noise(tex, 60, .9, .016, rand);
+        for (let i = 0; i < N; i++) tex[i] += (rand() - .5) * .014;
+      } else if (kind === "grain") {
+        const f = new Float32Array(N), wx = new Float32Array(N), wy = new Float32Array(N), amp = new Float32Array(N);
+        noise(f, 260, 320, 5 / K, rand); noise(f, 90, 110, 1.3 / K, rand);
+        noise(wx, 80, 80, 26, rand); noise(wy, 80, 80, 26, rand);
+        noise(amp, 40, 40, 1 / K, rand);
+        for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+          const i = y * W + x, qx = Math.min(W - 1, Math.max(0, x + wx[i])) | 0, qy = Math.min(H - 1, Math.max(0, y + wy[i])) | 0;
+          const v = f[qy * W + qx] + (x + wx[i]) * .011 / K + (y + wy[i]) * .024 / K;
+          const fr = v * 2.6 - Math.floor(v * 2.6);
+          let ridge = 1 - Math.abs(fr * 2 - 1);
+          ridge = Math.pow(ridge * ridge * (3 - 2 * ridge), 1.6);
+          tex[i] = ridge * .95 * K * Math.min(1, Math.max(.15, .55 + amp[i] * .6));
+        }
+      } else if (kind === "hammer") {
+        const marks = 2600 * N / (640 * 800) / (K * K);
+        for (let k = 0; k < marks; k++) {
+          const cx = rand() * W, cy = rand() * H, r = (5 + rand() * 7) * K, a = (.35 + rand() * .35) * K;
+          for (let y = Math.max(0, cy - r | 0); y <= Math.min(H - 1, cy + r | 0); y++)
+            for (let x = Math.max(0, cx - r | 0); x <= Math.min(W - 1, cx + r | 0); x++) {
+              const d = Math.hypot(x - cx, y - cy) / r;
+              if (d < 1) { const v = -a * (1 - d * d), i = y * W + x; if (v < tex[i]) tex[i] = v; }
+            }
+        }
+      } else {
+        noise(tex, 160, 2.4, .02, rand);
+        for (let i = 0; i < N; i++) tex[i] += (rand() - .5) * .004;
+      }
+    }
+
+    // ---- shape: the cut-out, and its edges rolling down ----
+    const mc = document.createElement("canvas"); mc.width = W; mc.height = H;
+    const mx = mc.getContext("2d", { willReadFrequently: true });
+    const mask = new Uint8Array(N), rim = new Float32Array(N), mf = new Float32Array(N);
+    function makeMask() {
+      mx.clearRect(0, 0, W, H); mx.fillStyle = "#000";
+      const cx = W / 2, cy = H / 2, sh = state.shape;
+      mx.beginPath();
+      if (sh === "round") mx.arc(cx, cy, W * .45, 0, Math.PI * 2);
+      else if (sh === "arch") { const w = W * .78, h = H * .9, r = w / 2, top = cy - h / 2; mx.moveTo(cx - r, cy + h / 2); mx.lineTo(cx - r, top + r); mx.arc(cx, top + r, r, Math.PI, 0); mx.lineTo(cx + r, cy + h / 2); mx.closePath(); }
+      else { const w = W * .86, h = H * .88; mx.rect(cx - w / 2, cy - h / 2, w, h); }
+      mx.fill();
+      if (sh === "stamp") {   // perforated edges
+        const w = W * .86, h = H * .88, x0 = cx - w / 2, y0 = cy - h / 2;
+        const n = Math.round(w / 30), m = Math.round(h / 30), r = w / n * .3;
+        mx.globalCompositeOperation = "destination-out";
+        mx.beginPath();
+        for (let k = 0; k <= n; k++) { const x = x0 + k * w / n; mx.moveTo(x + r, y0); mx.arc(x, y0, r, 0, 7); mx.moveTo(x + r, y0 + h); mx.arc(x, y0 + h, r, 0, 7); }
+        for (let k = 0; k <= m; k++) { const y = y0 + k * h / m; mx.moveTo(x0 + r, y); mx.arc(x0, y, r, 0, 7); mx.moveTo(x0 + w + r, y); mx.arc(x0 + w, y, r, 0, 7); }
+        mx.fill();
+        mx.globalCompositeOperation = "source-over";
+      }
+      const d = mx.getImageData(0, 0, W, H).data;
+      for (let i = 0; i < N; i++) { mask[i] = d[i * 4 + 3]; mf[i] = mask[i] / 255; }
+      blur(mf, rim, Math.round(5 * K), 2);
+    }
+
+    // ---- drawing: each stroke goes onto a canvas, blurred into a raised line ----
+    const ic = document.createElement("canvas"); ic.width = W; ic.height = H;
+    const ix = ic.getContext("2d", { willReadFrequently: true });
+    const ink = new Float32Array(N), press = new Float32Array(N), heights = new Float32Array(N);
+    function readInk() {
+      const d = ix.getImageData(0, 0, W, H).data;
+      for (let i = 0; i < N; i++) ink[i] = d[i * 4 + 3] / 255;
+      blur(ink, press, 2);
+    }
+    function compose() {
+      for (let i = 0; i < N; i++) heights[i] = sheet[i] * .6 + tex[i] + (rim[i] - 1) * 6 + press[i] * 7;
+    }
+
+    // ---- light and render ----
+    const pointer = { x: 0, y: 0, seen: false };
+    let raf = 0, dirtyInk = false, needsDraw = true;
+    const lamp = (az, el) => [Math.cos(el) * Math.cos(az), -Math.cos(el) * Math.sin(az), Math.sin(el)];
+    const FRONT = lamp(225 * Math.PI / 180, 40 * Math.PI / 180);   // upper left, like the other pieces
+    function layout() {
+      const w = cv.clientWidth, h = cv.clientHeight;
+      const sw = Math.min(w * .78, h * .78 * W / H);
+      return { w, h, sw, sh: sw * H / W };
+    }
+    function frame() {
+      raf = 0;
+      if (!dlg.open) return;
+      if (dirtyInk) { readInk(); compose(); gl.updateHeights(heights); dirtyInk = false; needsDraw = true; }
+      if (needsDraw) {
+        const L0 = layout();
+        let L = FRONT;
+        if (pointer.seen) {   // the lamp follows the cursor around the sheet, so the lines catch the light
+          const dx = pointer.x - L0.w / 2, dy = pointer.y - L0.h / 2;
+          const reach = Math.min(1, Math.hypot(dx, dy) / (Math.hypot(L0.w, L0.h) * .6));
+          L = lamp(Math.atan2(dy, dx), (76 - 52 * Math.sqrt(reach)) * Math.PI / 180);
+        }
+        gl.render({ cssW: L0.w, cssH: L0.h, sheetW: L0.sw, sheetH: L0.sh, yaw: 0, pitch: 0, L, shine: 80, f0: METALS.silver });
+        needsDraw = false;
+      }
+    }
+    const kick = () => { if (!raf) raf = requestAnimationFrame(frame); };
+    function rebuild(all) {
+      if (all) makeTexture();
+      compose();
+      gl.setPiece({ tw: W, th: H, heights, mask }, 200);
+      needsDraw = true; kick();
+    }
+
+    // ---- drawing on the sheet ----
+    let stroke = null;
+    const toSheet = e => {
+      const r = cv.getBoundingClientRect(), L0 = layout();
+      return { x: (e.clientX - r.left - (L0.w - L0.sw) / 2) / L0.sw * W, y: (e.clientY - r.top - (L0.h - L0.sh) / 2) / L0.sh * H };
+    };
+    cv.addEventListener("pointerdown", e => {
+      if (e.pointerType === "mouse" && e.button !== 0) return;
+      try { cv.setPointerCapture(e.pointerId); } catch {}
+      stroke = { id: e.pointerId, ...toSheet(e) };
+      ix.lineCap = "round"; ix.lineJoin = "round"; ix.lineWidth = 8 * K; ix.strokeStyle = "#fff"; ix.fillStyle = "#fff";
+      ix.beginPath(); ix.arc(stroke.x, stroke.y, ix.lineWidth / 2, 0, 7); ix.fill();
+      dirtyInk = true; kick();
+    });
+    cv.addEventListener("pointermove", e => {
+      const r = cv.getBoundingClientRect();
+      pointer.x = e.clientX - r.left; pointer.y = e.clientY - r.top; pointer.seen = true; needsDraw = true;
+      if (stroke && e.pointerId === stroke.id) {
+        const p = toSheet(e);
+        ix.beginPath(); ix.moveTo(stroke.x, stroke.y); ix.lineTo(p.x, p.y); ix.stroke();
+        stroke.x = p.x; stroke.y = p.y;
+        dirtyInk = true;
+      }
+      kick();
+    });
+    const endStroke = e => { if (stroke && e.pointerId === stroke.id) stroke = null; };
+    cv.addEventListener("pointerup", endStroke);
+    cv.addEventListener("pointercancel", endStroke);
+    cv.addEventListener("pointerleave", () => { pointer.seen = false; needsDraw = true; kick(); });
+
+    // ---- controls ----
+    dlg.querySelectorAll(".seg").forEach(seg => seg.addEventListener("click", e => {
+      const b = e.target.closest("button"); if (!b) return;
+      seg.querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", x === b));
+      state[seg.dataset.group] = b.dataset.v;
+      if (seg.dataset.group === "shape") { makeMask(); rebuild(false); }
+      else rebuild(true);
+    }));
+    document.getElementById("pressClear").addEventListener("click", () => {
+      ix.clearRect(0, 0, W, H); readInk(); compose(); gl.updateHeights(heights); needsDraw = true; kick();
+    });
+    document.getElementById("pressCancel").addEventListener("click", () => dlg.close());
+    new ResizeObserver(() => { needsDraw = true; kick(); }).observe(cv);
+
+    let ready = false;
+    open.addEventListener("click", () => {
+      dlg.showModal();
+      if (!ready) { ready = true; makeMask(); readInk(); rebuild(true); }
+      needsDraw = true; kick();
+    });
+
+    // ---- drop it in: render it front-on, trace its outline, hand it to the box ----
+    document.getElementById("pressDrop").addEventListener("click", () => {
+      const out = document.createElement("canvas");
+      let g;
+      try { g = new FoilGL(out); } catch { return; }
+      g.setPiece({ tw: W, th: H, heights, mask }, 200);
+      const ow = 300, oh = ow * H / W;
+      g.render({ cssW: ow, cssH: oh, sheetW: ow, sheetH: oh, yaw: 0, pitch: 0, L: FRONT, shine: 80, f0: METALS.silver });
+      const src = out.toDataURL("image/png");   // read straight after drawing, before the buffer is cleared
+      g.gl.getExtension("WEBGL_lose_context")?.loseContext();
+      // the outline, from the mask
+      const pts = [];
+      for (let y = 0; y < H; y += 4) {
+        let l = -1, r = -1;
+        for (let x = 0; x < W; x++) if (mask[y * W + x] > 110) { if (l < 0) l = x; r = x; }
+        if (l >= 0) pts.push({ x: l / W, y: y / H }, { x: (r + 1) / W, y: y / H }, { x: l / W, y: Math.min(1, (y + 4) / H) }, { x: (r + 1) / W, y: Math.min(1, (y + 4) / H) });
+      }
+      const hull = Matter.Vertices.hull(pts);
+      dlg.close();
+      box.addPressing?.({ src, w: W, h: H, hull });
+      // a fresh sheet for the next one
+      ix.clearRect(0, 0, W, H); readInk(); compose(); gl.updateHeights(heights);
+    });
+  })();
+
+  // ---------- the TouchDesigner recording plays only while it's mostly in view ----------
+  (() => {
+    if (reduceMotion) return;
+    document.querySelectorAll(".tile video").forEach(v => new IntersectionObserver(([e]) => {
+      if (e.intersectionRatio >= .5) v.play().catch(() => {}); else v.pause();
+    }, { threshold: [0, .5] }).observe(v));
+  })();
+
+  // ---------- contents list: highlight the section in view ----------
+  (() => {
+    const links = [...document.querySelectorAll(".toc a")];
+    const sections = links.map(a => document.querySelector(a.getAttribute("href")));
+    function update() {
+      const line = innerHeight * .35;
+      let current = 0;
+      sections.forEach((sec, i) => { if (sec.getBoundingClientRect().top <= line) current = i; });
+      links.forEach((a, k) => {
+        a.classList.toggle("is-active", k === current);
+        if (k === current) a.setAttribute("aria-current", "true"); else a.removeAttribute("aria-current");
+      });
+    }
+    addEventListener("scroll", update, { passive: true });
+    addEventListener("resize", update);
+    update();
+  })();
+  </script>
+  <script src="site.js" defer></script>
+</body>
+</html>
