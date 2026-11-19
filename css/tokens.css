@@ -1,0 +1,79 @@
+/* ==========================================================================
+   Design tokens: the one source for colour, type, spacing and the grid.
+   Every page links this first, then base.css. Pages keep inline only what is unique to them.
+   ========================================================================== */
+:root {
+  color-scheme: dark;
+
+  /* ---------- colour ---------- */
+  --bg: #141414;
+  --surface-1: #1c1c1c;          /* panels, tiles, dialogs */
+  --surface-2: #232323;          /* the full-width .band, the press's sheet */
+  --text: #eeece8;
+  --text-2: rgb(185, 183, 178);  /* body copy, secondary */
+  --text-3: #949087;             /* labels, captions: a warm grey in the hue of --text (40°), 5.8:1 on --bg */
+  --text-faint: rgba(238, 236, 232, .4);   /* the contents list, hints */
+  --hairline: rgba(238, 236, 232, .1);
+  /* the three print colours: Google's olive, Reddit's rust, Tech Interactive's cream */
+  --olive: #c8c27f;
+  --rust: #9e4436;
+  --cream: #e4dcae;
+  /* the prints themselves. Declared here (in css/), not in a page: a url() inside a custom property is
+     resolved against the stylesheet that uses it, so a page-relative path would break in case-study.css */
+  --print-olive: url("../assets/backdrops/green-print.jpg");
+  --print-rust: url("../assets/backdrops/rust-print.jpg");
+
+  /* ---------- type ---------- */
+  --sans: "Plus Jakarta Sans", -apple-system, "Helvetica Neue", Arial, sans-serif;
+  --serif: "Newsreader", "Iowan Old Style", Georgia, serif;
+  --mono: "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  --serif-weight: 360;           /* every Newsreader heading */
+
+  /* one scale for every page. Fixed steps for UI and body; fluid steps (clamp) for headings,
+     so a heading is the same size on every page at any given window width */
+  --fs-2xs: 11px;                /* contents list, hints, fine print */
+  --fs-label: 12px;              /* the mono label, captions, the footer */
+  --fs-sm: 13px;                 /* nav, buttons, small UI */
+  --fs-base: 15px;               /* secondary body: facts, stat notes */
+  --fs-md: 17px;                 /* story body, ledes */
+  --fs-lg: 19px;                 /* h3 subheads (Plus Jakarta Sans 600), tile titles */
+  --fs-xl: 23px;                 /* small serif: letters, brief questions, KPI names */
+  --fs-quote: clamp(22px, 2.2vw, 30px);    /* blockquotes */
+  --fs-h2: clamp(28px, 2.8vw, 40px);       /* section headings, small figures, next-project titles */
+  --fs-statement: clamp(24px, 2.4vw, 36px);/* statement title: home, About */
+  --fs-pull: clamp(30px, 3.6vw, 52px);     /* pull statements, the big finding in a band */
+  --fs-display: clamp(36px, 4.6vw, 64px);  /* display title: case studies, Play */
+  --fs-figure: clamp(44px, 5vw, 72px);     /* headline numbers */
+
+  /* ---------- spacing ---------- */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-7: 32px;
+  --space-8: 40px;
+  --space-9: 48px;
+  --space-10: 64px;
+  --space-11: 80px;
+  --space-12: 96px;
+  --space-13: 128px;
+
+  /* ---------- grid ----------
+     12 columns inside a 1320px container, centred, with at least a 16px outer margin.
+     Everything starts at --gutter: the nav, every hero, the contents rail. */
+  --container: 1320px;
+  --gutter: max(16px, env(safe-area-inset-left, 0px), calc((100% - var(--container)) / 2));
+  --grid-gap: 24px;
+
+  /* ---------- motion ---------- */
+  --ease: cubic-bezier(.2, .8, .2, 1);
+
+  /* site.js cursor */
+  --cursor-dot: #fff;
+  --cursor-blend: difference;
+}
+@media (max-width: 720px) {
+  :root { --grid-gap: 16px; }
+}

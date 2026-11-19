@@ -3,110 +3,40 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Summer Sueki · Product Designer</title>
+  <title>Work · Summer Sueki</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,300..500&family=Plus+Jakarta+Sans:wght@400;500;600&family=Geist+Mono:wght@400&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300..500;1,6..72,300..500&family=Plus+Jakarta+Sans:wght@400;500;600&family=Geist+Mono:wght@400&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/tokens.css" />
+  <link rel="stylesheet" href="css/base.css" />
   <style>
-    /* ---------- v3, dark: summersueki.com's system (near-black, bold caps, stickers);
-       the colour lives in the work and the stickers ---------- */
-    :root {
-      color-scheme: dark;
-      --bg: #141414;
-      --surface: #1c1c1c;
-      --ink: #eeece8;
-      --ink-soft: #b9b7b2;
-      --muted: #8f8f8f;
-      --hairline: rgba(238, 236, 232, 0.1);
-      --cursor-dot: #fff;          /* site.js cursor */
-      --cursor-blend: difference;  /* it inverts what's under it when it swells over a link */
-
-      /* each project's palette: base + three washes that blend into it */
-      --custard: #f9e48a;
-      --petal: #ffd3e0;
-      --icy: #abd2ef;
-      --sage: #e4e5d6;
-
-      --sans: "Plus Jakarta Sans", -apple-system, "Helvetica Neue", Arial, sans-serif;
-      --serif: "Newsreader", "Iowan Old Style", Georgia, serif;
-      --mono: "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace;
-      --ease: cubic-bezier(.2, .8, .2, 1);
-      --gutter: max(16px, env(safe-area-inset-left, 0px), calc((100% - 1320px) / 2));
-    }
-
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    html { scroll-behavior: smooth; }
-    body {
-      background: var(--bg);
-      color: var(--ink);
-      font-family: var(--sans);
-      overflow-x: hidden;
-      -webkit-font-smoothing: antialiased;
-    }
-    a { color: inherit; }
-    a:focus-visible { outline: 2px solid var(--ink); outline-offset: 4px; }
-    .sr-only {
-      position: absolute; width: 1px; height: 1px;
-      overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap;
-    }
-
-    /* ---------- Nav: a plain bar that frosts over once you scroll ---------- */
-    .site-nav {
-      position: fixed;
-      inset: 0 0 auto;
-      z-index: 10;
-      border-bottom: 1px solid transparent;
-      transition: background-color .35s ease, border-color .35s ease;
-    }
-    .site-nav.is-scrolled {
-      background: rgba(20, 20, 20, 0.78);
-      border-color: var(--hairline);
-      backdrop-filter: blur(14px) saturate(1.2);
-      -webkit-backdrop-filter: blur(14px) saturate(1.2);
-    }
-    .nav-inner {
-      display: flex;
-      align-items: center;
-      gap: 32px;
-      padding: 22px var(--gutter);
-      font-size: 14px;
-      line-height: 1;
-    }
-    .brand {
-      margin-right: auto;
-      font-family: var(--mono);
-      font-size: 13px;
-      letter-spacing: 0.04em;
-      text-transform: uppercase;
-      text-decoration: none;
-    }
-    .links { display: flex; align-items: center; gap: 28px; font-family: var(--mono); font-size: 13px; }
-    .links a { color: var(--ink); text-decoration: none; transition: color .2s; }
-    .links a:hover { color: rgba(238, 236, 232, 0.4); }
+    /* home page only (shared: css/tokens.css, css/base.css) */
 
     /* ---------- Hero: centred and short, so the work shows along the bottom ---------- */
     /* two columns: the sentence and facts sit low on the left, the foils cluster on the right */
     .hero {
       position: relative;
       display: grid;
-      grid-template-columns: minmax(0, 1fr) clamp(260px, 26vw, 380px);
+      grid-template-columns: repeat(12, minmax(0, 1fr));   /* the page grid */
       grid-template-rows: 1fr auto;
-      column-gap: clamp(32px, 5vw, 80px);
+      column-gap: var(--grid-gap);
       overflow-x: clip;   /* a foil's canvas overhangs its piece; never let it widen the page */
       text-align: left;
       /* the work only peeks in along the bottom of the first screen (~20%) */
       padding: clamp(120px, 20vh, 200px) var(--gutter) clamp(72px, 14vh, 160px);
     }
-    .headline-wrap { position: relative; grid-column: 1; grid-row: 1; align-self: end; }
-    .hero .meta { grid-column: 1; grid-row: 2; }
+    .headline-wrap { position: relative; grid-column: 1 / span 8; grid-row: 1; align-self: end; }
+    .hero .meta { grid-column: 1 / span 8; grid-row: 2; }
 
     /* the foils: stamp tilted at the top left, the moon beside it, the moth tucked underneath */
     .foil-cluster {
       position: relative;
-      grid-column: 2;
+      grid-column: 9 / -1;
       grid-row: 1 / 3;
       align-self: end;
+      justify-self: end;
       width: 100%;
+      max-width: 380px;
       aspect-ratio: 350 / 330;
     }
 
@@ -117,11 +47,11 @@
       max-width: 44ch;
       font-family: var(--serif);
       font-optical-sizing: auto;
-      font-weight: 360;
-      font-size: clamp(24px, 2.4vw, 36px);
+      font-weight: var(--serif-weight);
+      font-size: var(--fs-statement);
       line-height: 1.25;
       letter-spacing: -0.01em;
-      color: var(--ink);
+      color: var(--text);
       text-wrap: pretty;
     }
     h1 strong { font-weight: inherit; }
@@ -139,7 +69,7 @@
       cursor: pointer;
       -webkit-tap-highlight-color: transparent;
     }
-    .foil:focus-visible { outline: 2px solid var(--ink); outline-offset: 8px; }
+    .foil:focus-visible { outline: 2px solid var(--text); outline-offset: 8px; }
     .foil img, .foil canvas { display: block; pointer-events: none; }
     .foil img { width: 100%; height: 100%; filter: drop-shadow(0 12px 18px rgba(0, 0, 0, .5)); }
     /* the canvas overhangs the piece a little, so a tilt never clips it */
@@ -170,7 +100,7 @@
       padding: 0;
       border: 0;
       background: transparent;
-      color: var(--ink);
+      color: var(--text);
       overflow: hidden;
     }
     .foil-view::backdrop { background: transparent; }
@@ -186,26 +116,24 @@
       gap: 8px 20px;
       padding: 20px var(--gutter);
       font-family: var(--mono);
-      font-size: 12px;
+      font-size: var(--fs-label);
       opacity: 0;
       transition: opacity .3s ease;
     }
     .foil-view.is-open .fv-bar { opacity: 1; }
-    .fv-bar p { color: var(--muted); }
+    .fv-bar p { color: var(--text-3); }
     .fv-bar button {
       margin-left: auto;
       padding: 9px 14px;
-      border: 1px solid var(--ink);
+      border: 1px solid var(--text);
       background: transparent;
-      color: var(--ink);
+      color: var(--text);
       font: inherit;
-      font-size: 11px;
-      letter-spacing: .06em;
-      text-transform: uppercase;
+      font-size: var(--fs-label);
       cursor: pointer;
     }
-    .fv-bar button:hover { background: var(--ink); color: #0f0f0e; }
-    .fv-bar button:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
+    .fv-bar button:hover { background: var(--text); color: #0f0f0e; }
+    .fv-bar button:focus-visible { outline: 2px solid var(--text); outline-offset: 3px; }
 
     /* "Currently / Experience", set small, like footnotes */
     .meta {
@@ -214,14 +142,14 @@
       justify-content: flex-start;
       gap: 8px 32px;
       margin-top: 22px;
-      font-size: 13px;
+      font-size: var(--fs-sm);
       line-height: 1.5;
     }
     .meta > div { display: flex; gap: 8px; }
-    .meta dt { font-family: var(--mono); font-size: 12px; color: var(--muted); }
+    .meta dt { font-family: var(--mono); font-size: var(--fs-label); color: var(--text-3); }
     .meta dt::before { content: "["; }
     .meta dt::after { content: "]"; }
-    .meta dd { color: var(--ink); }
+    .meta dd { color: var(--text); }
 
     /* ---------- Work: a two-up grid of colour tiles ---------- */
     .work {
@@ -231,7 +159,7 @@
     .grid {
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: clamp(28px, 3vw, 44px) clamp(14px, 1.4vw, 20px);
+      gap: clamp(28px, 3vw, 44px) var(--grid-gap);   /* two tiles, six columns each */
     }
     .project {
       display: flex;
@@ -315,7 +243,7 @@
       padding: 10px 16px;
       border-radius: 0;
       background: rgba(255, 255, 255, .55);
-      font-size: 13px;
+      font-size: var(--fs-sm);
       color: #4b4d44;
       backdrop-filter: blur(6px);
       -webkit-backdrop-filter: blur(6px);
@@ -342,15 +270,15 @@
     }
     .company {
       font-family: var(--mono);
-      font-size: 12px;
-      color: var(--muted);
+      font-size: var(--fs-label);
+      color: var(--text-3);
     }
     .tags {
       grid-row: span 2;
       align-self: start;
       font-family: var(--mono);
-      font-size: 12px;
-      color: var(--muted);
+      font-size: var(--fs-label);
+      color: var(--text-3);
       text-align: right;
       white-space: nowrap;
     }
@@ -359,7 +287,7 @@
       display: flex;
       align-items: center;
       gap: 10px;
-      font-size: clamp(17px, 1.35vw, 20px);
+      font-size: var(--fs-lg);
       font-weight: 500;
       line-height: 1.3;
       letter-spacing: -0.015em;
@@ -375,20 +303,6 @@
     .project:hover .title svg,
     .project:focus-visible .title svg { opacity: 1; transform: none; }
 
-    /* ---------- Footer: the same simple footer as the case studies ---------- */
-    footer {
-      border-top: 1px solid var(--hairline);
-      padding: 28px var(--gutter) 36px;
-      font-family: var(--mono);
-      font-size: 12px;
-      color: var(--muted);
-    }
-    footer .wrap { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px; }
-    footer a { color: var(--ink); text-decoration: none; }
-    footer a:hover { text-decoration: underline; text-underline-offset: 3px; }
-    footer .foot-links { display: flex; gap: 24px; }
-    footer .foot-small { margin-top: 18px; }
-
     /* ---------- gentle entrance ---------- */
     .rise { opacity: 0; transform: translateY(12px); animation: rise 1s var(--ease) forwards; }
     .d1 { animation-delay: .08s; }
@@ -400,16 +314,14 @@
     @media (max-width: 820px) {
       .grid { grid-template-columns: minmax(0, 1fr); gap: 36px; }
       /* one column: the cluster sits above the sentence, on the right */
-      .hero { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto auto auto; padding-top: 104px; }
-      .foil-cluster { grid-column: 1; grid-row: 1; justify-self: end; width: clamp(190px, 46vw, 280px); margin-bottom: 28px; }
+      .hero { grid-template-rows: auto auto auto; padding-top: 104px; }
+      .headline-wrap, .hero .meta { grid-column: 1 / -1; }
+      .foil-cluster { grid-column: 1 / -1; grid-row: 1; justify-self: end; width: clamp(190px, 46vw, 280px); margin-bottom: 28px; }
       .headline-wrap { grid-row: 2; }
       .hero .meta { grid-row: 3; }
     }
     @media (max-width: 640px) {
-      .nav-inner { padding: 18px 16px; gap: 16px; }
-      .links { gap: 18px; }
       .hero { padding-top: 92px; }
-      h1 { font-size: 23px; }
       .stage { padding: 18px; }
       .meta { flex-direction: column; align-items: flex-start; gap: 6px; }
       .caption { grid-template-columns: minmax(0, 1fr); }
@@ -418,9 +330,8 @@
     }
 
     @media (prefers-reduced-motion: reduce) {
-      html { scroll-behavior: auto; }
       .rise { animation: none; opacity: 1; transform: none; }
-      .site-nav, .washes span, .stage video, .stage img, .title svg { transition: none; }
+      .washes span, .stage video, .stage img, .title svg { transition: none; }
     }
   </style>
 </head>
@@ -439,9 +350,9 @@
   <main>
     <section class="hero">
       <div class="headline-wrap">
-        <h1 class="rise d1"><strong>Summer Sueki</strong> is a product designer who designs and builds, curious about why people do what they do and quick to move from insight to polished, working product.</h1>
+        <h1><strong>Summer Sueki</strong> is a product designer who designs and builds, curious about why people do what they do and quick to move from insight to polished, working product.</h1>
       </div>
-      <dl class="meta rise d3">
+      <dl class="meta">
         <div><dt>Currently</dt><dd>Cognitive science &amp; design at UC Davis</dd></div>
         <div><dt>Experience</dt><dd>B2C and enterprise</dd></div>
       </dl>

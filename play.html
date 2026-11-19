@@ -6,81 +6,20 @@
   <title>Play · Summer Sueki</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,300..500&family=Plus+Jakarta+Sans:wght@400;500;600&family=Geist+Mono:wght@400&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300..500;1,6..72,300..500&family=Plus+Jakarta+Sans:wght@400;500;600&family=Geist+Mono:wght@400&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/tokens.css" />
+  <link rel="stylesheet" href="css/base.css" />
   <style>
-    /* ---------- the same dark system as the home page ---------- */
-    :root {
-      color-scheme: dark;
-      --bg: #141414;
-      --surface: #1c1c1c;
-      --ink: #eeece8;
-      --ink-soft: #b9b7b2;
-      --muted: #8f8f8f;
-      --hairline: rgba(238, 236, 232, 0.1);
-      --cursor-dot: #fff;          /* site.js cursor */
-      --cursor-blend: difference;
-      --sans: "Plus Jakarta Sans", -apple-system, "Helvetica Neue", Arial, sans-serif;
-      --serif: "Newsreader", "Iowan Old Style", Georgia, serif;
-      --mono: "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace;
-      --ease: cubic-bezier(.2, .8, .2, 1);
-      --gutter: max(16px, env(safe-area-inset-left, 0px), calc((100% - 1320px) / 2));
-    }
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    html { scroll-behavior: smooth; }
-    body {
-      background: var(--bg);
-      color: var(--ink);
-      font-family: var(--sans);
-      overflow-x: hidden;
-      -webkit-font-smoothing: antialiased;
-    }
-    a { color: inherit; }
-    a:focus-visible, .tile:focus-visible { outline: 2px solid var(--ink); outline-offset: 4px; }
-    .sr-only {
-      position: absolute; width: 1px; height: 1px;
-      overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap;
-    }
-
-    /* ---------- Nav (same as home) ---------- */
-    .site-nav {
-      position: fixed;
-      inset: 0 0 auto;
-      z-index: 10;
-      border-bottom: 1px solid transparent;
-      transition: background-color .35s ease, border-color .35s ease;
-    }
-    .site-nav.is-scrolled {
-      background: rgba(20, 20, 20, 0.78);
-      border-color: var(--hairline);
-      backdrop-filter: blur(14px) saturate(1.2);
-      -webkit-backdrop-filter: blur(14px) saturate(1.2);
-    }
-    .nav-inner {
-      display: flex;
-      align-items: center;
-      gap: 32px;
-      padding: 22px var(--gutter);
-      font-size: 14px;
-      line-height: 1;
-    }
-    .brand {
-      margin-right: auto;
-      font-family: var(--mono);
-      font-size: 13px;
-      letter-spacing: 0.04em;
-      text-transform: uppercase;
-      text-decoration: none;
-    }
-    .links { display: flex; align-items: center; gap: 28px; font-family: var(--mono); font-size: 13px; }
-    .links a { color: var(--ink); text-decoration: none; transition: color .2s; }
-    .links a:hover { color: rgba(238, 236, 232, 0.4); }
+    /* Play page only (shared: css/tokens.css, css/base.css) */
+    .tile:focus-visible { outline: 2px solid var(--text); outline-offset: 4px; }
 
     /* ---------- Hero: "Just for fun!" in a box of loose foil pendants ----------
        The box is a little physics world: the pendants fall, can be grabbed and thrown, and
        every letter of the heading is a solid block, so they lean on it and stack on it but never overlap it. */
     .fun {
       position: relative;
-      height: clamp(380px, 58vh, 540px);
+      /* short enough that the title sits near the other pages' headers, tall enough for the pendants to fall and stack */
+      height: clamp(260px, 34vh, 320px);
       margin-top: 68px;            /* starts under the nav, so nothing hides behind it */
       overflow: hidden;
       touch-action: pan-y;         /* empty space still scrolls the page on touch screens */
@@ -93,8 +32,8 @@
       bottom: 0;
       font-family: var(--serif);
       font-optical-sizing: auto;
-      font-weight: 400;
-      font-size: clamp(52px, 8.4vw, 120px);
+      font-weight: var(--serif-weight);
+      font-size: var(--fs-display);   /* the display title, as on the case studies */
       line-height: 1;
       letter-spacing: -0.02em;
       white-space: nowrap;
@@ -123,21 +62,21 @@
       align-items: center;
       gap: 20px;
       font-family: var(--mono);
-      font-size: 11px;
-      color: rgba(238, 236, 232, 0.4);
+      font-size: var(--fs-2xs);
+      color: var(--text-faint);
     }
     /* quiet: it reads as a note until you hover it */
     .press-open {
       font: inherit;
-      color: rgba(238, 236, 232, 0.55);
+      color: var(--text-2);
       background: none;
       border: 0;
       padding: 6px 0;
       cursor: pointer;
       transition: color .2s;
     }
-    .press-open:hover { color: var(--ink); }
-    .press-open:focus-visible { outline: 2px solid var(--ink); outline-offset: 4px; }
+    .press-open:hover { color: var(--text); }
+    .press-open:focus-visible { outline: 2px solid var(--text); outline-offset: 4px; }
 
     /* ---------- the press: a small, simple version of the metal-etching studio ---------- */
     .press {
@@ -146,8 +85,8 @@
       max-height: calc(100vh - 32px);
       padding: 0;
       border: 0;
-      background: var(--surface);
-      color: var(--ink);
+      background: var(--surface-1);
+      color: var(--text);
       overflow: auto;
     }
     .press::backdrop { background: rgba(0, 0, 0, .66); }
@@ -155,7 +94,7 @@
     .press-stage {
       position: relative;
       aspect-ratio: 4 / 4.4;
-      background: #232323;
+      background: var(--surface-2);
       touch-action: none;   /* drawing, not scrolling */
     }
     .press-stage canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
@@ -165,32 +104,32 @@
       gap: 22px;
       padding: 28px 24px 24px;
       font-family: var(--mono);
-      font-size: 12px;
+      font-size: var(--fs-label);
     }
-    .press-side h2 { font-family: var(--serif); font-weight: 400; font-size: 28px; line-height: 1.1; letter-spacing: -0.01em; }
-    .press-note { color: var(--muted); line-height: 1.5; margin-top: -10px; }
+    .press-side h2 { font-family: var(--serif); font-weight: var(--serif-weight); font-size: var(--fs-h2); line-height: 1.1; letter-spacing: -0.01em; }
+    .press-note { color: var(--text-3); line-height: 1.5; margin-top: -10px; }
     .press fieldset { border: 0; display: flex; flex-direction: column; gap: 8px; }
-    .press legend { margin-bottom: 8px; color: var(--muted); }
+    .press legend { margin-bottom: 8px; color: var(--text-3); }
     .press legend::before { content: "["; }
     .press legend::after { content: "]"; }
     .seg { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: var(--hairline); border: 1px solid var(--hairline); }
     .seg button, .press-btn {
       font: inherit;
-      color: var(--ink-soft);
-      background: var(--surface);
+      color: var(--text-2);
+      background: var(--surface-1);
       border: 0;
       padding: 9px 10px;
       cursor: pointer;
       transition: background-color .2s, color .2s;
     }
-    .seg button:hover { color: var(--ink); }
-    .seg button[aria-pressed="true"] { background: var(--ink); color: var(--bg); }
+    .seg button:hover { color: var(--text); }
+    .seg button[aria-pressed="true"] { background: var(--text); color: var(--bg); }
     .press-btn { border: 1px solid var(--hairline); text-align: center; }
-    .press-btn:hover { color: var(--ink); border-color: rgba(238, 236, 232, .3); }
+    .press-btn:hover { color: var(--text); border-color: rgba(238, 236, 232, .3); }
     .press-actions { margin-top: auto; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-    .press-btn.primary { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+    .press-btn.primary { background: var(--text); color: var(--bg); border-color: var(--text); }
     .press-btn.primary:hover { background: #fff; }
-    .press button:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+    .press button:focus-visible { outline: 2px solid var(--text); outline-offset: 2px; }
     @media (max-width: 680px) {
       .press-inner { grid-template-columns: minmax(0, 1fr); }
       .press-stage { aspect-ratio: 1 / 1; }
@@ -199,43 +138,7 @@
 
     /* ---------- Body: contents list + the work, laid out like the old playground ---------- */
     .play-body { padding: clamp(28px, 4vw, 48px) var(--gutter) clamp(80px, 10vw, 128px); }
-    .play-grid {
-      display: grid;
-      grid-template-columns: 150px minmax(0, 1fr);
-      gap: clamp(32px, 6vw, 100px);
-    }
-    .toc {
-      position: sticky;
-      top: 112px;
-      align-self: start;
-      padding-top: 6px;
-      font-family: var(--mono);
-    }
-    .toc p { font-size: 11px; color: rgba(238, 236, 232, 0.4); margin-bottom: 16px; }
-    .toc ol { list-style: none; display: flex; flex-direction: column; gap: 2px; }
-    .toc a {
-      position: relative;
-      display: block;
-      padding: 6px 0 6px 18px;
-      font-size: 11px;
-      line-height: 1.3;
-      color: rgba(238, 236, 232, 0.4);
-      text-decoration: none;
-      transition: color .25s ease;
-    }
-    .toc a::before {
-      content: "";
-      position: absolute;
-      left: 0; top: 50%;
-      width: 10px; height: 1px;
-      background: var(--ink);
-      transform: scaleX(0);
-      transform-origin: left;
-      transition: transform .3s var(--ease);
-    }
-    .toc a:hover, .toc a.is-active { color: var(--ink-soft); }
-    .toc a.is-active::before { transform: scaleX(1); }
-
+    /* .play-grid is a .rail-layout (base.css): the same contents and content columns as the case studies */
     .work { display: flex; flex-direction: column; gap: 10px; }
     .work section { display: flex; flex-direction: column; gap: 10px; scroll-margin-top: 96px; }
     /* two independent columns, like masonry */
@@ -251,7 +154,7 @@
       position: relative;
       display: block;
       overflow: hidden;
-      background: var(--surface);
+      background: var(--surface-1);
     }
     .tile img, .tile video { display: block; width: 100%; height: auto; transition: transform .8s var(--ease); }
     .tile figcaption {
@@ -268,8 +171,8 @@
       transition: opacity .35s ease, transform .45s var(--ease);
       pointer-events: none;
     }
-    .tile .desc { max-width: 46ch; font-size: 14px; line-height: 1.4; color: var(--ink); }
-    .tile .date { flex: none; font-family: var(--mono); font-size: 11px; color: var(--ink-soft); }
+    .tile .desc { max-width: 46ch; font-size: var(--fs-base); line-height: 1.4; color: var(--text); }
+    .tile .date { flex: none; font-family: var(--mono); font-size: var(--fs-label); color: var(--text-2); }
     .tile:hover figcaption, .tile:focus-visible figcaption, .tile:focus-within figcaption { opacity: 1; transform: none; }
     .tile:hover img, .tile:hover video { transform: scale(1.015); }
 
@@ -283,31 +186,11 @@
         opacity: 1;
         transform: none;
       }
-      .tile .desc { font-size: 13px; color: var(--ink-soft); }
+      .tile .desc { font-size: var(--fs-sm); color: var(--text-2); }
     }
 
-    /* ---------- Footer (same as the other pages) ---------- */
-    footer {
-      border-top: 1px solid var(--hairline);
-      padding: 28px var(--gutter) 36px;
-      font-family: var(--mono);
-      font-size: 12px;
-      color: var(--muted);
-    }
-    footer .wrap { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px; }
-    footer a { color: var(--ink); text-decoration: none; }
-    footer a:hover { text-decoration: underline; text-underline-offset: 3px; }
-    footer .foot-links { display: flex; gap: 24px; }
-    footer .foot-small { margin-top: 18px; }
-
-    @media (max-width: 860px) {
-      .play-grid { grid-template-columns: minmax(0, 1fr); }
-      .toc { display: none; }
-    }
     @media (max-width: 640px) {
-      .nav-inner { padding: 18px 16px; gap: 16px; }
-      .links { gap: 18px; }
-      .fun { height: 420px; }
+      .fun { height: 340px; }
       .fun-hint { display: none; }
       .fun-tools { top: 12px; }
       .cols { grid-template-columns: minmax(0, 1fr); }
@@ -315,8 +198,7 @@
       .narrow { width: 100%; }
     }
     @media (prefers-reduced-motion: reduce) {
-      html { scroll-behavior: auto; }
-      .site-nav, .toc a::before, .tile figcaption, .tile img, .tile video, .pendant { transition: none; }
+      .tile figcaption, .tile img, .tile video, .pendant { transition: none; }
     }
   </style>
 </head>
@@ -342,7 +224,7 @@
     </section>
 
     <div class="play-body">
-      <div class="play-grid">
+      <div class="play-grid rail-layout">
         <nav class="toc" aria-label="Playground sections">
           <p>Contents</p>
           <ol>
@@ -355,7 +237,7 @@
         </nav>
 
         <!-- Each piece: a short note and a date, shown on hover. Dates marked "Date TBC" still need confirming. -->
-        <div class="work">
+        <div class="work rail-main">
           <section id="graphic-design" aria-labelledby="h-gd">
             <h2 class="sr-only" id="h-gd">Graphic design</h2>
             <div class="cols">
@@ -656,8 +538,9 @@
     }
 
     function addPiece(item, y) {
-      // the long side is about a ninth of the box's width, held between 96 and 168px
-      const long = Math.max(96, Math.min(168, s.w * .11));
+      // the long side is about a ninth of the box's width: 168px at most on a wide window,
+      // shrinking smoothly as the window narrows, down to 120px on a phone
+      const long = Math.max(120, Math.min(168, s.w * .11));
       const k = long / Math.max(item.w, item.h), w = item.w * k, h = item.h * k;
       const pts = item.hull.map(p => ({ x: p.x * w, y: p.y * h }));
       const centre = Vertices.centre(pts);

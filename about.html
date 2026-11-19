@@ -7,89 +7,38 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300..500;1,6..72,300..500&family=Plus+Jakarta+Sans:wght@400;500;600&family=Geist+Mono:wght@400&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/tokens.css" />
+  <link rel="stylesheet" href="css/base.css" />
   <style>
-    /* ---------- the same dark system as the home page ---------- */
+    /* About page only (shared: css/tokens.css, css/base.css) */
     :root {
-      color-scheme: dark;
-      --bg: #141414;
-      --surface: #1c1c1c;
-      --ink: #eeece8;
-      --ink-soft: #b9b7b2;
-      --muted: #8f8f8f;
-      --hairline: rgba(238, 236, 232, 0.1);
-      --cursor-dot: #fff;
-      --cursor-blend: difference;
-      /* the resume block: Reddit's rust print, the strongest colour on the site */
-      --tone: #9e4436;
-      --on-tone: #f6ece6;
-      --on-tone-soft: rgba(246, 236, 230, .68);
-      --on-tone-line: rgba(246, 236, 230, .2);
-      /* the letters: the cream paper of the Tech Interactive tile */
-      --paper: #e4dcae;
-      --paper-ink: #2b2717;
-      --sans: "Plus Jakarta Sans", -apple-system, "Helvetica Neue", Arial, sans-serif;
-      --serif: "Newsreader", "Iowan Old Style", Georgia, serif;
-      --mono: "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace;
-      --ease: cubic-bezier(.2, .8, .2, 1);
-      --gutter: max(16px, env(safe-area-inset-left, 0px), calc((100% - 1320px) / 2));
+      /* the resume block is the rust print colour. All its text is --text (5.3:1 on the rust);
+         --text-2 would only reach 3.1:1 there */
+      --on-tone-line: rgba(238, 236, 232, .22);
+      /* the letters: Tech Interactive's cream paper, with ink in the page's near-black */
+      --paper-ink-2: rgba(20, 20, 20, .78);
+      --paper-ink-3: rgba(20, 20, 20, .6);
     }
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      background: var(--bg);
-      color: var(--ink);
-      font-family: var(--sans);
-      overflow-x: hidden;
-      -webkit-font-smoothing: antialiased;
-    }
-    a { color: inherit; }
-    a:focus-visible, button:focus-visible { outline: 2px solid var(--ink); outline-offset: 4px; }
-    .sr-only {
-      position: absolute; width: 1px; height: 1px;
-      overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap;
-    }
-    .label { font-family: var(--mono); font-size: 12px; color: var(--muted); }
-    .label::before { content: "["; }
-    .label::after { content: "]"; }
-
-    /* ---------- Nav (same as home) ---------- */
-    .site-nav {
-      position: fixed;
-      inset: 0 0 auto;
-      z-index: 10;
-      border-bottom: 1px solid transparent;
-      transition: background-color .35s ease, border-color .35s ease;
-    }
-    .site-nav.is-scrolled {
-      background: rgba(20, 20, 20, 0.78);
-      border-color: var(--hairline);
-      backdrop-filter: blur(14px) saturate(1.2);
-      -webkit-backdrop-filter: blur(14px) saturate(1.2);
-    }
-    .nav-inner { display: flex; align-items: center; gap: 32px; padding: 22px var(--gutter); font-size: 14px; line-height: 1; }
-    .brand { margin-right: auto; font-family: var(--mono); font-size: 13px; letter-spacing: 0.04em; text-transform: uppercase; text-decoration: none; }
-    .links { display: flex; align-items: center; gap: 28px; font-family: var(--mono); font-size: 13px; }
-    .links a { color: var(--ink); text-decoration: none; transition: color .2s; }
-    .links a:hover { color: rgba(238, 236, 232, 0.4); }
 
     /* ---------- About: bio + love letters | resume, then photos further down ---------- */
     .about {
       display: grid;
-      grid-template-columns: minmax(0, 1fr) minmax(320px, 460px);
-      gap: clamp(40px, 7vw, 120px);
+      grid-template-columns: repeat(12, minmax(0, 1fr));   /* the page grid: bio in 1–7, resume in 9–12 */
+      gap: clamp(40px, 7vw, 120px) var(--grid-gap);
       padding: 120px var(--gutter) clamp(72px, 9vw, 120px);
       min-height: 100vh;   /* the photos start below the first screen: you scroll to them */
     }
-    .col-left { display: flex; flex-direction: column; gap: clamp(48px, 7vh, 80px); }
+    .col-left { grid-column: 1 / span 7; display: flex; flex-direction: column; gap: clamp(48px, 7vh, 80px); }
     .bio h1 {
       font-family: var(--serif);
       font-optical-sizing: auto;
-      font-weight: 400;
-      font-size: clamp(34px, 3.4vw, 48px);
+      font-weight: var(--serif-weight);
+      font-size: var(--fs-statement);   /* the statement title, as on the home page */
       line-height: 1.05;
       letter-spacing: -0.02em;
       margin-bottom: 20px;
     }
-    .bio p { max-width: 48ch; font-size: 15px; line-height: 1.6; color: var(--ink-soft); }
+    .bio p { max-width: 48ch; font-size: var(--fs-base); line-height: 1.6; color: var(--text-2); }
     .bio p + p { margin-top: 14px; }
 
     /* love letters: a little stack of cards, each with one photo; click to bring the next one forward */
@@ -114,68 +63,69 @@
       grid-template-columns: 38% minmax(0, 1fr);
       gap: clamp(14px, 1.6vw, 20px);
       padding: clamp(14px, 1.6vw, 18px);
-      background: var(--paper);
-      color: var(--paper-ink);
+      background: var(--cream);
+      color: var(--bg);
       box-shadow: 0 1px 2px rgba(0, 0, 0, .3), 0 18px 34px -16px rgba(0, 0, 0, .7);
       transform: translate(var(--x, 0), var(--y, 0)) rotate(var(--r, 0deg));
       transition: transform .6s var(--ease);
     }
     /* the one photo on each card */
-    .letter .pic { position: relative; overflow: hidden; background: rgba(43, 39, 23, .1); }
+    .letter .pic { position: relative; overflow: hidden; background: rgba(20, 20, 20, .1); }
     .letter .pic img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
     .letter .pic.empty {
       display: grid;
       place-items: center;
       background:
-        repeating-conic-gradient(rgba(43, 39, 23, .07) 0 25%, transparent 0 50%) 0 0 / 16px 16px,
-        rgba(43, 39, 23, .06);
+        repeating-conic-gradient(rgba(20, 20, 20, .07) 0 25%, transparent 0 50%) 0 0 / 16px 16px,
+        rgba(20, 20, 20, .06);
       font-family: var(--mono);
-      font-size: 10px;
-      color: rgba(43, 39, 23, .5);
+      font-size: var(--fs-2xs);
+      color: var(--paper-ink-3);
     }
     .letter .words { display: flex; flex-direction: column; min-width: 0; padding: 4px 0; }
-    .letter .to { font-family: var(--serif); font-size: clamp(19px, 1.7vw, 23px); line-height: 1.15; letter-spacing: -0.01em; }
-    .letter .note { margin-top: 10px; font-size: 13px; line-height: 1.5; color: rgba(43, 39, 23, .78); }
-    .letter .sign { margin-top: auto; font-family: var(--mono); font-size: 11px; color: rgba(43, 39, 23, .6); }
+    .letter .to { font-family: var(--serif); font-size: var(--fs-xl); line-height: 1.15; letter-spacing: -0.01em; }
+    .letter .note { margin-top: 10px; font-size: var(--fs-sm); line-height: 1.5; color: var(--paper-ink-2); }
+    .letter .sign { margin-top: auto; font-family: var(--mono); font-size: var(--fs-2xs); color: var(--paper-ink-3); }
     /* the order of the stack: --i 0 is on top */
     .letter[style*="--i: 0"] { z-index: 3; --x: 0%; --y: 0%; --r: -1.5deg; }
     .letter[style*="--i: 1"] { z-index: 2; --x: 6%; --y: 7%; --r: 3deg; }
     .letter[style*="--i: 2"] { z-index: 1; --x: -2%; --y: 13%; --r: -5deg; }
     .stack:hover .letter[style*="--i: 0"] { --y: -3%; }
-    .stack-hint { margin-top: 8px; font-family: var(--mono); font-size: 11px; color: rgba(238, 236, 232, .4); }
+    .stack-hint { margin-top: 8px; font-family: var(--mono); font-size: var(--fs-2xs); color: var(--text-faint); }
 
     /* photos: a plain grid further down, each with a short note underneath */
     .photos { padding: 0 var(--gutter) clamp(80px, 10vw, 128px); }
     .photos .label { display: block; margin-bottom: 20px; }
-    .photo-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 32px 16px; padding-bottom: 72px; }
+    .photo-grid { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 32px var(--grid-gap); padding-bottom: 72px; }
+    .photo-grid figure { grid-column: span 3; }   /* four across, three columns each */
     /* staggered: every other column drops lower, so the two rows step down and up */
     .photo-grid figure:nth-child(even) { transform: translateY(72px); }
     .photo-grid figure { display: flex; flex-direction: column; gap: 10px; }
-    .photo-grid .shot { aspect-ratio: 4 / 5; overflow: hidden; background: var(--surface); }
+    .photo-grid .shot { aspect-ratio: 4 / 5; overflow: hidden; background: var(--surface-1); }
     .photo-grid .shot img { width: 100%; height: 100%; object-fit: cover; display: block; }
     .photo-grid .shot.empty {
       display: grid;
       place-items: center;
       background:
         repeating-conic-gradient(rgba(238, 236, 232, .04) 0 25%, transparent 0 50%) 0 0 / 22px 22px,
-        var(--surface);
+        var(--surface-1);
       font-family: var(--mono);
-      font-size: 11px;
-      color: rgba(238, 236, 232, .35);
+      font-size: var(--fs-2xs);
+      color: var(--text-faint);
     }
-    .photo-grid figcaption { font-size: 13px; line-height: 1.45; color: var(--ink-soft); }
+    .photo-grid figcaption { font-size: var(--fs-sm); line-height: 1.45; color: var(--text-2); }
 
     /* resume: a block of the rust print's colour */
-    .col-right { align-self: start; position: sticky; top: 96px; }
+    .col-right { grid-column: 9 / -1; align-self: start; position: sticky; top: 96px; }
     .resume {
-      background: var(--tone);
-      color: var(--on-tone);
+      background: var(--rust);
+      color: var(--text);
       padding: clamp(28px, 3vw, 44px);
       font-family: var(--mono);
-      font-size: 12px;
+      font-size: var(--fs-label);
       line-height: 1.5;
     }
-    .resume h2 { font-weight: 400; font-size: 11px; letter-spacing: .06em; text-transform: uppercase; color: var(--on-tone-soft); margin-bottom: 14px; }
+    .resume h2 { font-weight: 400; font-size: var(--fs-label); color: var(--text); margin-bottom: 14px; }   /* the mono label, on the rust */
     .resume h2:not(:first-child) { margin-top: 44px; }
     .resume ul { list-style: none; }
     .resume li {
@@ -187,42 +137,33 @@
       border-top: 1px solid var(--on-tone-line);
     }
     .resume li:last-child { border-bottom: 1px solid var(--on-tone-line); }
-    .resume .org { color: var(--on-tone); }
-    .resume .role { color: var(--on-tone-soft); text-align: right; }
-    .resume .when { display: block; font-size: 11px; color: var(--on-tone-soft); margin-top: 5px; }
+    .resume .org { color: var(--text); }
+    .resume .role { color: var(--text); text-align: right; }
+    .resume .when { display: block; font-size: var(--fs-2xs); color: var(--text); margin-top: 5px; }
     .resume a.get {
       display: flex;
       justify-content: space-between;
       margin-top: 40px;
       padding: 14px 16px;
-      background: var(--on-tone);
-      color: var(--tone);
+      background: var(--text);
+      color: var(--rust);
       text-decoration: none;
       transition: background-color .2s;
     }
     .resume a.get:hover { background: #fff; }
 
-    /* ---------- Footer (same as the other pages) ---------- */
-    footer { border-top: 1px solid var(--hairline); padding: 28px var(--gutter) 36px; font-family: var(--mono); font-size: 12px; color: var(--muted); }
-    footer .wrap { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px; }
-    footer a { color: var(--ink); text-decoration: none; }
-    footer a:hover { text-decoration: underline; text-underline-offset: 3px; }
-    footer .foot-links { display: flex; gap: 24px; }
-    footer .foot-small { margin-top: 18px; }
-
     @media (max-width: 900px) {
-      .about { grid-template-columns: minmax(0, 1fr); }
+      .col-left, .col-right { grid-column: 1 / -1; }
       .col-right { position: static; }
-      .photo-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); padding-bottom: 48px; }
+      .photo-grid { padding-bottom: 48px; }
+      .photo-grid figure { grid-column: span 6; }
       .photo-grid figure:nth-child(even) { transform: translateY(48px); }
     }
     @media (max-width: 680px) {
-      .nav-inner { padding: 18px 16px; gap: 16px; }
-      .links { gap: 18px; }
       .about { padding-top: 96px; }
     }
     @media (prefers-reduced-motion: reduce) {
-      .letter, .site-nav { transition: none; }
+      .letter { transition: none; }
     }
   </style>
 </head>
@@ -249,7 +190,7 @@
 
       <!-- PLACEHOLDER letters: Summer is writing these -->
       <section class="letters" aria-labelledby="letters-title">
-        <span class="label" id="letters-title">Love letters to the communities who have helped me grow</span>
+        <span class="label label-b" id="letters-title">Love letters to the communities who have helped me grow</span>
         <button type="button" class="stack" id="stack" aria-describedby="stack-hint">
           <article class="letter" style="--i: 0">
             <div class="pic empty"><span>Photo</span></div>
@@ -305,7 +246,7 @@
 
   <!-- PLACEHOLDER photos: Summer will add the photos and their notes -->
   <section class="photos" aria-labelledby="photos-title">
-    <span class="label" id="photos-title">A peek into my camera roll</span>
+    <span class="label label-b" id="photos-title">A peek into my camera roll</span>
     <div class="photo-grid">
       <figure><div class="shot"><img src="assets/google-team.jpg" alt="The CodeLab team for the Google project, posing together in black outfits" loading="lazy" /></div><figcaption>Description to come.</figcaption></figure>
       <figure><div class="shot"><img src="assets/reddit-team.jpg" alt="The CodeLab team for the Reddit project, out for dinner" loading="lazy" /></div><figcaption>Description to come.</figcaption></figure>
