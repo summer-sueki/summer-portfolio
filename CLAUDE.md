@@ -27,11 +27,15 @@ Every v3 page links `css/tokens.css` then `css/base.css`; the case studies also 
 - `tokens.css`: colours `--bg #141414`, `--surface-1 #1C1C1C`, `--surface-2 #232323`, `--text #EEECE8`, `--text-2 rgb(185,183,178)`, `--text-3 #949087` (warm grey, hue of --text; replaced the neutral #8F8F8F), `--text-faint rgba(238,236,232,.4)`, `--hairline`; accents `--olive #C8C27F`, `--rust #9E4436`, `--cream #E4DCAE`; the prints `--print-olive` / `--print-rust` (declared here because a url() in a custom property resolves against the stylesheet that uses it). The one type scale: `--fs-2xs 11`, `--fs-label 12`, `--fs-sm 13`, `--fs-base 15`, `--fs-md 17`, `--fs-lg 19`, `--fs-xl 23`, fluid `--fs-quote`, `--fs-h2`, `--fs-statement` (home and About titles), `--fs-pull`, `--fs-display` (case-study and Play titles, ~47px at 1024), `--fs-figure`. `--serif-weight: 360` for every Newsreader heading. Spacing `--space-1…13`. Grid: 12 columns, `--grid-gap` 24px (16px ≤720), `--gutter` (16px minimum, 1320px container).
 - `base.css`: reset, nav, footer, the mono label (`.label`, `.label-b` for [brackets]: 12px, sentence case, no tracking), `.grid-12`, `.rail-layout` (contents list in columns 1–2, `.rail-main` from column 3; Play and the case studies), the contents list `.toc`.
 - `case-study.css`: everything both case studies share. h3 has one role there: the subhead, Plus Jakarta Sans 600 at `--fs-lg`. Big statements are `.pull` (the Mountain View band's "We had to lead with place" was an h3 drawn at display size; it's a `p.pull` now). Scroll reveal never hides content that's on screen or above it, backs the observer up with a scroll check, and does nothing with reduced motion.
-- Tab titles are "Page · Summer Sueki" (home is "Work · Summer Sueki").
+- Tab titles are "Page · Summer Sueki" (home is "Work · Summer Sueki"; its address on the site is summersueki.com/work, see URLs).
 
 ## Run it
 
-Start the `portfolio` server from `.claude/launch.json` (Python `http.server` on port 4321), then open http://localhost:4321.
+Start the `portfolio` server from `.claude/launch.json` (`.claude/serve.py`, a small Python server on port 4321 that mirrors `vercel.json`: clean URLs like /play and /about, and /work), then open http://localhost:4321.
+
+## URLs (Vercel)
+
+`vercel.json` turns on clean URLs (`/play`, `/about`, `/google`, `/reddit`; `.html` addresses redirect to them; no trailing slashes) and rewrites `/work` to the home page. Every nav "Work" link is `href="work"`. `site.js` scrolls to the work grid when a page opens at /work, and on the home page clicking Work glides there (its own eased glide, not the browser's smooth scroll) and sets the address to /work without reloading (Back/Forward glide between the top and the grid). Opened from `file://` there's no server, so `site.js` turns those links back into `index.html#work`.
 Pages need the server (not `file://`) for videos and images to load. The server lets the browser cache pages, so after an edit, hard-refresh (Cmd+Shift+R) or add a query string like `?v=2` before checking changes.
 
 ## Files

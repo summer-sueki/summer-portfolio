@@ -1,5 +1,63 @@
-// Shared site behaviours: a small circle cursor and gently smoothed wheel scrolling.
-// Both only switch on for mouse/trackpad users who haven't asked for reduced motion.
+// Shared site behaviours: the /work address, a small circle cursor and gently smoothed wheel scrolling.
+
+// ---------- /work: the home page's work grid at its own address ----------
+// On the site (Vercel, see vercel.json) and the local server (.claude/serve.py), /work serves the home
+// page; here it scrolls to the work grid. On the home page, clicking Work scrolls there and puts /work
+// in the address bar without reloading. Opened straight from a file there's no server to map /work,
+// so the links fall back to index.html#work.
+(() => {
+  const workLinks = () => document.querySelectorAll('a[href="work"]');
+  if (location.protocol === "file:") {
+    workLinks().forEach(a => a.setAttribute("href", "index.html#work"));
+    return;
+  }
+  const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  // our own eased glide (like the case studies' contents list): a browser's native smooth scroll
+  // can be ignored, and any wheel, touch or key hands control straight back to the reader
+  let raf = 0;
+  const toWork = smooth => {
+    const work = document.getElementById("work");
+    if (!work) return;
+    const margin = parseFloat(getComputedStyle(work).scrollMarginTop) || 0;
+    const y = Math.max(0, Math.round(work.getBoundingClientRect().top + scrollY - margin));
+    cancelAnimationFrame(raf);
+    const from = scrollY, dist = y - from;
+    if (!smooth || Math.abs(dist) < 2) { scrollTo({ top: y, behavior: "instant" }); return; }
+    const ms = Math.min(1100, Math.max(450, Math.abs(dist) * .35)), t0 = performance.now();
+    const ease = t => t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+    const stop = () => cancelAnimationFrame(raf);
+    addEventListener("wheel", stop, { passive: true, once: true });
+    addEventListener("touchstart", stop, { passive: true, once: true });
+    addEventListener("keydown", stop, { once: true });
+    const step = now => {
+      const t = Math.min(1, (now - t0) / ms);
+      scrollTo({ top: from + dist * ease(t), behavior: "instant" });
+      if (t < 1) raf = requestAnimationFrame(step);
+    };
+    raf = requestAnimationFrame(step);
+  };
+  if (/\/work\/?$/.test(location.pathname)) {
+    history.scrollRestoration = "manual";
+    toWork(false);
+    // once images have loaded and settled the layout, line it up again (unless the reader has moved on)
+    addEventListener("load", () => { if (Math.abs(document.getElementById("work").getBoundingClientRect().top) < 400) toWork(false); }, { once: true });
+  }
+  document.addEventListener("click", e => {
+    const a = e.target.closest?.('a[href="work"]');
+    if (!a || !document.getElementById("work") || e.metaKey || e.ctrlKey || e.shiftKey || e.button) return;
+    e.preventDefault();
+    if (!/\/work\/?$/.test(location.pathname)) history.pushState(null, "", "work");
+    toWork(!reduce);
+  });
+  // Back/Forward between / and /work on the home page: glide to the matching spot
+  addEventListener("popstate", () => {
+    if (!document.getElementById("work")) return;
+    if (/\/work\/?$/.test(location.pathname)) toWork(!reduce);
+    else scrollTo({ top: 0, behavior: reduce ? "instant" : "smooth" });
+  });
+})();
+
+// The cursor and smooth scrolling only switch on for mouse/trackpad users who haven't asked for reduced motion.
 (() => {
   const finePointer = matchMedia("(hover: hover) and (pointer: fine)").matches;
   const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
