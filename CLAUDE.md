@@ -35,7 +35,7 @@ Start the `portfolio` server from `.claude/launch.json` (`.claude/serve.py`, a s
 
 ## URLs (Vercel)
 
-`vercel.json` turns on clean URLs (`/play`, `/about`, `/google`, `/reddit`; `.html` addresses redirect to them; no trailing slashes) and rewrites `/work` to the home page. Every nav "Work" link is `href="work"`. `site.js` scrolls to the work grid when a page opens at /work, and on the home page clicking Work glides there (its own eased glide, not the browser's smooth scroll) and sets the address to /work without reloading (Back/Forward glide between the top and the grid). Opened from `file://` there's no server, so `site.js` turns those links back into `index.html#work`.
+`vercel.json` turns on clean URLs (`/play`, `/about`, `/google`, `/reddit`; `.html` addresses redirect to them; no trailing slashes) and rewrites `/work` to the home page (destination `/`, not `/index.html`: with clean URLs on, Vercel redirects `/index.html` away, so a rewrite to it 404s). Every nav "Work" link is `href="work"`. `site.js` scrolls to the work grid when a page opens at /work, and on the home page clicking Work glides there (its own eased glide, not the browser's smooth scroll) and sets the address to /work without reloading (Back/Forward glide between the top and the grid). Opened from `file://` there's no server, so `site.js` turns those links back into `index.html#work`.
 Pages need the server (not `file://`) for videos and images to load. The server lets the browser cache pages, so after an edit, hard-refresh (Cmd+Shift+R) or add a query string like `?v=2` before checking changes.
 
 ## Files
