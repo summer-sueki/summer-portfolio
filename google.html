@@ -31,13 +31,10 @@
       --next-backdrop: var(--print-rust);
     }
   </style>
-  <!-- Vercel Web Analytics (visitors and page views). Loads only on the deployed site: the script is
-       served by Vercel, so on localhost or file:// it would just be a missing file. -->
-  <script>
-    window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
-    if (/^https?:$/.test(location.protocol) && !/^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname)) {
-      const s = document.createElement("script"); s.defer = true; s.src = "/_vercel/insights/script.js"; document.head.appendChild(s);
-    }
+  <!-- Vercel Web Analytics -->
+  <script type="module">
+    import { inject } from 'https://cdn.jsdelivr.net/npm/@vercel/analytics@1/dist/index.js';
+    inject();
   </script>
 </head>
 <body id="top">
