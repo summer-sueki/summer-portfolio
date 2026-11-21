@@ -12,6 +12,13 @@
   <script type="application/ld+json">{"@context": "https://schema.org", "@type": "WebSite", "name": "Summer Sueki", "url": "https://summersueki.com/"}</script>
   <!-- the Google card's print is the biggest thing on a phone's first screen: fetch it first -->
   <link rel="preload" as="image" href="assets/backdrops/green-print.jpg" fetchpriority="high" />
+  <meta property="og:url" content="https://www.summersueki.com/" />
+  <meta property="og:type" content="website" />
+  <meta property="og:image" content="https://www.summersueki.com/assets/og-image.jpg" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:image:alt" content="Summer Sueki is a product designer who designs and builds, beside three pressed-silver foils: a sun face, a compass and a moth." />
+  <meta name="twitter:card" content="summary_large_image" />
   <link rel="icon" href="favicon.svg" type="image/svg+xml" />
   <link rel="icon" href="assets/favicon.png" type="image/png" sizes="192x192" />
   <link rel="apple-touch-icon" href="assets/apple-touch-icon.png" />
@@ -737,6 +744,16 @@
         gl.bindVertexArray(null);
       }
       // p: cssW cssH sheetW sheetH ox oy yaw pitch L (unit vector toward the lamp) shine f0
+      // After the first draw: a corner (always off the piece) must be clear and the middle (always on it)
+      // solid. Some graphics drivers draw the piece as a white box instead; then this says no.
+      looksRight() {
+        if (/[?&]foils=whitebox\b/.test(location.search)) return false;   // test the fallback: add ?foils=whitebox
+        const gl = this.gl, px = new Uint8Array(4);
+        gl.readPixels(2, 2, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, px);
+        const corner = px[3];
+        gl.readPixels(gl.drawingBufferWidth >> 1, gl.drawingBufferHeight >> 1, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, px);
+        return corner < 8 && px[3] > 200;
+      }
       render(p) {
         const gl = this.gl, cv = this.canvas;
         const dpr = Math.min(2, devicePixelRatio || 1);
@@ -932,6 +949,11 @@
           cssW: w * 1.28, cssH: h * 1.28, sheetW: w, sheetH: h,
           yaw: p.yaw, pitch: p.pitch, L, shine: p.shine, f0: METALS[p.metal],
         });
+        if (p.checked === false) {
+          p.checked = true;
+          if (p.gl.looksRight()) p.el.classList.add("is-lit");
+          else toStill(p, "the live render came out wrong on this graphics driver");
+        }
       }
     }
 
@@ -1053,13 +1075,14 @@
 
     // ---------- still pictures for devices that can't light them well ----------
     // Live lighting needs a real graphics chip: drawn in software (no GPU, as on PageSpeed's test phone)
-    // it ties the page up. Those devices, and ones on Save-Data, a 2G/3G connection or ≤2GB of memory,
+    // it ties the page up. Those devices, and ones on Save-Data, a 2G connection or ≤2GB of memory,
     // get each piece's front-on picture instead (foil-*-still.png, 320px, ~380KB for all three) and
     // never download the height maps (1.6MB). Laptops, iPhones and decent Android phones light them live.
     const canLightWell = (() => {
       if (/[?&]foils=still\b/.test(location.search)) return false;   // preview the still version: add ?foils=still
       const c = navigator.connection;
-      if (c && (c.saveData || /^(slow-2g|2g|3g)$/.test(c.effectiveType || ""))) return false;
+      // (not "3g": Chrome's connection estimate is rough, and ordinary WiFi often reads as 3g)
+      if (c && (c.saveData || /^(slow-2g|2g)$/.test(c.effectiveType || ""))) return false;
       if (navigator.deviceMemory && navigator.deviceMemory <= 2) return false;
       try {
         const gl = document.createElement("canvas").getContext("webgl2", { failIfMajorPerformanceCaveat: true });
@@ -1078,6 +1101,16 @@
       }
     }
 
+    // a piece whose live render can't be trusted shows its still picture instead, with no 3D view
+    function toStill(p, why) {
+      console.warn("Foils: showing the still picture for", p.name + ":", why);
+      p.gl = null;
+      p.el.classList.remove("is-lit");
+      const im = p.el.querySelector("img");
+      if (im && !im.getAttribute("src")) im.src = im.dataset.src;
+      p.el.disabled = true;
+    }
+
     // ---------- boot: light each piece once its height map is in ----------
     // The height maps start downloading at once; the WebGL set-up (slow on a device without a graphics
     // chip) waits a couple of frames, so the page's first paint and the cards' fade-in go first.
@@ -1093,7 +1126,7 @@
         p.gl.setPiece(p.data, 128);
         p.last = null;   // the frame loop skips unchanged frames: make sure the loaded piece gets drawn
         p.L = [...lampFor(0, 0, 0), 0, 0, 0];
-        p.el.classList.add("is-lit");
+        p.checked = false;   // the frame loop draws it once hidden, checks it, then shows it (is-lit)
       } catch (err) {
         // no WebGL 2, or the height map couldn't be read (opened as file://): the baked front-on image stays
         console.warn(location.protocol === "file:"
