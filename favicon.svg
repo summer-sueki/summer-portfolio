@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
+  <!-- The tab icon: a disc of crinkled, hammered silver foil, lit from the top left like the hero foils.
+       The surface is fractal noise used as a height map, lit by SVG's diffuse and specular lighting. -->
+  <defs>
+    <!-- the plain silver underneath: brighter toward the light, darker at the far edge -->
+    <radialGradient id="base" cx="0.38" cy="0.32" r="0.8">
+      <stop offset="0" stop-color="#dcdbd7"/>
+      <stop offset="0.5" stop-color="#9a9893"/>
+      <stop offset="1" stop-color="#4b4a47"/>
+    </radialGradient>
+    <filter id="foil" x="0" y="0" width="256" height="256" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <!-- a few broad, soft dents (kept gentle so it reads as smooth hammered silver) -->
+      <feTurbulence type="fractalNoise" baseFrequency="0.01" numOctaves="4" seed="11" result="noise"/>
+      <feDiffuseLighting in="noise" surfaceScale="8" diffuseConstant="1.25" lighting-color="#ffffff" result="diffuse">
+        <feDistantLight azimuth="225" elevation="48"/>
+      </feDiffuseLighting>
+      <feSpecularLighting in="noise" surfaceScale="8" specularConstant="1.5" specularExponent="26" lighting-color="#ffffff" result="spec">
+        <feDistantLight azimuth="225" elevation="40"/>
+      </feSpecularLighting>
+      <feBlend in="diffuse" in2="SourceGraphic" mode="multiply" result="lit"/>
+      <feComposite in="spec" in2="lit" operator="arithmetic" k2="0.9" k3="1" result="shiny"/>
+      <feComposite in="shiny" in2="SourceGraphic" operator="in"/>
+    </filter>
+  </defs>
+  <circle cx="128" cy="128" r="124" fill="url(#base)" filter="url(#foil)"/>
+</svg>
