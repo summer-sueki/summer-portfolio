@@ -382,10 +382,10 @@
         <div><dt>Experience</dt><dd>B2C and enterprise</dd></div>
       </dl>
       <div class="foil-cluster">
-        <!-- the sun face, the compass and the moth, pressed in metal-etching/, baked to assets/foils/: *-flat.png is the front-on render (fallback), *-height.png packs height (R,G) and cut-out mask (B) -->
-        <button class="pebble foil f-sun rise d3" type="button" data-foil="sunface" data-no="17" data-title="Sun face" data-metal="silver" data-shine="80" data-w="595" data-h="596" aria-label="Sun face, a silver foil etching. Open in 3D"><img src="assets/foils/foil-sunface-flat.png" width="595" height="596" alt="" /><canvas></canvas></button>
-        <button class="pebble foil f-compass rise d4" type="button" data-foil="compass-ringed" data-no="18" data-title="Compass" data-metal="silver" data-shine="80" data-w="524" data-h="518" aria-label="Compass, a silver foil etching. Open in 3D"><img src="assets/foils/foil-compass-ringed-flat.png" width="524" height="518" alt="" /><canvas></canvas></button>
-        <button class="pebble foil f-moth rise d3" type="button" data-foil="moth" data-no="15" data-title="Moth" data-metal="silver" data-shine="84" data-w="555" data-h="535" aria-label="Moth, a silver foil etching. Open in 3D"><img src="assets/foils/foil-moth-flat.png" width="555" height="535" alt="" /><canvas></canvas></button>
+        <!-- the sun face, the compass and the moth, pressed in metal-etching/, baked to assets/foils/: *-flat.png is the front-on render (fallback, fetched only if live lighting fails), *-height.png packs height (R,G) and cut-out mask (B) -->
+        <button class="pebble foil f-sun rise d3" type="button" data-foil="sunface" data-no="17" data-title="Sun face" data-metal="silver" data-shine="80" data-w="595" data-h="596" aria-label="Sun face, a silver foil etching. Open in 3D"><img data-src="assets/foils/foil-sunface-flat.png" width="595" height="596" alt="" /><canvas></canvas></button>
+        <button class="pebble foil f-compass rise d4" type="button" data-foil="compass-ringed" data-no="18" data-title="Compass" data-metal="silver" data-shine="80" data-w="524" data-h="518" aria-label="Compass, a silver foil etching. Open in 3D"><img data-src="assets/foils/foil-compass-ringed-flat.png" width="524" height="518" alt="" /><canvas></canvas></button>
+        <button class="pebble foil f-moth rise d3" type="button" data-foil="moth" data-no="15" data-title="Moth" data-metal="silver" data-shine="84" data-w="555" data-h="535" aria-label="Moth, a silver foil etching. Open in 3D"><img data-src="assets/foils/foil-moth-flat.png" width="555" height="535" alt="" /><canvas></canvas></button>
       </div>
     </section>
 
@@ -398,7 +398,7 @@
             <div class="washes" aria-hidden="true"><span></span><span></span><span></span><span></span></div>
             <div class="stage is-fill hover-still" id="googleCover">
               <video width="1600" height="1200" src="assets/careers-web.mp4" poster="assets/careers-web-poster.jpg" muted loop playsinline preload="metadata" aria-label="Google Careers redesign: Explore locations opens office cards for Mountain View, London, Singapore and Zurich, and Mountain View opens into the new hero, Where We Build the Future"></video>
-              <img class="hover-img" src="assets/google-hover.jpg" width="1600" height="1200" alt="" aria-hidden="true" />
+              <img class="hover-img" src="assets/google-hover-lite.jpg" width="1600" height="1200" alt="" aria-hidden="true" />
             </div>
           </div>
           <div class="caption">
@@ -414,7 +414,7 @@
             <!-- the hover video is still a placeholder: swap in Summer's design -->
             <div class="stage is-fill cover-swap">
               <video class="cover-video" width="1600" height="1130" src="assets/reddit-preview.mp4" muted loop playsinline preload="metadata" aria-hidden="true"></video>
-              <img class="cover-still" src="assets/reddit-cover-web.jpg" width="1600" height="1200" alt="Reddit Game Picker: the Reddit logo on the rust sun print" />
+              <img class="cover-still" src="assets/reddit-cover-web-lite.jpg" width="1600" height="1200" alt="Reddit Game Picker: the Reddit logo on the rust sun print" />
             </div>
           </div>
           <div class="caption">
@@ -1025,6 +1025,10 @@
           ? "Foils: open the page through the local server (http://localhost:4321), not as a file, for the live lighting and 3D view."
           : "Foils: live lighting is off.", err);
         p.gl = null;
+        // the baked front-on picture is only fetched here, when it's needed: with WebGL working, the
+        // live canvas replaces it, so loading it up front cost every visitor about 1MB for nothing
+        const im = p.el.querySelector("img");
+        if (im && !im.getAttribute("src")) im.src = im.dataset.src;
         if (!p.data) p.el.disabled = true;
       }
     });
