@@ -854,40 +854,69 @@
     new IntersectionObserver(([e]) => { heroVisible = e.isIntersecting; }).observe(hero);
 
     let prev = performance.now();
+    // A device that can't keep up (frames slower than ~45ms for a while, e.g. no graphics chip) drops the
+    // ambient motion: the lamp's slow idle drift and the pieces' breath of float. Everything that answers
+    // the cursor or a click still runs. Set once and kept for the visit.
+    let slow = false, slowFrames = 0;
+    const bootAt = performance.now();
     function frame(now) {
       requestAnimationFrame(frame);
-      const dt = Math.min(.05, (now - prev) / 1000);
+      const gap = now - prev;
+      const dt = Math.min(.05, gap / 1000);
       prev = now;
       if (!heroVisible || dt <= 0) return;
+      if (!slow && now - bootAt > 2000) {
+        slowFrames = gap > 45 ? slowFrames + 1 : 0;
+        if (slowFrames > 20) slow = true;
+      }
+      const calm = reduceMotion || slow;
+      // on a struggling device, ease by the real time between frames so things settle (and the loop
+      // goes quiet) as quickly as on a fast one; damp() stays stable however long the step
+      const step = slow ? Math.min(.5, gap / 1000) : dt;
       const t = now / 1000;
       const px = pointer.seen ? pointer.x / innerWidth - .5 : 0;
       const py = pointer.seen ? pointer.y / innerHeight - .5 : 0;
+      // read every piece's box first, then write: reading after a write would force the browser to
+      // lay the page out again mid-frame, once per piece
+      const boxes = pieces.map(p => p.gl && !p.el.classList.contains("is-away")
+        ? { r: p.el.getBoundingClientRect(), w: p.el.offsetWidth, h: p.el.offsetHeight } : null);
       for (const p of pieces) {
         if (!reduceMotion) {
-          // just a breath of drift: about a pixel or two
-          const fx = Math.sin(t * .32 + p.i * 1.7) * 1, fy = Math.sin(t * .41 + p.i * 2.3) * 1.5;
-          damp(p, "x", "vx", -px * p.depth + fx, 1.4, dt);
-          damp(p, "y", "vy", -py * p.depth + fy, 1.4, dt);
-          p.el.style.translate = `${p.x.toFixed(2)}px ${p.y.toFixed(2)}px`;
+          // just a breath of drift: about a pixel or two (paused on a struggling device)
+          const fx = slow ? 0 : Math.sin(t * .32 + p.i * 1.7) * 1, fy = slow ? 0 : Math.sin(t * .41 + p.i * 2.3) * 1.5;
+          const ox = p.x, oy = p.y;
+          damp(p, "x", "vx", -px * p.depth + fx, 1.4, step);
+          damp(p, "y", "vy", -py * p.depth + fy, 1.4, step);
+          if (Math.abs(p.x - ox) > .005 || Math.abs(p.y - oy) > .005)
+            p.el.style.translate = `${p.x.toFixed(2)}px ${p.y.toFixed(2)}px`;
         }
-        if (!p.gl || p.el.classList.contains("is-away")) continue;
+        const box = boxes[p.i];
+        if (!box || !box.w) continue;
         // the bounding box grows with the tilt, so size comes from the unrotated box
-        const r = p.el.getBoundingClientRect(), w = p.el.offsetWidth, h = p.el.offsetHeight;
-        if (!w) continue;
+        const { r, w, h } = box;
         const cx = r.left + r.width / 2, cy = r.top + r.height / 2;
-        const rot = parseFloat(getComputedStyle(p.el).rotate) * Math.PI / 180 || 0;
+        // the piece's own tilt (--rot) never changes, so it's read once
+        if (p.rot === undefined) p.rot = parseFloat(getComputedStyle(p.el).rotate) * Math.PI / 180 || 0;
+        const rot = p.rot;
         // a slight turn toward the cursor, as if picked up to look at
         if (!reduceMotion && pointer.seen) {
           const tx = Math.max(-1, Math.min(1, (pointer.x - cx) / (innerWidth * .5)));
           const ty = Math.max(-1, Math.min(1, (pointer.y - cy) / (innerHeight * .5)));
-          damp(p, "yaw", "vyaw", tx * .22, .8, dt);
-          damp(p, "pitch", "vpitch", ty * .18, .8, dt);
+          damp(p, "yaw", "vyaw", tx * .22, .8, step);
+          damp(p, "pitch", "vpitch", ty * .18, .8, step);
         }
-        const L = easeLamp(p, lampFor(cx, cy, t, rot), dt);
+        const L = easeLamp(p, lampFor(cx, cy, calm ? 0 : t, rot), step);
+        // only redraw when something visible has changed: with the cursor at rest, the page goes quiet
+        const last = p.last;
+        if (last && last.w === w && last.h === h &&
+            Math.abs(last.L[0] - L[0]) < 5e-4 && Math.abs(last.L[1] - L[1]) < 5e-4 && Math.abs(last.L[2] - L[2]) < 5e-4 &&
+            Math.abs(last.yaw - p.yaw) < 5e-4 && Math.abs(last.pitch - p.pitch) < 5e-4) continue;
+        p.last = { L: [...L], yaw: p.yaw, pitch: p.pitch, w, h };
         // the shadow falls away from the lamp, longer as the lamp gets lower (in the piece's frame, which CSS then rotates)
         const low = 1 - L[2];
-        p.el.style.setProperty("--sx", (-L[0] * 22 * low).toFixed(1) + "px");
-        p.el.style.setProperty("--sy", (L[1] * 22 * low + 6).toFixed(1) + "px");
+        const sx = (-L[0] * 22 * low).toFixed(1) + "px", sy = (L[1] * 22 * low + 6).toFixed(1) + "px";
+        if (sx !== p.sx) { p.el.style.setProperty("--sx", sx); p.sx = sx; }
+        if (sy !== p.sy) { p.el.style.setProperty("--sy", sy); p.sy = sy; }
         p.gl.render({
           cssW: w * 1.28, cssH: h * 1.28, sheetW: w, sheetH: h,
           yaw: p.yaw, pitch: p.pitch, L, shine: p.shine, f0: METALS[p.metal],
@@ -939,7 +968,7 @@
     }
     function finishClose() {
       vs.dir = 0;
-      vs.piece.el.classList.remove("is-away");
+      vs.piece.el.classList.remove("is-away"); vs.piece.last = null;   // redraw it as it lands back in place
       view.close();
     }
     const wake = () => { if (!vraf) vraf = requestAnimationFrame(vframe); };
@@ -1017,6 +1046,7 @@
         p.gl = new FoilGL(p.canvas);
         p.data = await loadPiece(p.name);
         p.gl.setPiece(p.data, 128);
+        p.last = null;   // the frame loop skips unchanged frames: make sure the loaded piece gets drawn
         p.L = [...lampFor(0, 0, 0), 0, 0, 0];
         p.el.classList.add("is-lit");
       } catch (err) {

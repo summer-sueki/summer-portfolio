@@ -12,7 +12,7 @@
   --text: #eeece8;
   --text-2: rgb(185, 183, 178);  /* body copy, secondary */
   --text-3: #949087;             /* labels, captions: a warm grey in the hue of --text (40°), 5.8:1 on --bg */
-  --text-faint: rgba(238, 236, 232, .4);   /* the contents list, hints */
+  --text-faint: rgba(238, 236, 232, .5);   /* the contents list, hints (.5 = 4.7:1 on --bg, the lowest that passes 4.5:1; was .4) */
   --hairline: rgba(238, 236, 232, .1);
   /* the three print colours: Google's olive, Reddit's rust, Tech Interactive's cream */
   --olive: #c8c27f;
