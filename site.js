@@ -1,14 +1,14 @@
 // Shared site behaviours: the /work address, a small circle cursor and gently smoothed wheel scrolling.
 
-// ---------- /work: the home page's work grid at its own address ----------
+// ---------- addresses: / for home, /work for the work grid ----------
 // On the site (Vercel, see vercel.json) and the local server (.claude/serve.py), /work serves the home
-// page; here it scrolls to the work grid. On the home page, clicking Work scrolls there and puts /work
-// in the address bar without reloading. Opened straight from a file there's no server to map /work,
-// so the links fall back to index.html#work.
+// page; here it scrolls to the work grid. The logo links to / (summersueki.com). On the home page,
+// clicking Work or the logo glides there and updates the address bar without reloading. Opened straight
+// from a file there's no server, so the links fall back to index.html#work and index.html.
 (() => {
-  const workLinks = () => document.querySelectorAll('a[href="work"]');
   if (location.protocol === "file:") {
-    workLinks().forEach(a => a.setAttribute("href", "index.html#work"));
+    document.querySelectorAll('a[href="work"]').forEach(a => a.setAttribute("href", "index.html#work"));
+    document.querySelectorAll('a.brand[href="/"]').forEach(a => a.setAttribute("href", "index.html"));
     return;
   }
   const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -19,7 +19,9 @@
     const work = document.getElementById("work");
     if (!work) return;
     const margin = parseFloat(getComputedStyle(work).scrollMarginTop) || 0;
-    const y = Math.max(0, Math.round(work.getBoundingClientRect().top + scrollY - margin));
+    glide(Math.max(0, Math.round(work.getBoundingClientRect().top + scrollY - margin)), smooth);
+  };
+  const glide = (y, smooth) => {
     cancelAnimationFrame(raf);
     const from = scrollY, dist = y - from;
     if (!smooth || Math.abs(dist) < 2) { scrollTo({ top: y, behavior: "instant" }); return; }
@@ -43,17 +45,22 @@
     addEventListener("load", () => { if (Math.abs(document.getElementById("work").getBoundingClientRect().top) < 400) toWork(false); }, { once: true });
   }
   document.addEventListener("click", e => {
-    const a = e.target.closest?.('a[href="work"]');
-    if (!a || !document.getElementById("work") || e.metaKey || e.ctrlKey || e.shiftKey || e.button) return;
-    e.preventDefault();
-    if (!/\/work\/?$/.test(location.pathname)) history.pushState(null, "", "work");
-    toWork(!reduce);
+    if (!document.getElementById("work") || e.metaKey || e.ctrlKey || e.shiftKey || e.button) return;   // only on the home page
+    if (e.target.closest?.('a[href="work"]')) {
+      e.preventDefault();
+      if (!/\/work\/?$/.test(location.pathname)) history.pushState(null, "", "work");
+      toWork(!reduce);
+    } else if (e.target.closest?.('a.brand[href="/"]')) {
+      e.preventDefault();
+      if (location.pathname !== "/" || location.hash) history.pushState(null, "", "/");
+      glide(0, !reduce);
+    }
   });
   // Back/Forward between / and /work on the home page: glide to the matching spot
   addEventListener("popstate", () => {
     if (!document.getElementById("work")) return;
     if (/\/work\/?$/.test(location.pathname)) toWork(!reduce);
-    else scrollTo({ top: 0, behavior: reduce ? "instant" : "smooth" });
+    else glide(0, !reduce);
   });
 })();
 
