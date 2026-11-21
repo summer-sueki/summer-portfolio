@@ -1,0 +1,23 @@
+{
+  "name": "summer-portfolio",
+  "version": "1.0.0",
+  "description": "Summer Sueki's portfolio website with Vercel Speed Insights",
+  "main": "site.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/summer-sueki/summer-portfolio.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/summer-sueki/summer-portfolio/issues"
+  },
+  "homepage": "https://github.com/summer-sueki/summer-portfolio#readme",
+  "dependencies": {
+    "@vercel/speed-insights": "^2.1.0"
+  }
+}
