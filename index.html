@@ -476,8 +476,10 @@
     </div>
   </dialog>
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.2/lottie_light.min.js"></script>
-  <script src="assets/tech-domi.js"></script>
+  <!-- deferred: the player and Domi's data download alongside the page instead of halting it; Domi
+       starts once they've run (see "Tech Interactive" below) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.2/lottie_light.min.js" defer></script>
+  <script src="assets/tech-domi.js" defer></script>
   <script>
   const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
 
@@ -547,7 +549,8 @@
   // ---------- Tech Interactive: Domi, a Lottie animation filling the card ----------
   // Same rule as the videos: waits on its first frame (Domi's face) until scrolled into view, then plays
   // from the top; a still frame with reduced motion.
-  (() => {
+  // The player and the data load deferred, so this waits for them (they've run by DOMContentLoaded).
+  const domi = () => {
     const el = document.getElementById("techDomi");
     if (!el || !window.lottie || !window.TECH_DOMI) return;
     const anim = lottie.loadAnimation({
@@ -573,7 +576,8 @@
       pause: () => anim.pause(),
       rewind: () => { clearTimeout(timer); timer = 0; waiting = false; anim.goToAndStop(0, true); },
     });
-  })();
+  };
+  if (window.lottie && window.TECH_DOMI) domi(); else addEventListener("DOMContentLoaded", domi, { once: true });
 
   // ---------- the colour washes lean, slowly, toward the cursor ----------
   (() => {
@@ -1041,10 +1045,17 @@
     view.addEventListener("cancel", e => { e.preventDefault(); closeView(); });   // Esc flies it home too
 
     // ---------- boot: light each piece once its height map is in ----------
+    // The height maps start downloading at once; the WebGL set-up (slow on a device without a graphics
+    // chip) waits a couple of frames, so the page's first paint and the cards' fade-in go first.
     pieces.forEach(async p => {
+      const dataP = loadPiece(p.name);
+      dataP.catch(() => {});   // a failure is handled below, once it's awaited
       try {
+        // after the deferred scripts (site.js queues the fade-in first), then two more frames
+        if (document.readyState === "loading") await new Promise(r => addEventListener("DOMContentLoaded", r, { once: true }));
+        await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
         p.gl = new FoilGL(p.canvas);
-        p.data = await loadPiece(p.name);
+        p.data = await dataP;
         p.gl.setPiece(p.data, 128);
         p.last = null;   // the frame loop skips unchanged frames: make sure the loaded piece gets drawn
         p.L = [...lampFor(0, 0, 0), 0, 0, 0];
