@@ -188,11 +188,28 @@
     }
     @media (max-width: 680px) {
       .about { padding-top: 96px; }
+      /* phones: the cards share one grid cell and grow to fit their letter, instead of a fixed
+         2:1-ish box the words spill out of; the bottom padding leaves room for the fanned cards */
+      .stack { display: grid; aspect-ratio: auto; padding: 6px 0 clamp(34px, 11vw, 48px); }
+      .letter { position: relative; inset: auto; grid-area: 1 / 1; margin: 0 7% 0 2%; grid-template-columns: 36% minmax(0, 1fr); }
+      .letter .words { padding: 2px 0 0; }
+      .letter .sign { margin-top: 12px; }
+      .letter[style*="--i: 1"] { --x: 4%; --y: 4%; }
+      .letter[style*="--i: 2"] { --y: 8%; }
+      .stack-hint { margin-top: 4px; }
     }
     @media (prefers-reduced-motion: reduce) {
       .letter { transition: none; }
     }
   </style>
+  <!-- Vercel Web Analytics (visitors and page views). Loads only on the deployed site: the script is
+       served by Vercel, so on localhost or file:// it would just be a missing file. -->
+  <script>
+    window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
+    if (/^https?:$/.test(location.protocol) && !/^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname)) {
+      const s = document.createElement("script"); s.defer = true; s.src = "/_vercel/insights/script.js"; document.head.appendChild(s);
+    }
+  </script>
 </head>
 <body id="top">
   <header class="site-nav" id="siteNav">
@@ -219,7 +236,7 @@
         <span class="label label-b" id="letters-title">Love letters to the communities who have helped me grow</span>
         <button type="button" class="stack" id="stack" aria-describedby="stack-hint">
           <article class="letter" style="--i: 0">
-            <div class="pic"><img src="assets/about/letter-codelab.jpg" alt="The CodeLab team in front of gold CODELAB balloons" loading="lazy" /></div>
+            <div class="pic"><img src="assets/about/letter-codelab.jpg" alt="The CodeLab team in front of gold CODELAB balloons" loading="lazy" style="object-position: 0% 50%" /></div>
             <div class="words">
               <p class="to">Dear CodeLab,</p>
               <p class="note">Thank you for the countless food runs, trips, and killer projects, from Google Careers to Reddit, that helped me grow so much as a designer.</p>

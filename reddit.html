@@ -31,6 +31,14 @@
       --facts: 4;
     }
   </style>
+  <!-- Vercel Web Analytics (visitors and page views). Loads only on the deployed site: the script is
+       served by Vercel, so on localhost or file:// it would just be a missing file. -->
+  <script>
+    window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
+    if (/^https?:$/.test(location.protocol) && !/^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname)) {
+      const s = document.createElement("script"); s.defer = true; s.src = "/_vercel/insights/script.js"; document.head.appendChild(s);
+    }
+  </script>
 </head>
 <body id="top">
   <header class="site-nav" id="siteNav">

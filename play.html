@@ -156,13 +156,14 @@
     /* .play-grid is a .rail-layout (base.css): the same contents and content columns as the case studies */
     .work { display: flex; flex-direction: column; gap: 10px; }
     .work section { display: flex; flex-direction: column; gap: 10px; scroll-margin-top: 96px; }
-    /* two independent columns, like masonry */
-    .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; align-items: start; }
+    /* two columns that end level: each column's width (--cols, set inline) is the inverse of the sum of
+       its pieces' height/width ratios, so both stacks come out the same height and leave no gap.
+       Recompute it if a piece in a column changes. */
+    .cols { display: grid; grid-template-columns: var(--cols, 1fr 1fr); gap: 10px; align-items: start; }
     .cols > div { display: flex; flex-direction: column; gap: 10px; }
     /* a row of pieces at one height: each grows by its own aspect ratio (set inline as --ar) */
     .row { display: flex; gap: 10px; }
     .row > .tile { flex: var(--ar) 1 0; }
-    .narrow { width: 76%; }
 
     /* each piece: the image, and on hover (or keyboard focus) a short note and a date */
     .tile {
@@ -214,12 +215,19 @@
       .fun-tools { top: 12px; }
       .cols { grid-template-columns: minmax(0, 1fr); }
       .row { flex-direction: column; }
-      .narrow { width: 100%; }
     }
     @media (prefers-reduced-motion: reduce) {
       .tile figcaption, .tile img, .tile video, .pendant { transition: none; }
     }
   </style>
+  <!-- Vercel Web Analytics (visitors and page views). Loads only on the deployed site: the script is
+       served by Vercel, so on localhost or file:// it would just be a missing file. -->
+  <script>
+    window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
+    if (/^https?:$/.test(location.protocol) && !/^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname)) {
+      const s = document.createElement("script"); s.defer = true; s.src = "/_vercel/insights/script.js"; document.head.appendChild(s);
+    }
+  </script>
 </head>
 <body id="top">
   <header class="site-nav" id="siteNav">
@@ -259,7 +267,7 @@
         <div class="work rail-main">
           <section id="graphic-design" aria-labelledby="h-gd">
             <h2 class="sr-only" id="h-gd">Graphic design</h2>
-            <div class="cols">
+            <div class="cols" style="--cols: minmax(0, 0.5217fr) minmax(0, 0.4360fr)">
               <div>
                 <figure class="tile" tabindex="0">
                   <img src="assets/play/codelab-shirt.jpg" width="1279" height="1600" loading="lazy" alt="A black CodeLab T-shirt on a hanger, its logo printed in white" />
@@ -293,7 +301,7 @@
 
           <section id="photography" aria-labelledby="h-ph">
             <h2 class="sr-only" id="h-ph">Photography</h2>
-            <div class="cols">
+            <div class="cols" style="--cols: minmax(0, 0.7505fr) minmax(0, 0.7260fr)">
               <div>
                 <figure class="tile" tabindex="0">
                   <img src="assets/play/iceland.jpg" width="1600" height="1066" loading="lazy" alt="Sheep grazing in front of two white houses under green mountains" />
@@ -315,7 +323,7 @@
                 </figure>
               </div>
             </div>
-            <figure class="tile narrow" tabindex="0">
+            <figure class="tile" tabindex="0">
               <img src="assets/play/swimmer.jpg" width="1280" height="831" loading="lazy" alt="A swimmer in a white cap mid-butterfly stroke, water spraying" />
               <figcaption><span class="words"><span class="desc">Best of Sports award, The Accolade.</span><span class="tools">Lightroom, Sony a6400</span></span><span class="date">2021</span></figcaption>
             </figure>
