@@ -78,6 +78,34 @@ footer .foot-small { margin-top: 18px; }
 .label-b::before { content: "["; }
 .label-b::after { content: "]"; }
 
+/* ---------- The ink button: an off-white bar with a dark square for the icon ----------
+   Case-study links (a.btn-ink); button.btn-ink works too. */
+.btn-ink {
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+  height: 44px;
+  padding: 0 6px 0 18px;
+  background: var(--text);
+  color: var(--bg);
+  font-family: var(--mono);
+  font-size: var(--fs-sm);
+  text-decoration: none;
+  transition: background-color .2s;
+}
+.btn-ink span {
+  display: grid;
+  place-items: center;
+  width: 32px; height: 32px;
+  background: var(--bg);
+  color: var(--text);
+  transition: transform .3s var(--ease);
+}
+.btn-ink:hover { background: #fff; }
+.btn-ink:hover span { transform: translateX(3px); }
+button.btn-ink { border: 0; cursor: pointer; }
+.btn-ink:focus-visible { outline: 2px solid var(--text); outline-offset: 3px; }
+
 /* ---------- The page grid ----------
    12 columns, --grid-gap apart, inside the gutter. .rail-layout puts the contents list in
    columns 1–2 and the content in 3–12; Play and the case studies both use it. */
@@ -128,6 +156,52 @@ footer .foot-small { margin-top: 18px; }
 .toc a:hover, .toc a.is-active { color: var(--text-2); }
 .toc a.is-active::before { transform: scaleX(1); }
 
+/* ---------- Fade-in, on every page ----------
+   Each page's <head> adds .fade-on to <html> before the first paint (unless reduced motion is on), so
+   these pieces start hidden; site.js then fades them in: what's on screen at load in reading order,
+   the rest as it scrolls into view. Keep this list in step with FADE in site.js. The play box's
+   heading and the home page's foils aren't here: they have their own entrances. */
+.fade-on :is(
+  .work .project,
+  .bio > *, .letters, .resume, .photo-grid .shot,
+  .play-grid .toc, .work .tile,
+  .case-hero .kicker, .case-hero h1, .case-hero .lede, .case-hero .update, .case-hero .cta-row,
+  .hero-media, .facts > div, .story .chapter > :not(:has(.chapter)), .split > figure, .next a
+) {
+  opacity: 0;
+  transform: translateY(10px);
+}
+.fade-on :is(
+  .work .project,
+  .bio > *, .letters, .resume, .photo-grid .shot,
+  .play-grid .toc, .work .tile,
+  .case-hero .kicker, .case-hero h1, .case-hero .lede, .case-hero .update, .case-hero .cta-row,
+  .hero-media, .facts > div, .story .chapter > :not(:has(.chapter)), .split > figure, .next a
+).in {
+  opacity: 1;
+  transform: none;
+  transition: opacity .7s ease, transform .9s var(--ease);
+  transition-delay: var(--fd, 0ms);
+}
+/* the home page's intro fades in on CSS alone, from the first paint: that page loads heavy scripts
+   (the foils, Domi) before site.js, and the intro shouldn't wait for them */
+@keyframes fade-up { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+.fade-on .hero h1 { animation: fade-up .7s ease both; }
+.fade-on .hero .meta { animation: fade-up .7s ease .1s both; }
+/* the head's safety switch: if site.js never arrives, everything fades in together after 3 seconds */
+.fade-on.fade-all :is(
+  .work .project,
+  .bio > *, .letters, .resume, .photo-grid .shot,
+  .play-grid .toc, .work .tile,
+  .case-hero .kicker, .case-hero h1, .case-hero .lede, .case-hero .update, .case-hero .cta-row,
+  .hero-media, .facts > div, .story .chapter > :not(:has(.chapter)), .split > figure, .next a
+) {
+  opacity: 1;
+  transform: none;
+  transition: opacity .7s ease, transform .9s var(--ease);
+}
+@media print { .fade-on * { opacity: 1 !important; transform: none !important; } }
+
 @media (max-width: 960px) {
   .rail-layout > .toc { display: none; }
   .rail-layout > .rail-main { grid-column: 1 / -1; }
@@ -138,5 +212,5 @@ footer .foot-small { margin-top: 18px; }
 }
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
-  .site-nav, .toc a::before { transition: none; }
+  .site-nav, .toc a::before, .btn-ink span { transition: none; }
 }

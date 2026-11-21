@@ -57,6 +57,52 @@
   });
 })();
 
+// ---------- fade-in, on every page ----------
+// The page's <head> has already hidden the entrance pieces (.fade-on on <html>; the list is in base.css).
+// What's on screen now fades in, in reading order (so on About: the left column, then the resume);
+// everything else fades in as it scrolls into view. A scroll check backs up the observer, so nothing
+// skipped past by a fast scroll or a jump stays hidden.
+(() => {
+  const root = document.documentElement;
+  if (!root.classList.contains("fade-on")) return;
+  const FADE = [
+    ".work .project",   // (the home intro fades on CSS alone: base.css)
+    ".bio > *", ".letters", ".resume", ".photo-grid .shot",
+    ".play-grid .toc", ".work .tile",
+    ".case-hero .kicker", ".case-hero h1", ".case-hero .lede", ".case-hero .update", ".case-hero .cta-row",
+    ".hero-media", ".facts > div", ".story .chapter > :not(:has(.chapter))", ".split > figure", ".next a",
+  ].join(",");
+  const els = [...document.querySelectorAll(FADE)];
+  const show = (el, delay) => { el.style.setProperty("--fd", `${delay}ms`); el.classList.add("in"); };
+  const onScreen = el => el.getBoundingClientRect().top < innerHeight;
+
+  // on screen at load: in reading order, a beat apart. Two frames in, so the hidden state is painted
+  // first (this deferred script can run before the first paint) and the fade actually runs
+  const first = els.filter(onScreen), rest = els.filter(el => !first.includes(el));
+  requestAnimationFrame(() => requestAnimationFrame(() => first.forEach((el, i) => show(el, Math.min(i, 7) * 100))));
+
+  // the rest: as they come into view; things arriving together step in slightly
+  const io = new IntersectionObserver(entries => {
+    let k = 0;
+    entries.forEach(e => {
+      if (e.target.classList.contains("in") || (!e.isIntersecting && e.boundingClientRect.top > 0)) return;
+      show(e.target, Math.min(k++, 3) * 80);
+      io.unobserve(e.target);
+    });
+  }, { threshold: .1 });
+  rest.forEach(el => io.observe(el));
+
+  let queued = false;
+  const sweep = () => {
+    queued = false;
+    els.forEach(el => { if (!el.classList.contains("in") && onScreen(el)) show(el, 0); });
+  };
+  addEventListener("scroll", () => { if (!queued) { queued = true; requestAnimationFrame(sweep); } }, { passive: true });
+  addEventListener("resize", sweep);
+  addEventListener("hashchange", sweep);
+  window.__fadeReady = true;   // set up without a hitch: the head's 3-second safety switch can stand down
+})();
+
 // The cursor and smooth scrolling only switch on for mouse/trackpad users who haven't asked for reduced motion.
 (() => {
   const finePointer = matchMedia("(hover: hover) and (pointer: fine)").matches;

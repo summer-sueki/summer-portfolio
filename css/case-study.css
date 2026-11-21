@@ -344,30 +344,6 @@ figcaption { font-family: var(--mono); font-size: var(--fs-label); line-height: 
 .chapter > .group-label { margin-top: 28px; }
 
 .cta-row { margin-top: 28px; }
-.btn-ink {
-  display: inline-flex;
-  align-items: center;
-  gap: 14px;
-  height: 44px;
-  padding: 0 6px 0 18px;
-  background: var(--text);
-  color: var(--bg);
-  font-family: var(--mono);
-  font-size: var(--fs-sm);
-  text-decoration: none;
-  transition: background-color .2s;
-}
-.btn-ink span {
-  display: grid;
-  place-items: center;
-  width: 32px; height: 32px;
-  background: var(--bg);
-  color: var(--text);
-  transition: transform .3s var(--ease);
-}
-.btn-ink:hover { background: #fff; }
-.btn-ink:hover span { transform: translateX(3px); }
-
 /* ---------- Icons and small data visuals ----------
    Icons: 24px grid, 1.5 stroke, in the page accent. Charts: square ends (no rounded corners anywhere),
    2px gaps between touching marks, values in text colours. --mark is the chart colour, checked against
@@ -469,19 +445,7 @@ figcaption { font-family: var(--mono); font-size: var(--fs-label); line-height: 
 .next .go svg { transition: transform .3s var(--ease); }
 .next a:hover .go svg { transform: rotate(45deg); }
 
-/* ---------- Scroll reveal ----------
-   Content is visible by default: with no script, slow script, or reduced motion, nothing is hidden.
-   Only once the script runs (and motion is allowed) does content below the fold start slightly
-   lowered and faded, and it settles in as soon as any of it enters view. */
-.reveal-on .reveal {
-  opacity: 0;
-  transform: translate3d(0, 18px, 0);
-  transition: opacity .5s ease, transform .7s var(--ease);
-  transition-delay: var(--delay, 0ms);
-}
-@media (prefers-reduced-motion: reduce) { .reveal-on .reveal { opacity: 1; transform: none; transition: none; } }
-.reveal-on .reveal.is-in { opacity: 1; transform: none; }
-@media print { .reveal-on .reveal { opacity: 1; transform: none; } }
+/* (the scroll reveal is the shared fade-in now: base.css + site.js) */
 
 .chapter h2:focus { outline: none; }
 .chapter h2:focus-visible { outline: 2px solid var(--text); outline-offset: 6px; }
@@ -517,5 +481,5 @@ figcaption { font-family: var(--mono); font-size: var(--fs-label); line-height: 
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .next .go, .next .go svg, .btn-ink span { transition: none; }
+  .next .go, .next .go svg { transition: none; }
 }

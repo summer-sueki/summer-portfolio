@@ -7,6 +7,14 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300..500;1,6..72,300..500&family=Plus+Jakarta+Sans:wght@400;500;600&family=Geist+Mono:wght@400&display=swap" rel="stylesheet" />
+  <script>
+    /* fade-in: hide the entrance pieces before the first paint (site.js fades them in); if site.js
+       hasn't arrived after 3 seconds, fade everything in rather than leave a blank page */
+    if (!matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      document.documentElement.classList.add("fade-on");
+      setTimeout(function () { if (!window.__fadeReady) document.documentElement.classList.add("fade-all"); }, 3000);
+    }
+  </script>
   <link rel="stylesheet" href="css/tokens.css" />
   <link rel="stylesheet" href="css/base.css" />
   <style>
@@ -28,7 +36,7 @@
     .headline-wrap { position: relative; grid-column: 1 / span 8; grid-row: 1; align-self: end; }
     .hero .meta { grid-column: 1 / span 8; grid-row: 2; }
 
-    /* the foils: stamp tilted at the top left, the moon beside it, the moth tucked underneath */
+    /* the foils: the sun face tilted at the top left, the compass beside it, the moth tucked underneath */
     .foil-cluster {
       position: relative;
       grid-column: 9 / -1;
@@ -86,8 +94,8 @@
     .foil.is-away { visibility: hidden; }   /* while it's out in the 3D view */
     /* --rot is mirrored in the script, so the light still comes from the cursor on a tilted piece */
     .foil { rotate: var(--rot, 0deg); }
-    .foil.f-sun      { left: 0;   top: 0;   width: 43%; aspect-ratio: 601 / 628; --rot: -9deg; }
-    .foil.f-moon     { left: 58%; top: 11%; width: 42%; aspect-ratio: 522 / 526; --rot: 4deg; }
+    .foil.f-sun      { left: -3%; top: -4%; width: 48%; aspect-ratio: 595 / 596; --rot: -9deg; }
+    .foil.f-compass  { left: 58%; top: 11%; width: 42%; aspect-ratio: 524 / 518; --rot: 4deg; }
     .foil.f-moth     { left: 12%; top: 49%; width: 51%; aspect-ratio: 555 / 535; --rot: -2deg; }
 
     /* ---------- 3D view: the piece flies out of the hero onto a dark stage ---------- */
@@ -357,9 +365,9 @@
         <div><dt>Experience</dt><dd>B2C and enterprise</dd></div>
       </dl>
       <div class="foil-cluster">
-        <!-- foils No. 13–15 from metal-etching/, baked to assets/foils/: *-flat.png is the front-on render (fallback), *-height.png packs height (R,G) and cut-out mask (B) -->
-        <button class="pebble foil f-sun rise d3" type="button" data-foil="sun" data-no="16" data-title="Sunburst initials" data-metal="pewter" data-shine="74" data-w="601" data-h="628" aria-label="Sunburst initials, a pewter foil etching. Open in 3D"><img src="assets/foils/foil-sun-flat.png" width="601" height="628" alt="" /><canvas></canvas></button>
-        <button class="pebble foil f-moon rise d4" type="button" data-foil="moon" data-no="14" data-title="Moon face" data-metal="silver" data-shine="80" data-w="522" data-h="526" aria-label="Moon face, a silver foil etching. Open in 3D"><img src="assets/foils/foil-moon-flat.png" width="522" height="526" alt="" /><canvas></canvas></button>
+        <!-- the sun face, the compass and the moth, pressed in metal-etching/, baked to assets/foils/: *-flat.png is the front-on render (fallback), *-height.png packs height (R,G) and cut-out mask (B) -->
+        <button class="pebble foil f-sun rise d3" type="button" data-foil="sunface" data-no="17" data-title="Sun face" data-metal="silver" data-shine="80" data-w="595" data-h="596" aria-label="Sun face, a silver foil etching. Open in 3D"><img src="assets/foils/foil-sunface-flat.png" width="595" height="596" alt="" /><canvas></canvas></button>
+        <button class="pebble foil f-compass rise d4" type="button" data-foil="compass-ringed" data-no="18" data-title="Compass" data-metal="silver" data-shine="80" data-w="524" data-h="518" aria-label="Compass, a silver foil etching. Open in 3D"><img src="assets/foils/foil-compass-ringed-flat.png" width="524" height="518" alt="" /><canvas></canvas></button>
         <button class="pebble foil f-moth rise d3" type="button" data-foil="moth" data-no="15" data-title="Moth" data-metal="silver" data-shine="84" data-w="555" data-h="535" aria-label="Moth, a silver foil etching. Open in 3D"><img src="assets/foils/foil-moth-flat.png" width="555" height="535" alt="" /><canvas></canvas></button>
       </div>
     </section>

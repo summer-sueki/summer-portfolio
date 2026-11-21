@@ -11,6 +11,12 @@ REWRITES = {"/work": "/index.html"}
 
 
 class Handler(http.server.SimpleHTTPRequestHandler):
+    def end_headers(self):
+        # always check for a newer file (a quick 304 if nothing changed), so a page never runs
+        # with a stale site.js or stylesheet from the browser's cache
+        self.send_header("Cache-Control", "no-cache")
+        super().end_headers()
+
     def send_head(self):
         parts = urlsplit(self.path)
         path = parts.path

@@ -8,6 +8,14 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300..500;1,6..72,300..500&family=Plus+Jakarta+Sans:wght@400;500;600&family=Geist+Mono:wght@400&display=swap" rel="stylesheet" />
+  <script>
+    /* fade-in: hide the entrance pieces before the first paint (site.js fades them in); if site.js
+       hasn't arrived after 3 seconds, fade everything in rather than leave a blank page */
+    if (!matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      document.documentElement.classList.add("fade-on");
+      setTimeout(function () { if (!window.__fadeReady) document.documentElement.classList.add("fade-all"); }, 3000);
+    }
+  </script>
   <link rel="stylesheet" href="css/tokens.css" />
   <link rel="stylesheet" href="css/base.css" />
   <link rel="stylesheet" href="css/case-study.css" />
@@ -510,7 +518,6 @@
                            document.documentElement.scrollHeight - innerHeight);
         setActive(i);
         // the destination is shown straight away rather than waiting to animate in
-        target.querySelectorAll(".reveal").forEach(el => el.classList.add("is-in"));
         history.replaceState(null, "", a.getAttribute("href"));
         glideTo(y, () => {
           // move keyboard and screen-reader focus to the chapter heading, without jumping
@@ -519,45 +526,6 @@
         });
       });
     });
-  })();
-
-  // ---------- reveal text and media as they scroll into view ----------
-  // Never a blank screen: content is visible until this runs, anything already on screen (or above it)
-  // is never hidden, a piece shows as soon as any of it enters view, and a scroll check backs up the
-  // observer in case it's late. Nothing is hidden at all with reduced motion.
-  (() => {
-    if (matchMedia("(prefers-reduced-motion: reduce)").matches || !("IntersectionObserver" in window)) return;
-    const targets = [
-      ...document.querySelectorAll(".story .chapter > *, .split > figure, .hero-media, .facts > div, .next a"),
-    ].filter(el => !el.querySelector(".chapter"));   // animate the pieces, not the wrappers around them
-    // anything already on screen (or scrolled past) at load stays put; only content further down animates
-    targets.forEach(el => { if (el.getBoundingClientRect().top >= innerHeight) el.classList.add("reveal"); });
-    document.documentElement.classList.add("reveal-on");
-
-    const show = (el, n = 0) => {
-      if (el.classList.contains("is-in")) return;
-      el.style.setProperty("--delay", `${Math.min(n, 3) * 60}ms`);
-      el.classList.add("is-in");
-    };
-    const io = new IntersectionObserver(entries => {
-      let n = 0;
-      entries.forEach(e => {
-        // in view, or already scrolled past (a fast scroll or a jump): show it
-        if (e.isIntersecting || e.boundingClientRect.top < 0) { show(e.target, n++); io.unobserve(e.target); }
-      });
-    }, { threshold: 0 });
-    const pending = [...document.querySelectorAll(".reveal")];
-    pending.forEach(el => io.observe(el));
-
-    // backup: on every scroll (once per frame), show anything whose top is above the bottom of the window
-    let queued = false;
-    const sweep = () => {
-      queued = false;
-      for (const el of pending) if (!el.classList.contains("is-in") && el.getBoundingClientRect().top < innerHeight) show(el);
-    };
-    addEventListener("scroll", () => { if (!queued) { queued = true; requestAnimationFrame(sweep); } }, { passive: true });
-    addEventListener("hashchange", sweep);
-    addEventListener("resize", sweep);
   })();
 
   // ---------- videos: play only while on screen ----------

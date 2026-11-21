@@ -7,6 +7,14 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300..500;1,6..72,300..500&family=Plus+Jakarta+Sans:wght@400;500;600&family=Geist+Mono:wght@400&display=swap" rel="stylesheet" />
+  <script>
+    /* fade-in: hide the entrance pieces before the first paint (site.js fades them in); if site.js
+       hasn't arrived after 3 seconds, fade everything in rather than leave a blank page */
+    if (!matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      document.documentElement.classList.add("fade-on");
+      setTimeout(function () { if (!window.__fadeReady) document.documentElement.classList.add("fade-all"); }, 3000);
+    }
+  </script>
   <link rel="stylesheet" href="css/tokens.css" />
   <link rel="stylesheet" href="css/base.css" />
   <style>
@@ -65,18 +73,25 @@
       font-size: var(--fs-2xs);
       color: var(--text-faint);
     }
-    /* quiet: it reads as a note until you hover it */
+    /* "Press your own": a quiet outline button. It reads as a button once you look for it,
+       but never competes with the pressings falling */
     .press-open {
-      font: inherit;
-      color: var(--text-2);
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      height: 32px;
+      padding: 0 12px;
       background: none;
-      border: 0;
-      padding: 6px 0;
+      border: 1px solid rgba(238, 236, 232, .22);
+      color: var(--text-2);
+      font-family: var(--mono);
+      font-size: var(--fs-label);
       cursor: pointer;
-      transition: color .2s;
+      transition: color .2s, border-color .2s;
     }
-    .press-open:hover { color: var(--text); }
-    .press-open:focus-visible { outline: 2px solid var(--text); outline-offset: 4px; }
+    .press-open span { font-size: 14px; line-height: 1; color: var(--text-3); transition: color .2s; }
+    .press-open:hover { color: var(--text); border-color: rgba(238, 236, 232, .55); }
+    .press-open:hover span { color: var(--text); }
 
     /* ---------- the press: a small, simple version of the metal-etching studio ---------- */
     .press {
@@ -157,21 +172,25 @@
       background: var(--surface-1);
     }
     .tile img, .tile video { display: block; width: 100%; height: auto; transition: transform .8s var(--ease); }
+    /* the note: a solid block in the page colour, set just inside the image's top edge
+       (like the label block on the case studies' "Next case study" card) */
     .tile figcaption {
       position: absolute;
-      inset: auto 0 0 0;
+      inset: 12px 12px auto 12px;
       display: flex;
       justify-content: space-between;
-      align-items: flex-end;
+      align-items: baseline;
       gap: 16px;
-      padding: 48px 16px 14px;
-      background: linear-gradient(to top, rgba(10, 10, 10, .82), rgba(10, 10, 10, .5) 55%, transparent);
+      padding: 12px 14px;
+      background: var(--bg);
       opacity: 0;
-      transform: translateY(6px);
+      transform: translateY(-6px);
       transition: opacity .35s ease, transform .45s var(--ease);
       pointer-events: none;
     }
     .tile .desc { max-width: 46ch; font-size: var(--fs-base); line-height: 1.4; color: var(--text); }
+    .tile .words { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+    .tile .tools { font-family: var(--mono); font-size: var(--fs-label); color: var(--text-3); }
     .tile .date { flex: none; font-family: var(--mono); font-size: var(--fs-label); color: var(--text-2); }
     .tile:hover figcaption, .tile:focus-visible figcaption, .tile:focus-within figcaption { opacity: 1; transform: none; }
     .tile:hover img, .tile:hover video { transform: scale(1.015); }
@@ -219,7 +238,7 @@
       <h1 id="fun-title">Just for fun!</h1>
       <div class="fun-tools">
         <span class="fun-hint" aria-hidden="true">Grab one and throw it</span>
-        <button type="button" class="press-open" id="pressOpen" hidden>+ Press your own</button>
+        <button type="button" class="press-open" id="pressOpen" hidden><span aria-hidden="true">+</span>Press your own</button>
       </div>
     </section>
 
@@ -236,7 +255,7 @@
           </ol>
         </nav>
 
-        <!-- Each piece: a short note and a date, shown on hover. Dates marked "Date TBC" still need confirming. -->
+        <!-- Each piece: a short note, the tools, and when it was made (from Summer's "Play Labels"), shown on hover. -->
         <div class="work rail-main">
           <section id="graphic-design" aria-labelledby="h-gd">
             <h2 class="sr-only" id="h-gd">Graphic design</h2>
@@ -244,21 +263,21 @@
               <div>
                 <figure class="tile" tabindex="0">
                   <img src="assets/play/codelab-shirt.jpg" width="1279" height="1600" loading="lazy" alt="A black CodeLab T-shirt on a hanger, its logo printed in white" />
-                  <figcaption><span class="desc">T-shirt graphic for CodeLab.</span><span class="date">Date TBC</span></figcaption>
+                  <figcaption><span class="words"><span class="desc">T-shirt designed for CodeLab.</span><span class="tools">Photoshop, Figma</span></span><span class="date">Winter 2026</span></figcaption>
                 </figure>
                 <figure class="tile" tabindex="0">
                   <img src="assets/play/pamphlet.jpg" width="1000" height="666" loading="lazy" alt="An open photography zine with spreads titled Capture Emotions and Photograph With Intention" />
-                  <figcaption><span class="desc">A photography zine: "Photograph with intention" and "Capture emotions."</span><span class="date">Date TBC</span></figcaption>
+                  <figcaption><span class="words"><span class="desc">A zine capturing the process behind the photography.</span><span class="tools">Photoshop</span></span><span class="date">Fall 2025</span></figcaption>
                 </figure>
               </div>
               <div>
                 <figure class="tile" tabindex="0">
                   <img src="assets/play/lanyards.jpg" width="1600" height="1267" loading="lazy" alt="Two lanyard badges, one with a member photo and name, one reading Board Member" />
-                  <figcaption><span class="desc">Member and board badges, designed as a set.</span><span class="date">Date TBC</span></figcaption>
+                  <figcaption><span class="words"><span class="desc">Badges designed for a presentation event.</span><span class="tools">Figma</span></span><span class="date">Spring 2026</span></figcaption>
                 </figure>
                 <figure class="tile" tabindex="0">
                   <img src="assets/play/di-poster.jpg" width="666" height="1000" loading="lazy" alt="A poster reading Bloom with Design Interactive, Spring '26 recruitment, with cut-paper flowers" />
-                  <figcaption><span class="desc">Recruitment poster for Design Interactive.</span><span class="date">Spring 2026</span></figcaption>
+                  <figcaption><span class="words"><span class="desc">Recruitment poster for Design Interactive.</span><span class="tools">Figma</span></span><span class="date">Spring 2026</span></figcaption>
                 </figure>
               </div>
             </div>
@@ -268,7 +287,7 @@
             <h2 class="sr-only" id="h-td">Touch design</h2>
             <figure class="tile" tabindex="0">
               <video src="assets/play/touchdesigner.mp4" poster="assets/play/touchdesigner-poster.jpg" width="1600" height="1028" muted loop playsinline preload="metadata" aria-label="A TouchDesigner patch: glowing type smearing and glitching across the screen"></video>
-              <figcaption><span class="desc">Generative type, built in TouchDesigner.</span><span class="date">Date TBC</span></figcaption>
+              <figcaption><span class="words"><span class="desc">An exploration of type in motion in TouchDesigner.</span><span class="tools">TouchDesigner</span></span><span class="date">Summer 2026</span></figcaption>
             </figure>
           </section>
 
@@ -278,27 +297,27 @@
               <div>
                 <figure class="tile" tabindex="0">
                   <img src="assets/play/iceland.jpg" width="1600" height="1066" loading="lazy" alt="Sheep grazing in front of two white houses under green mountains" />
-                  <figcaption><span class="desc">Sheep at dusk, Iceland.</span><span class="date">Date TBC</span></figcaption>
+                  <figcaption><span class="words"><span class="desc">Sheep at dusk, Iceland.</span><span class="tools">Lightroom, Sony RX100</span></span><span class="date">Summer 2026</span></figcaption>
                 </figure>
                 <figure class="tile" tabindex="0">
                   <img src="assets/play/biodiversity-museum.jpg" width="1600" height="1066" loading="lazy" alt="Visitors leaning over a lit specimen case in a museum" />
-                  <figcaption><span class="desc">Leaning in at a biodiversity museum.</span><span class="date">Date TBC</span></figcaption>
+                  <figcaption><span class="words"><span class="desc">Exploration and awe at Biodiversity Day.</span><span class="tools">Lightroom, Sony a6400</span></span><span class="date">Winter 2025</span></figcaption>
                 </figure>
               </div>
               <div>
                 <figure class="tile" tabindex="0">
                   <img src="assets/play/campus-dance.jpg" width="1600" height="1066" loading="lazy" alt="Dancers twirling on a lawn in front of a campus building" />
-                  <figcaption><span class="desc">Dancers on a campus lawn.</span><span class="date">Date TBC</span></figcaption>
+                  <figcaption><span class="words"><span class="desc">Senior graduation photoshoot.</span><span class="tools">Lightroom, Sony a6400</span></span><span class="date">Summer 2026</span></figcaption>
                 </figure>
                 <figure class="tile" tabindex="0">
                   <img src="assets/play/station-night.jpg" width="1600" height="1138" loading="lazy" alt="Two people waiting on a dark train platform under lit signs" />
-                  <figcaption><span class="desc">A station at night, Japan.</span><span class="date">Oct 2023</span></figcaption>
+                  <figcaption><span class="words"><span class="desc">A station at night, Japan.</span><span class="tools">Lightroom, Sony RX100</span></span><span class="date">Summer 2023</span></figcaption>
                 </figure>
               </div>
             </div>
             <figure class="tile narrow" tabindex="0">
               <img src="assets/play/swimmer.jpg" width="1280" height="831" loading="lazy" alt="A swimmer in a white cap mid-butterfly stroke, water spraying" />
-              <figcaption><span class="desc">Mid-butterfly.</span><span class="date">Date TBC</span></figcaption>
+              <figcaption><span class="words"><span class="desc">Best of Sports award, The Accolade.</span><span class="tools">Lightroom, Sony a6400</span></span><span class="date">2021</span></figcaption>
             </figure>
           </section>
 
@@ -306,11 +325,11 @@
             <h2 class="sr-only" id="h-ex">Exhibition</h2>
             <figure class="tile" tabindex="0">
               <img src="assets/play/kings-cross.jpg" width="1600" height="736" loading="lazy" alt="A collage of King's Cross station's concourse, with a large compass rose" />
-              <figcaption><span class="desc">King's Cross, London: the concourse, collaged around a compass.</span><span class="date">Date TBC</span></figcaption>
+              <figcaption><span class="words"><span class="desc">Proof-of-concept installation at King’s Cross Station, presented to staff at Central Saint Martins, London.</span></span><span class="date">Summer 2025</span></figcaption>
             </figure>
             <figure class="tile" tabindex="0">
               <img src="assets/play/projection.jpg" width="1600" height="1066" loading="lazy" alt="A wildflower painting projected across a dark gallery wall, a visitor silhouetted in front" />
-              <figcaption><span class="desc">The wildflower painting, scaled up to fill a gallery wall.</span><span class="date">Date TBC</span></figcaption>
+              <figcaption><span class="words"><span class="desc">Proof-of-concept exhibition installation exploring nature.</span><span class="tools">Watercolor on paper, Photoshop</span></span><span class="date">Summer 2025</span></figcaption>
             </figure>
           </section>
 
@@ -319,16 +338,16 @@
             <div class="row">
               <figure class="tile" tabindex="0" style="--ar: 0.671">
                 <img src="assets/play/ink-portrait.jpg" width="707" height="1053" loading="lazy" alt="An ink drawing of an older man in a heavy coat" />
-                <figcaption><span class="desc">Ink portrait study.</span><span class="date">Date TBC</span></figcaption>
+                <figcaption><span class="words"><span class="desc">Ink portrait study.</span></span><span class="date">Winter 2024</span></figcaption>
               </figure>
               <figure class="tile" tabindex="0" style="--ar: 0.844">
                 <img src="assets/play/charcoal-bust.jpg" width="921" height="1091" loading="lazy" alt="A charcoal drawing of a classical bust of a woman" />
-                <figcaption><span class="desc">Charcoal study of a classical bust.</span><span class="date">Date TBC</span></figcaption>
+                <figcaption><span class="words"><span class="desc">Charcoal study of a classical statue.</span></span><span class="date">Summer 2026</span></figcaption>
               </figure>
             </div>
             <figure class="tile" tabindex="0">
               <img src="assets/play/flower-painting.jpg" width="1600" height="1045" loading="lazy" alt="A loose, colourful painting of wildflowers: purple bells, pink clover, green stems" />
-              <figcaption><span class="desc">Wildflowers, painted loose and bright.</span><span class="date">Oct 2025</span></figcaption>
+              <figcaption><span class="words"><span class="desc">Wildflowers in Scotland.</span><span class="tools">Watercolor on paper, Photoshop</span></span><span class="date">Summer 2026</span></figcaption>
             </figure>
           </section>
         </div>
