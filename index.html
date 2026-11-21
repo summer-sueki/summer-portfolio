@@ -10,6 +10,8 @@
   <meta property="og:title" content="Summer Sueki | Product Designer" />
   <meta property="og:description" content="Summer Sueki is a product designer who designs and builds, curious about why people do what they do and quick to move from insight to polished, working product." />
   <script type="application/ld+json">{"@context": "https://schema.org", "@type": "WebSite", "name": "Summer Sueki", "url": "https://summersueki.com/"}</script>
+  <!-- the Google card's print is the biggest thing on a phone's first screen: fetch it first -->
+  <link rel="preload" as="image" href="assets/backdrops/green-print.jpg" fetchpriority="high" />
   <link rel="icon" href="favicon.svg" type="image/svg+xml" />
   <link rel="icon" href="assets/favicon.png" type="image/png" sizes="192x192" />
   <link rel="apple-touch-icon" href="assets/apple-touch-icon.png" />
@@ -87,6 +89,7 @@
       -webkit-tap-highlight-color: transparent;
     }
     .foil:focus-visible { outline: 2px solid var(--text); outline-offset: 8px; }
+    .foil:disabled { cursor: default; }   /* still pictures (see canLightWell): nothing to open in 3D */
     .foil img, .foil canvas { display: block; pointer-events: none; }
     .foil img { width: 100%; height: 100%; filter: drop-shadow(0 12px 18px rgba(0, 0, 0, .5)); }
     /* the canvas overhangs the piece a little, so a tilt never clips it */
@@ -321,6 +324,9 @@
     .project:focus-visible .title svg { opacity: 1; transform: none; }
 
     /* ---------- gentle entrance ---------- */
+    /* the first row of cards fades in on CSS alone, right after the intro, like it (base.css): they
+       peek in under it, and waiting for site.js held the biggest thing on a phone's screen back */
+    .fade-on .work .grid > .project:nth-child(-n+2) { animation: fade-up .7s ease .2s both; }
     .rise { opacity: 0; transform: translateY(12px); animation: rise 1s var(--ease) forwards; }
     .d1 { animation-delay: .08s; }
     .d2 { animation-delay: .2s; }
@@ -383,9 +389,9 @@
       </dl>
       <div class="foil-cluster">
         <!-- the sun face, the compass and the moth, pressed in metal-etching/, baked to assets/foils/: *-flat.png is the front-on render (fallback, fetched only if live lighting fails), *-height.png packs height (R,G) and cut-out mask (B) -->
-        <button class="pebble foil f-sun rise d3" type="button" data-foil="sunface" data-no="17" data-title="Sun face" data-metal="silver" data-shine="80" data-w="595" data-h="596" aria-label="Sun face, a silver foil etching. Open in 3D"><img data-src="assets/foils/foil-sunface-flat.png" width="595" height="596" alt="" /><canvas></canvas></button>
-        <button class="pebble foil f-compass rise d4" type="button" data-foil="compass-ringed" data-no="18" data-title="Compass" data-metal="silver" data-shine="80" data-w="524" data-h="518" aria-label="Compass, a silver foil etching. Open in 3D"><img data-src="assets/foils/foil-compass-ringed-flat.png" width="524" height="518" alt="" /><canvas></canvas></button>
-        <button class="pebble foil f-moth rise d3" type="button" data-foil="moth" data-no="15" data-title="Moth" data-metal="silver" data-shine="84" data-w="555" data-h="535" aria-label="Moth, a silver foil etching. Open in 3D"><img data-src="assets/foils/foil-moth-flat.png" width="555" height="535" alt="" /><canvas></canvas></button>
+        <button class="pebble foil f-sun rise d3" type="button" data-foil="sunface" data-no="17" data-title="Sun face" data-metal="silver" data-shine="80" data-w="595" data-h="596" aria-label="Sun face, a silver foil etching. Open in 3D"><img data-src="assets/foils/foil-sunface-still.png" width="595" height="596" alt="" /><canvas></canvas></button>
+        <button class="pebble foil f-compass rise d4" type="button" data-foil="compass-ringed" data-no="18" data-title="Compass" data-metal="silver" data-shine="80" data-w="524" data-h="518" aria-label="Compass, a silver foil etching. Open in 3D"><img data-src="assets/foils/foil-compass-ringed-still.png" width="524" height="518" alt="" /><canvas></canvas></button>
+        <button class="pebble foil f-moth rise d3" type="button" data-foil="moth" data-no="15" data-title="Moth" data-metal="silver" data-shine="84" data-w="555" data-h="535" aria-label="Moth, a silver foil etching. Open in 3D"><img data-src="assets/foils/foil-moth-still.png" width="555" height="535" alt="" /><canvas></canvas></button>
       </div>
     </section>
 
@@ -788,6 +794,7 @@
     }));
     async function loadPiece(name) {
       const img = new Image();
+      img.fetchPriority = "low";   // 1.6MB together: let the page's first images (the cards) go first
       img.src = location.protocol === "file:"
         ? (await loadEmbedded())[name]
         : `assets/foils/foil-${name}-height.png`;
@@ -1044,10 +1051,37 @@
     document.getElementById("fvClose").addEventListener("click", closeView);
     view.addEventListener("cancel", e => { e.preventDefault(); closeView(); });   // Esc flies it home too
 
+    // ---------- still pictures for devices that can't light them well ----------
+    // Live lighting needs a real graphics chip: drawn in software (no GPU, as on PageSpeed's test phone)
+    // it ties the page up. Those devices, and ones on Save-Data, a 2G/3G connection or ≤2GB of memory,
+    // get each piece's front-on picture instead (foil-*-still.png, 320px, ~380KB for all three) and
+    // never download the height maps (1.6MB). Laptops, iPhones and decent Android phones light them live.
+    const canLightWell = (() => {
+      if (/[?&]foils=still\b/.test(location.search)) return false;   // preview the still version: add ?foils=still
+      const c = navigator.connection;
+      if (c && (c.saveData || /^(slow-2g|2g|3g)$/.test(c.effectiveType || ""))) return false;
+      if (navigator.deviceMemory && navigator.deviceMemory <= 2) return false;
+      try {
+        const gl = document.createElement("canvas").getContext("webgl2", { failIfMajorPerformanceCaveat: true });
+        if (!gl) return false;   // no WebGL 2, or only a software renderer
+        const info = gl.getExtension("WEBGL_debug_renderer_info");
+        const renderer = info ? String(gl.getParameter(info.UNMASKED_RENDERER_WEBGL)) : "";
+        gl.getExtension("WEBGL_lose_context")?.loseContext();
+        return !/swiftshader|llvmpipe|softpipe|software|basic render/i.test(renderer);
+      } catch { return false; }
+    })();
+    if (!canLightWell) {
+      for (const p of pieces) {
+        const im = p.el.querySelector("img");
+        im.src = im.dataset.src;
+        p.el.disabled = true;   // nothing to take into 3D
+      }
+    }
+
     // ---------- boot: light each piece once its height map is in ----------
     // The height maps start downloading at once; the WebGL set-up (slow on a device without a graphics
     // chip) waits a couple of frames, so the page's first paint and the cards' fade-in go first.
-    pieces.forEach(async p => {
+    if (canLightWell) pieces.forEach(async p => {
       const dataP = loadPiece(p.name);
       dataP.catch(() => {});   // a failure is handled below, once it's awaited
       try {
