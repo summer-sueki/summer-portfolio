@@ -220,6 +220,18 @@
       const s = document.createElement("script"); s.defer = true; s.src = "/_vercel/insights/script.js"; document.head.appendChild(s);
     }
   </script>
+  <!-- Microsoft Clarity (heatmaps and session recordings). Like the analytics above, only on the deployed
+       site, and only once the page has finished loading, so it never slows the first screen. -->
+  <script>
+    if (/^https?:$/.test(location.protocol) && !/^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname)) {
+      (function (c, l, a, r, i, t, y) {
+        c[a] = c[a] || function () { (c[a].q = c[a].q || []).push(arguments); };
+        const go = () => { t = l.createElement(r); t.async = 1; t.src = "https://www.clarity.ms/tag/" + i;
+          y = l.getElementsByTagName(r)[0]; y.parentNode.insertBefore(t, y); };
+        if (l.readyState === "complete") go(); else c.addEventListener("load", go, { once: true });
+      })(window, document, "clarity", "script", "ziev860o8j");
+    }
+  </script>
 </head>
 <body id="top">
   <header class="site-nav" id="siteNav">
